@@ -1,0 +1,17 @@
+#!/bin/bash
+# iRest script to invoke scripts to start and stop iRest
+# Attribution: https://askubuntu.com/a/99582
+
+case $1 in
+    start)
+        /home/navin/irest/irest_start.sh
+    ;;
+    stop)
+        /home/navin/irest/irest_stop.sh
+    ;;
+    restart)
+        /home/navin/irest/irest_stop.sh
+        /home/navin/irest/irest_start.sh
+    ;;
+esac
+exit 0

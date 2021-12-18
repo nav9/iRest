@@ -3,20 +3,21 @@
 import time
 import sched
 import subprocess
+from sys import platform #to check which OS the program is running on
 
-class LinuxFunctions:
+class LinuxFunctionality:#For functions that are specific to Linux. The program uses this class only if it detects it is running on Linux. These same functions should also be available in a "Windows" class and that class would be instantiatiated and used if the program is run on Windows
     def __init__(self):  
         self.encoding = 'utf-8'
-        self.gnomeScreensaverPresent = self.isGnomeScreensaverPresent()
-                  
-    def isScreenLocked(self):
+        self.gnomeScreensaverPresent = self.__isGnomeScreensaverPresent()
+    
+    def isScreenLocked(self):#Interface function (compulsory to implement)
         p = subprocess.Popen('gnome-screensaver-command -q | grep "is active"', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         locked = False
         if len(p.stdout.readlines()) > 0:
             locked = True
         return locked
 
-    def isGnomeScreensaverPresent(self):
+    def __isGnomeScreensaverPresent(self):
         screenSaverPresent = False
         while not screenSaverPresent:
             try:
@@ -36,19 +37,46 @@ class LinuxFunctions:
                 print("--------- INSTALLATION ---------")                      
                 print("Gnome screensaver is missing (needed for lock-screen detection). It needs your permission to install it...")
                 screensaverInstallCommands = ['sudo', 'apt', 'install', '-y', 'gnome-screensaver'] 
-                print("Running this command: ", ' '.join(screensaverInstallCommands))
+                #print("Running this command: ", ' '.join(screensaverInstallCommands))
                 response = subprocess.Popen(screensaverInstallCommands, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)   
                 response.wait()  
-                print("Installing...")           
+                #print("Installing...")           
 
         return screenSaverPresent
-    
-    def isGnomeScreensaverInstalled(self):
-        return self.gnomeScreensaverIsInstalled
 
-    def isThisProgramRunningInLinux(self):
-        return 'Linux' in platform.platform() #Does the string returned by platform() contain the substring "Linux"? For example, in Ubuntu, the output is: 'Linux-5.11.0-27-generic-x86_64-with-glibc2.10'
+# class OperatingSystemID:#This may evenrually need more elaborate ID codes based on flavours of Linux or versions of Windows etc.
+#     LINUX = 0
+#     WINDOWS = 1
+#     MAC = 2
 
+class OperatingSystemChecker:    
+    def __init__(self):
+        #self.currentOperatingSystem = None
+        self.operatingSystemAdapter = None
+        print("Current OS platform: ", platform)
+        if self.__isThisProgramRunningInLinux():            
+            #self.currentOperatingSystem = OperatingSystemID.LINUX
+            self.operatingSystemAdapter = LinuxFunctionality()
+            print("Linux detected")
+        if self.__isThisProgramRunningInWindows():
+            #self.currentOperatingSystem = OperatingSystemID.WINDOWS
+            print("Windows detected")
+        if self.__isThisProgramRunningInMac():
+            #self.currentOperatingSystem = OperatingSystemID.MAC
+            print("MacOS detected")
+
+    def __isThisProgramRunningInLinux(self):
+        #return 'Linux' in platform.platform() #Does the string returned by platform() contain the substring "Linux"? For example, in Ubuntu, the output is: 'Linux-5.11.0-27-generic-x86_64-with-glibc2.10'
+        return platform == "linux" or platform == "linux2"
+
+    def __isThisProgramRunningInWindows(self):
+        return platform == "win32"
+
+    def __isThisProgramRunningInMac(self):
+        return platform == "darwin"
+        
+    def getOperatingSystemAdapter(self):#A class instance which provides OS-specific functions
+        return self.operatingSystemAdapter
 
 class AudioNotifier:
     def __init__(self):
@@ -66,7 +94,7 @@ class AudioNotifier:
         subprocess.run(speechCommand)
         
 
-class Timer:
+class Timer:#Checks for how much time elapsed and notifies the User
     def __init__(self):
         self.workInterval = 60 * 20 #how long to work (in seconds)
         self.restRatio = 20 / 5 #Five minutes of rest for every 20 minutes of work
@@ -74,16 +102,16 @@ class Timer:
         self.workedTime = 0
         self.lastCheckedTime = time.monotonic()
         self.notifiers = {} #references to various objects that can be used to notify the user
-        self.systemAdapter = None
+        self.operatingSystemAdapter = None
         
-    def registerNotifier(self, notifier):
+    def registerAudioNotifier(self, notifier):
         if notifier.id not in self.notifiers:
             print("Registering notifier: ", notifier.id)
             self.notifiers[notifier.id] = notifier
         else:
             print(notifier.id, 'is already registered.')
 
-    def unregisterNotifier(self, notifier):
+    def unregisterAudioNotifier(self, notifier):
         if notifier.id in self.notifiers:
             print("Deregistering notifier: ", notifier.id)
             del self.notifiers[notifier.id]
@@ -92,8 +120,8 @@ class Timer:
             
     def check(self):
         time.sleep(self.sleepDuration)
-        if self.systemAdapter != None:
-            if self.systemAdapter.isScreenLocked():   
+        if self.operatingSystemAdapter != None:
+            if self.operatingSystemAdapter.isScreenLocked():   
                 if self.workedTime > 0:
                     self.workedTime = abs(self.workedTime - (self.sleepDuration / self.restRatio))                    
                 print("Screen locked. Worked time = ", self.workedTime)
@@ -106,8 +134,8 @@ class Timer:
             for notifierID, notifierRef in self.notifiers.items():
                 notifierRef.takeRestNotification()
                 
-    def registerSystemAdapter(self, systemAdapter):
-        self.systemAdapter = systemAdapter
+    def registerOperatingSystemAdapter(self, operatingSystemAdapter):
+        self.operatingSystemAdapter = operatingSystemAdapter
 
 
 #------------------------------------------
@@ -115,11 +143,11 @@ class Timer:
 #------------------------------------------
 
 if __name__ == '__main__':
-    systemAdapter = LinuxFunctions()
+    operatingSystemCheck = OperatingSystemChecker()        
     audioNotification = AudioNotifier()    
     timer = Timer()
-    timer.registerNotifier(audioNotification)
-    timer.registerSystemAdapter(systemAdapter)
+    timer.registerAudioNotifier(audioNotification)
+    timer.registerOperatingSystemAdapter(operatingSystemCheck.getOperatingSystemAdapter())
 
     while True:
         timer.check()

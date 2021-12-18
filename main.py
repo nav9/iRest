@@ -76,7 +76,7 @@ class OperatingSystemChecker:
         return platform == "darwin"
         
     def getOperatingSystemAdapter(self):#A class instance which provides OS-specific functions
-        return self.operatingSystemAdapter
+        return self.operatingSystemAdapter #will return None if OS was not identified, and that's ok because this program's functions check for this None. The program is designed to work even without OS-specific functionality
 
 class AudioNotifier:
     def __init__(self):
@@ -117,10 +117,10 @@ class Timer:#Checks for how much time elapsed and notifies the User
             del self.notifiers[notifier.id]
         else:
             print("No such notifier registered: ", notifier)
-            
+
     def check(self):
         time.sleep(self.sleepDuration)
-        if self.operatingSystemAdapter != None:
+        if self.operatingSystemAdapter != None:#because the program should work on any OS
             if self.operatingSystemAdapter.isScreenLocked():   
                 if self.workedTime > 0:
                     self.workedTime = abs(self.workedTime - (self.sleepDuration / self.restRatio))                    
@@ -143,11 +143,11 @@ class Timer:#Checks for how much time elapsed and notifies the User
 #------------------------------------------
 
 if __name__ == '__main__':
-    operatingSystemCheck = OperatingSystemChecker()        
+    operatingSystemCheck = OperatingSystemChecker()
     audioNotification = AudioNotifier()    
     timer = Timer()
     timer.registerAudioNotifier(audioNotification)
-    timer.registerOperatingSystemAdapter(operatingSystemCheck.getOperatingSystemAdapter())
+    timer.registerOperatingSystemAdapter(operatingSystemCheck.getOperatingSystemAdapter())#If OS was not identified, the adapter will be None
 
     while True:
         timer.check()

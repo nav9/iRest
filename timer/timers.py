@@ -10,8 +10,8 @@ class Timer:#Checks for how much time elapsed and notifies the User
         self.notifiers = {} #references to various objects that can be used to notify the user
         self.operatingSystemAdapter = None
         
-    def registerAudioNotifier(self, notifier):
-        if notifier.id not in self.notifiers:
+    def addThisNotifierToListOfNotifiers(self, notifier):
+        if notifier.id not in self.notifiers:#is notifier not already registered here
             print("Registering notifier: ", notifier.id)
             self.notifiers[notifier.id] = notifier
         else:
@@ -37,7 +37,7 @@ class Timer:#Checks for how much time elapsed and notifies the User
         print('Time elapsed: ', elapsedTime, 's. Worked time: ', self.workedTime)
         if self.workedTime >= self.workInterval:
             self.lastCheckedTime = time.monotonic()
-            for notifierID, notifierRef in self.notifiers.items():
+            for notifierID, notifierRef in self.notifiers.items(): #If operating system was not recognized, the operating system adapter will be None, and no notifier will be registered
                 notifierRef.takeRestNotification()
                 
     def registerOperatingSystemAdapter(self, operatingSystemAdapter):

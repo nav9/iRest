@@ -1,10 +1,39 @@
-from sys import platform #to check which OS the program is running on
 import subprocess
+from sys import platform #to check which OS the program is running on
+from abc import ABC, abstractmethod
 
-class LinuxFunctionality:#For functions that are specific to Linux. The program uses this class only if it detects it is running on Linux. These same functions should also be available in a "Windows" class and that class would be instantiatiated and used if the program is run on Windows
+
+#TODO: Check if the OS has Speed Say installed
+#Note: This is an Ubuntu-specific 
+class AudioNotifier_Linux:
+    def __init__(self):
+        self.id = "Speed Say Notifier"
+        self.speechProgram = "spd-say" 
+        self.waitUntilFullTextRead = "--wait"
+        self.speechRateArg = "-r"
+        self.speechRate = "-10" #TODO: should this be part of the config file?
+        self.fullCommand = [self.speechProgram, self.waitUntilFullTextRead, self.speechRateArg, self.speechRate]
+        self.takeRestMessage = "Take rest now"
+        
+    def takeRestNotification(self):
+        speechCommand = self.fullCommand[:] #shallow copy by value
+        speechCommand.append(self.takeRestMessage)
+        subprocess.run(speechCommand)
+
+class OperatingSystemFunctionality(ABC):#Parent class
+    @abstractmethod
+    def isScreenLocked(self):
+        pass
+
+    @abstractmethod
+    def getAudioNotifier(self):
+        pass    
+
+class LinuxFunctionality(OperatingSystemFunctionality):#For functions that are specific to Linux. The program uses this class only if it detects it is running on Linux. These same functions should also be available in a "Windows" class and that class would be instantiatiated and used if the program is run on Windows
     def __init__(self):  
         self.encoding = 'utf-8'
         self.gnomeScreensaverPresent = self.__isGnomeScreensaverPresent()
+        self.audioNotifier = AudioNotifier_Linux()
     
     def isScreenLocked(self):#Interface function (compulsory to implement)
         theProcess = subprocess.Popen('gnome-screensaver-command -q | grep "is active"', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -12,6 +41,9 @@ class LinuxFunctionality:#For functions that are specific to Linux. The program 
         if len(theProcess.stdout.readlines()) > 0:
             locked = True
         return locked
+
+    def getAudioNotifier(self):
+        return self.audioNotifier
 
     def __isGnomeScreensaverPresent(self):
         screenSaverPresent = False

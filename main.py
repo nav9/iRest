@@ -11,6 +11,11 @@ handler.formatter = logging.Formatter(fmt='%(levelname)s %(asctime)s - %(message
 log.addHandler(handler)
 log.setLevel(logging.INFO)
 
+#-------------------------------------------------------------
+#-------------------------------------------------------------
+#------------------ PROGRAM STARTS HERE ----------------------
+#-------------------------------------------------------------
+#-------------------------------------------------------------
 if __name__ == '__main__':
     log.info("iRest program started")
     operatingSystemCheck = operatingSystemDiversifier.OperatingSystemChecker()
@@ -20,6 +25,6 @@ if __name__ == '__main__':
     timers.registerOperatingSystemAdapter(operatingSystemAdapter)#If OS was not identified, the adapter will be None
 
     while True:
-        timers.checkIfUserNeedsEyeRest()
+        timers.decideWhatToDo()
     
     

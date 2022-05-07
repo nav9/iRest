@@ -1,5 +1,6 @@
 import time
 import logging
+from abc import ABC, abstractmethod
 from logging.handlers import RotatingFileHandler
 
 logFileName = 'logs.log' #TODO: Shift to config file
@@ -10,8 +11,15 @@ handler.formatter = logging.Formatter(fmt='%(levelname)s %(asctime)s - %(message
 log.addHandler(handler)
 log.setLevel(logging.INFO)
 
+class RestTimers(ABC):#Abstract parent class
+    #Any abstract methods have to be implemented by child classes because they would be invoked by other classes
+    @abstractmethod
+    def decideWhatToDo(self):
+        """ The function where the program checks to see if the user needs rest or needs to be reminded that the rest period is over """
+        pass
+
 #Note: This is named "DefaultTimer" because later if you want to replace it with a timer that uses some other logic, it should be simple to do
-class DefaultTimer:#Checks for how much time elapsed and notifies the User
+class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies the User
     def __init__(self):
         self.workInterval = 60 * 20 #how long to work (in seconds)
         self.restRatio = 20 / 5 #Five minutes of rest for every 20 minutes of work
@@ -35,7 +43,7 @@ class DefaultTimer:#Checks for how much time elapsed and notifies the User
         else:
             log.info(f"No such notifier registered: {notifier.id}")
 
-    def checkIfUserNeedsEyeRest(self):
+    def decideWhatToDo(self):
         time.sleep(self.sleepDuration)
         if self.operatingSystemAdapter != None:#because the program should work on any OS
             if self.operatingSystemAdapter.isUserRelaxingTheirEyes():   

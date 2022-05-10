@@ -1,6 +1,8 @@
 import os
+import pstats
 import shutil
 
+#Note: Since these functions are operating-system-independent, they are kept as part of this package, rather than placing them in the operatingSystemFunctions package
 class FileOperations:
     def __init__(self):
         pass
@@ -35,19 +37,27 @@ class FileOperations:
     
     def isThisValidDirectory(self, folderpath):
         return os.path.exists(folderpath)
-
-    """ Move file to another directory. Renaming while moving is possible """
-    def moveFile(self, existingPath, existingFilename, newPath, newFilename):
-        shutil.move(existingPath + existingFilename, newPath + newFilename)    
     
-    """ Adds a slash at the end of the folder name if it isn't already present """
+    def moveFile(self, existingPath, existingFilename, newPath, newFilename):
+        """ Move file to another directory. Renaming while moving is possible """
+        shutil.move(existingPath + existingFilename, newPath + newFilename)    
+        
     def folderSlash(self, folderName):
+        """ Adds a slash at the end of the folder name if it isn't already present """
         if folderName.endswith('/') == False: 
             folderName = folderName + '/' 
         return folderName   
     
+    def __isTimerFileTooLarge(self):
+        """ Check if timer file is larger than a certain value and return True if so """
+        fileIsTooLarge = False
+        return fileIsTooLarge
 
-class Logger:
-    pass
-    
-    
+    def findWhichTimerInformationFileToWriteTo(self, folderContainingTimerFiles):
+        """ Timer information files are numbered in ascending order. This function searches if files are missing and which file is numerically the highest, in order to choose which file to start writing to. The numerically highest filename is returned. If no file is found, a file is created. """
+        fileToWriteTo = ""
+        return fileToWriteTo
+
+    def writeTimeInformationToFile(self, pathWithFileName):
+        """ Writes time information to file, checks if file is too large and creates a new file if necessary """
+        pass

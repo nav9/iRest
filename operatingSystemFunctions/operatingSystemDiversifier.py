@@ -1,19 +1,26 @@
+import logging
 import subprocess
 from sys import platform #to check which OS the program is running on
 from abc import ABC, abstractmethod
-import logging
-from logging.handlers import RotatingFileHandler
+# import logging
+# from logging.handlers import RotatingFileHandler
 
-logFileName = 'logs.log' #TODO: Shift to config file
-logging.basicConfig(level=logging.INFO, format='%(levelname)s %(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
-log = logging.getLogger(__name__)
-handler = RotatingFileHandler(logFileName , maxBytes = 2000 , backupCount = 5)#TODO: Shift to config file
-handler.formatter = logging.Formatter(fmt='%(levelname)s %(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S') #setting this was necessary to get it to write the format to file. Without this, only the message part of the log would get written to the file
-log.addHandler(handler)
-log.setLevel(logging.INFO)
+# #TODO: There is some better way to use the log file handler creation. Using logger's inbuilt parent-child relationship. Find out.
+# logFileName = os.path.join('logs', 'logs.log') #TODO: Shift to config file and take care of the OS compatibility of the folder slash
+# logging.basicConfig(level=logging.INFO, format='%(levelname)s %(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
+# log = logging.getLogger(__name__)
+# handler = RotatingFileHandler(logFileName , maxBytes = 2000 , backupCount = 5)#TODO: Shift to config file
+# handler.formatter = logging.Formatter(fmt='%(levelname)s %(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S') #setting this was necessary to get it to write the format to file. Without this, only the message part of the log would get written to the file
+# log.addHandler(handler)
+# log.setLevel(logging.INFO)
 
 class AudioNotifier(ABC):#Abstract parent class
-    #Any abstract methods have to be implemented by child classes because they would be invoked by other classes
+    #Note: Abstract methods have to be implemented by child classes because they would be invoked by other classes
+    @abstractmethod
+    def __init__(self):
+        #self.id = "someUniqueNotifierName" #has to be implemented in the child class
+        pass
+
     @abstractmethod
     def notifyUserToTakeRest(self):
         """ Plays an audio notification to remind the user to take rest. Function does not return anything """
@@ -42,7 +49,7 @@ class SpeedSayAudioNotifier_Linux(AudioNotifier):
         subprocess.run(speechCommand)
 
 class OperatingSystemFunctionality(ABC):#Abstract parent class
-    #Any abstract methods have to be implemented by child classes because they would be invoked by other classes
+    #Note: Abstract methods have to be implemented by child classes because they would be invoked by other classes
     @abstractmethod
     def isUserRelaxingTheirEyes(self):#This can be checked via various techniques. Screen lock or inactivity etc.
         """ Returns True if the User is relaxing their eyes. False otherwise"""
@@ -81,23 +88,23 @@ class LinuxFunctionality(OperatingSystemFunctionality):#For functions that are s
                 response = subprocess.Popen(['gnome-screensaver'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
                 stdout, stderr = response.communicate()
                 if stderr != None:
-                    log.warning("Error during check for Gnome screensaver: ", stderr)                                        
+                    logging.error("Error during check for Gnome screensaver: ", stderr)                                        
                 stdoutConverted = stdout.decode(self.encoding)
                 if 'not found' in stdoutConverted:                     
                     screenSaverPresent = False
                 if 'screensaver already running' in stdoutConverted: 
                     screenSaverPresent = True
-                    log.warning("Gnome screensaver detected. Lock-screen detection will work fine.")
+                    logging.info("Gnome screensaver detected. Lock-screen detection will work fine.")
             except FileNotFoundError as e:
                 screenSaverPresent = False
             if not screenSaverPresent:
-                log.info("--------- INSTALLATION ---------")                      
-                log.info("Gnome screensaver is missing (needed for lock-screen detection). It needs your permission to install it...")
+                logging.info("--------- INSTALLATION ---------")                      
+                logging.info("Gnome screensaver is missing (needed for lock-screen detection). It needs your permission to install it...")
                 screensaverInstallCommands = ['sudo', 'apt', 'install', '-y', 'gnome-screensaver'] 
-                #log.info("Running this command: ", ' '.join(screensaverInstallCommands))
+                #logging.info("Running this command: ", ' '.join(screensaverInstallCommands))
                 response = subprocess.Popen(screensaverInstallCommands, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)   
                 response.wait()  
-                #log.info("Installing...")           
+                #logging.info("Installing...")           
 
         return screenSaverPresent
 
@@ -110,17 +117,17 @@ class OperatingSystemChecker:
     def __init__(self):
         #self.currentOperatingSystem = None
         self.operatingSystemAdapter = None
-        log.info(f"Current OS platform: {platform}")
+        logging.info(f"Current OS platform: {platform}")
         if self.__isThisProgramRunningInLinux():            
             #self.currentOperatingSystem = OperatingSystemID.LINUX
             self.operatingSystemAdapter = LinuxFunctionality()
-            log.info("Linux detected")
+            logging.info("Linux detected")
         if self.__isThisProgramRunningInWindows():
             #self.currentOperatingSystem = OperatingSystemID.WINDOWS
-            log.info("Windows detected")
+            logging.info("Windows detected")
         if self.__isThisProgramRunningInMac():
             #self.currentOperatingSystem = OperatingSystemID.MAC
-            log.info("MacOS detected")
+            logging.info("MacOS detected")
 
     def __isThisProgramRunningInLinux(self):
         #return 'Linux' in platform.platform() #Does the string returned by platform() contain the substring "Linux"? For example, in Ubuntu, the output is: 'Linux-5.11.0-27-generic-x86_64-with-glibc2.10'

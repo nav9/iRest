@@ -5,6 +5,7 @@ information, see the readme file and license file.
 
 from timer import timers
 import logging
+from configuration import configHandler
 from logging.handlers import RotatingFileHandler
 from operatingSystemFunctions import operatingSystemDiversifier
 from diskOperations import fileAndFolderOperations
@@ -25,10 +26,10 @@ logging.getLogger().setLevel(logging.INFO)
 if __name__ == '__main__':
     logging.info("\n\n---------------------------------")
     logging.info("iRest program started")
-    #fileOps = FileOperations()
+    config = configHandler.ConfigurationHandler()
+    fileOps = fileAndFolderOperations.FileOperations()
     operatingSystemCheck = operatingSystemDiversifier.OperatingSystemChecker()
     operatingSystemAdapter = operatingSystemCheck.getOperatingSystemAdapterInstance() 
-    #configHandler = configHandler.ConfigurationHandler()
     timers = timers.DefaultTimer()
     timers.addThisNotifierToListOfNotifiers(operatingSystemAdapter.getAudioNotifier()) #TODO: take notifiers from the config file
     timers.registerOperatingSystemAdapter(operatingSystemAdapter) #If OS was not identified, the adapter will be None

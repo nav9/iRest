@@ -1,5 +1,6 @@
+import logging
 import configparser
-from configparser import ConfigParser
+#from configparser import ConfigParser
 
 class ConfigurationHandler:
     def __init__(self):
@@ -16,9 +17,10 @@ class ConfigurationHandler:
             #configFileFound = False
 
     def setConfigFor(self):
-        config['default'] = {
-        "host" : "192.168.1.1",
-        "port" : "22",
-        "username" : "username",
-        "password" : "password"
-    }
+        pass
+    #     config['default'] = {
+    #     "host" : "192.168.1.1",
+    #     "port" : "22",
+    #     "username" : "username",
+    #     "password" : "password"
+    # }

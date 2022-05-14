@@ -3,6 +3,11 @@ import time
 import logging
 from abc import ABC, abstractmethod
 
+class TimeConstants:
+    SECONDS_IN_MINUTE = 60
+    MINUTES_IN_HOUR = 60
+    HOURS_IN_DAY = 24
+
 #Note: This abstract class specifies what functions all timers should implement
 class RestTimers(ABC):#Abstract parent class
     #Any abstract methods have to be implemented by child classes because they would be invoked by other classes
@@ -29,9 +34,11 @@ class RestTimers(ABC):#Abstract parent class
 #Note: This class checks how much time the user worked, whether to notify the user to take rest and whether to notify the user that the rest period has completed. This is just one of the engines which does such processing. You could create a different engine and allow it to work with a different logic.
 class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies the User
     def __init__(self):#TODO: Load the values from a config file
-        self.workInterval = 60 * 20 #how long to work (in seconds)
-        self.restRatio = 20 / 5 #Five minutes of rest for every 20 minutes of work
-        self.sleepDuration = 10 #how long to sleep before checking system state (in seconds)
+        self.REST_MINUTES = 5
+        self.WORK_MINUTES = 20
+        self.workInterval = TimeConstants.SECONDS_IN_MINUTE * self.WORK_MINUTES #how long to work (in seconds)
+        self.restRatio = self.WORK_MINUTES / self.REST_MINUTES #Five minutes of rest for every 20 minutes of work
+        self.SLEEP_SECONDS = 10 #how long to sleep before checking system state (in seconds)
         self.workedTime = 0
         self.lastCheckedTime = time.monotonic()
         self.notifiers = {} #references to various objects that can be used to notify the user
@@ -55,16 +62,16 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         self.operatingSystemAdapter = operatingSystemAdapter            
 
     def decideWhatToDo(self):
-        time.sleep(self.sleepDuration)
+        time.sleep(self.SLEEP_SECONDS) #relinquish program control to OS
         if self.operatingSystemAdapter != None:#because the program should work on any OS
             if self.operatingSystemAdapter.isUserRelaxingTheirEyes():   
                 if self.workedTime > 0:
-                    self.workedTime = abs(self.workedTime - (self.sleepDuration / self.restRatio))                    
+                    self.workedTime = abs(self.workedTime - (self.SLEEP_SECONDS / self.restRatio))                    
                 logging.info(f"Screen locked. Worked time = {self.workedTime}")
                 return
         elapsedTime = time.monotonic() - self.lastCheckedTime
-        self.workedTime = self.workedTime + self.sleepDuration
-        logging.info(f'Time elapsed: {elapsedTime}s. Worked time: {self.workedTime}')
+        self.workedTime = self.workedTime + self.SLEEP_SECONDS
+        logging.info(f'Time elapsed: {elapsedTime}s. Worked time: {self.workedTime}s')
         if self.workedTime >= self.workInterval:
             self.lastCheckedTime = time.monotonic()
             for notifierID, notifierRef in self.notifiers.items(): #If operating system was not recognized, the operating system adapter will be None, and no notifier will be registered

@@ -2,17 +2,6 @@ import logging
 import subprocess
 from sys import platform #to check which OS the program is running on
 from abc import ABC, abstractmethod
-# import logging
-# from logging.handlers import RotatingFileHandler
-
-# #TODO: There is some better way to use the log file handler creation. Using logger's inbuilt parent-child relationship. Find out.
-# logFileName = os.path.join('logs', 'logs.log') #TODO: Shift to config file and take care of the OS compatibility of the folder slash
-# logging.basicConfig(level=logging.INFO, format='%(levelname)s %(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
-# log = logging.getLogger(__name__)
-# handler = RotatingFileHandler(logFileName , maxBytes = 2000 , backupCount = 5)#TODO: Shift to config file
-# handler.formatter = logging.Formatter(fmt='%(levelname)s %(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S') #setting this was necessary to get it to write the format to file. Without this, only the message part of the log would get written to the file
-# log.addHandler(handler)
-# log.setLevel(logging.INFO)
 
 class AudioNotifier(ABC):#Abstract parent class
     #Note: Abstract methods have to be implemented by child classes because they would be invoked by other classes

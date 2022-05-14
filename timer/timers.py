@@ -2,16 +2,6 @@ import os
 import time
 import logging
 from abc import ABC, abstractmethod
-# from logging.handlers import RotatingFileHandler
-
-# #TODO: There is some better way to use the log file handler creation. Using logger's inbuilt parent-child relationship. Find out.
-# logFileName = os.path.join('logs', 'logs.log') #TODO: Shift to config file 
-# logging.basicConfig(level=logging.INFO, format='%(levelname)s %(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
-# log = logging.getLogger(__name__)
-# handler = RotatingFileHandler(logFileName, maxBytes=2000, backupCount=5)#TODO: Shift to config file
-# handler.formatter = logging.Formatter(fmt='%(levelname)s %(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S') #setting this was necessary to get it to write the format to file. Without this, only the message part of the log would get written to the file
-# log.addHandler(handler)
-# log.setLevel(logging.INFO)
 
 #Note: This abstract class specifies what functions all timers should implement
 class RestTimers(ABC):#Abstract parent class
@@ -38,7 +28,7 @@ class RestTimers(ABC):#Abstract parent class
 
 #Note: This class checks how much time the user worked, whether to notify the user to take rest and whether to notify the user that the rest period has completed. This is just one of the engines which does such processing. You could create a different engine and allow it to work with a different logic.
 class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies the User
-    def __init__(self):
+    def __init__(self):#TODO: Load the values from a config file
         self.workInterval = 60 * 20 #how long to work (in seconds)
         self.restRatio = 20 / 5 #Five minutes of rest for every 20 minutes of work
         self.sleepDuration = 10 #how long to sleep before checking system state (in seconds)

@@ -40,17 +40,10 @@ class FileOperations:
     
     def moveFile(self, existingPath, existingFilename, newPath, newFilename):
         """ Move file to another directory. Renaming while moving is possible """
-        shutil.move(existingPath + existingFilename, newPath + newFilename)      
-    
-    def __isTimerFileTooLarge(self):
-        """ Check if timer file is larger than a certain value and return True if so """
-        fileIsTooLarge = False
-        return fileIsTooLarge
+        shutil.move(existingPath + existingFilename, newPath + newFilename)  
 
-    def findWhichTimerInformationFileToWriteTo(self, folderContainingTimerFiles):
-        """ Timer information files are numbered in ascending order. This function searches if files are missing and which file is numerically the highest, in order to choose which file to start writing to. The numerically highest filename is returned. If no file is found, a file is created. """
-        fileToWriteTo = ""
-        return fileToWriteTo
+    def getFileSize(self, fileNameWithPath):
+        return os.path.getsize(fileNameWithPath)    
 
     def writeTimeInformationToFile(self, pathWithFileName, timeInformation):
         """ Writes time information to file, checks if file is too large and creates a new file if necessary """

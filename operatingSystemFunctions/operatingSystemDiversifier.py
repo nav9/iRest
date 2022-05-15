@@ -8,12 +8,12 @@ class OperatingSystemFunctionality(ABC):#Abstract parent class
     #Note: Abstract methods have to be implemented by child classes because they would be invoked by other classes
     @abstractmethod
     def isUserRelaxingTheirEyes(self):#This can be checked via various techniques. Screen lock or inactivity etc.
-        """ Returns True if the User is relaxing their eyes. False otherwise"""
+        """ Returns True if the User is relaxing their eyes. False otherwise """
         pass
 
     @abstractmethod
     def getAudioNotifier(self):
-        """ Returns a reference to the audio notification instance created for a particular operating system"""
+        """ Returns a reference to the audio notification instance created for a particular operating system """
         pass    
 
 class LinuxFunctionality(OperatingSystemFunctionality):#For functions that are specific to Linux. The program uses this class only if it detects it is running on Linux. These same functions should also be available in a "Windows" class and that class would be instantiatiated and used if the program is run on Windows
@@ -22,13 +22,11 @@ class LinuxFunctionality(OperatingSystemFunctionality):#For functions that are s
         self.gnomeScreensaverPresent = self.__isGnomeScreensaverPresent()
         self.audioNotifier = audioNotifiers.SpeedSayAudioNotifier_Linux()
     
-    def isUserRelaxingTheirEyes(self):#Interface function (compulsory to implement)
+    def isUserRelaxingTheirEyes(self):
         return self.__isScreenLocked()
 
     def getAudioNotifier(self):
         return self.audioNotifier
-    
-    #---
     
     def __isScreenLocked(self):
         theProcess = subprocess.Popen('gnome-screensaver-command -q | grep "is active"', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -96,4 +94,5 @@ class OperatingSystemChecker:
         return platform == "darwin"
         
     def getOperatingSystemAdapterInstance(self):#A class instance which provides OS-specific functions
-        return self.operatingSystemAdapter #will return None if OS was not identified, and that's ok because this program's functions check for this None. The program is designed to work even without OS-specific functionality
+        """ Will return None if OS was not identified, and that's ok because this program's functions check for this None. The program is designed to work even without OS-specific functionality """
+        return self.operatingSystemAdapter 

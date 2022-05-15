@@ -17,9 +17,9 @@ class FileOperations:
     def deleteFile(self, filenameWithPath):
         os.remove(filenameWithPath) #TODO: check if file exists before deleting
         
-    def writeLinesToFile(self, filenameWithPath, report):
+    def writeLinesToFile(self, filenameWithPath, listOfDataToWrite):
         fileHandle = open(filenameWithPath, 'w')
-        for line in report:
+        for line in listOfDataToWrite:
             fileHandle.write(line)
             fileHandle.write("\n")
         fileHandle.close()
@@ -40,13 +40,7 @@ class FileOperations:
     
     def moveFile(self, existingPath, existingFilename, newPath, newFilename):
         """ Move file to another directory. Renaming while moving is possible """
-        shutil.move(existingPath + existingFilename, newPath + newFilename)    
-        
-    def folderSlash(self, folderName):
-        """ Adds a slash at the end of the folder name if it isn't already present """
-        if folderName.endswith('/') == False: 
-            folderName = folderName + '/' 
-        return folderName   
+        shutil.move(existingPath + existingFilename, newPath + newFilename)      
     
     def __isTimerFileTooLarge(self):
         """ Check if timer file is larger than a certain value and return True if so """
@@ -58,6 +52,6 @@ class FileOperations:
         fileToWriteTo = ""
         return fileToWriteTo
 
-    def writeTimeInformationToFile(self, pathWithFileName):
+    def writeTimeInformationToFile(self, pathWithFileName, timeInformation):
         """ Writes time information to file, checks if file is too large and creates a new file if necessary """
-        pass
+        self.writeLinesToFile(pathWithFileName, [timeInformation])

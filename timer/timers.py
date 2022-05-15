@@ -1,18 +1,25 @@
-import os
 import time
 import logging
 from abc import ABC, abstractmethod
+from diskOperations import timeFileManager
 
 class TimeConstants:
     SECONDS_IN_MINUTE = 60
     MINUTES_IN_HOUR = 60
     HOURS_IN_DAY = 24
 
+class NatureOfActivity:
+    EYES_BEING_STRAINED = "eyes_strained"
+    SCREEN_LOCKED = "screen_locked"
+    TYPING = "typing"
+    MOUSE_MOVEMENT = "mouse_movement"
+
+#Note: The program is designed such that multiple timers can be created and run simultaneously. This helps in simultaneously running a Neural Network or any such Machine Learning algorithm which learns from the User's preferences of how much rest they actually need, instead of sticking to pre-defined time intervals
 #Note: This abstract class specifies what functions all timers should implement
 class RestTimers(ABC):#Abstract parent class
-    #Any abstract methods have to be implemented by child classes because they would be invoked by other classes
+    #Note: Any abstract methods have to be implemented by child classes because they would be invoked by other classes
     @abstractmethod
-    def decideWhatToDo(self):
+    def checkEyeStrainDuration(self):
         """ The function where the program checks to see if the user needs rest or needs to be reminded that the rest period is over """
         pass
 
@@ -26,10 +33,17 @@ class RestTimers(ABC):#Abstract parent class
         """ Remove a notifier from the list of notifiers, based on a notifier id """
         pass
 
-    @abstractmethod
-    def registerOperatingSystemAdapter(self, operatingSystemAdapter): 
-        """ Register an adapter class that provides functions specific to the operating system that the program is run in """   
-        pass
+    # @abstractmethod
+    # def registerOperatingSystemAdapter(self, operatingSystemAdapter): 
+    #     """ Register an adapter class that provides functions specific to the operating system that the program is run in """   
+    #     pass
+    
+    # @abstractmethod
+    # def registerFileOperationsHandler(self, fileOperationsHandler): 
+    #     """ Register a class that provides functions for file and folder operations """   
+    #     pass
+
+
 
 #Note: This class checks how much time the user worked, whether to notify the user to take rest and whether to notify the user that the rest period has completed. This is just one of the engines which does such processing. You could create a different engine and allow it to work with a different logic.
 class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies the User
@@ -41,6 +55,7 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         self.SLEEP_SECONDS = 10 #how long to sleep before checking system state (in seconds)
         self.workedTime = 0
         self.lastCheckedTime = time.monotonic()
+        self.timeFileManager = timeFileManager.TimeFileManager("timeFiles", "timeFile.txt")
         self.notifiers = {} #references to various objects that can be used to notify the user
         self.operatingSystemAdapter = None
         
@@ -59,11 +74,14 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
             logging.info(f"No such notifier registered: {notifier.id}")
 
     def registerOperatingSystemAdapter(self, operatingSystemAdapter):
-        self.operatingSystemAdapter = operatingSystemAdapter            
+        self.operatingSystemAdapter = operatingSystemAdapter  
 
-    def decideWhatToDo(self):
+    def registerFileOperationsHandler(self, fileOperationsHandler):
+        self.timeFileManager.registerFileOperationsHandler(fileOperationsHandler)
+
+    def checkEyeStrainDuration(self):
         time.sleep(self.SLEEP_SECONDS) #relinquish program control to OS
-        if self.operatingSystemAdapter != None:#because the program should work on any OS
+        if self.operatingSystemAdapter != None: #because the program should work on any OS
             if self.operatingSystemAdapter.isUserRelaxingTheirEyes():   
                 if self.workedTime > 0:
                     self.workedTime = abs(self.workedTime - (self.SLEEP_SECONDS / self.restRatio))                    
@@ -72,6 +90,10 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         elapsedTime = time.monotonic() - self.lastCheckedTime
         self.workedTime = self.workedTime + self.SLEEP_SECONDS
         logging.info(f'Time elapsed: {elapsedTime}s. Worked time: {self.workedTime}s')
+        epochTime = time.time()
+        dataToWrite = [epochTime, NatureOfActivity.EYES_BEING_STRAINED] #More data can be added to this list when writing, if necessary
+        self.timeFileManager.writeTimeInformationToFile(dataToWrite)
+        
         if self.workedTime >= self.workInterval:
             self.lastCheckedTime = time.monotonic()
             for notifierID, notifierRef in self.notifiers.items(): #If operating system was not recognized, the operating system adapter will be None, and no notifier will be registered

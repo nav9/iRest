@@ -19,7 +19,7 @@ class NatureOfActivity:
 class RestTimers(ABC):#Abstract parent class
     #Note: Any abstract methods have to be implemented by child classes because they would be invoked by other classes
     @abstractmethod
-    def checkEyeStrainDuration(self):
+    def execute(self):
         """ The function where the program checks to see if the user needs rest or needs to be reminded that the rest period is over """
         pass
 
@@ -64,7 +64,7 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
             logging.info(f"Registering notifier: {notifier.id}")
             self.notifiers[notifier.id] = notifier
         else:
-            logging.info(f'{notifier.id} is already registered.')
+            logging.info(f"{notifier.id} is already registered.")
 
     def unregisterNotifier(self, notifier):
         if notifier.id in self.notifiers:
@@ -78,8 +78,8 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
 
     def registerFileOperationsHandler(self, fileOperationsHandler):
         self.timeFileManager.registerFileOperationsHandler(fileOperationsHandler)
-
-    def checkEyeStrainDuration(self):
+    
+    def execute(self):
         time.sleep(self.SLEEP_SECONDS) #relinquish program control to OS
         if self.operatingSystemAdapter != None: #because the program should work on any OS
             if self.operatingSystemAdapter.isUserRelaxingTheirEyes():   

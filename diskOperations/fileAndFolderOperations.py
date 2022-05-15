@@ -17,8 +17,8 @@ class FileOperations:
     def deleteFile(self, filenameWithPath):
         os.remove(filenameWithPath) #TODO: check if file exists before deleting
         
-    def writeLinesToFile(self, filenameWithPath, listOfDataToWrite):
-        fileHandle = open(filenameWithPath, 'w')
+    def appendLinesToFile(self, filenameWithPath, listOfDataToWrite):
+        fileHandle = open(filenameWithPath, 'a+')
         for line in listOfDataToWrite:
             fileHandle.write(line)
             fileHandle.write("\n")
@@ -54,4 +54,4 @@ class FileOperations:
 
     def writeTimeInformationToFile(self, pathWithFileName, timeInformation):
         """ Writes time information to file, checks if file is too large and creates a new file if necessary """
-        self.writeLinesToFile(pathWithFileName, [timeInformation])
+        self.appendLinesToFile(pathWithFileName, [timeInformation])

@@ -10,6 +10,7 @@ class TimeFileManager:
 
     def registerFileOperationsHandler(self, fileOperationsHandler):
         self.fileOps = fileOperationsHandler
+        self.fileOps.createDirectoryIfNotExisting(self.folderName)
 
-    def writeTimeInformationToFile(self, epochTime):
-        self.fileOps.writeTimeInformationToFile(self.fullPath, epochTime)
+    def writeTimeInformationToFile(self, dataToWrite):
+        self.fileOps.writeTimeInformationToFile(self.fullPath, str(dataToWrite))

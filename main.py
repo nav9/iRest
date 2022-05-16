@@ -11,7 +11,7 @@ from operatingSystemFunctions import operatingSystemDiversifier
 from diskOperations import fileAndFolderOperations
 
 logFileName = 'logs.log'
-logging.basicConfig(level=logging.INFO, format='%(levelname)s %(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
+logging.basicConfig(level=logging.INFO, format='%(levelname)s %(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S') #outputs to console
 #log = logging.getLogger(__name__)
 handler = RotatingFileHandler(logFileName, maxBytes=100000, backupCount=2)#TODO: Shift to config file
 handler.formatter = logging.Formatter(fmt='%(levelname)s %(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S') #setting this was necessary to get it to write the format to file. Without this, only the message part of the log would get written to the file
@@ -31,10 +31,8 @@ if __name__ == '__main__':
     operatingSystemCheck = operatingSystemDiversifier.OperatingSystemChecker()
     operatingSystemAdapter = operatingSystemCheck.getOperatingSystemAdapterInstance() 
     allTimers = []
-    defaultTimer = timers.DefaultTimer()
+    defaultTimer = timers.DefaultTimer(operatingSystemAdapter, fileOps)
     defaultTimer.addThisNotifierToListOfNotifiers(operatingSystemAdapter.getAudioNotifier()) #TODO: take notifiers from the config file
-    defaultTimer.registerOperatingSystemAdapter(operatingSystemAdapter) #If OS was not identified, the adapter will be None
-    defaultTimer.registerFileOperationsHandler(fileOps)
     allTimers.append(defaultTimer)
 
     logging.info("Monitoring time ...")

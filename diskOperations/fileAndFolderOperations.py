@@ -2,6 +2,7 @@ import os
 import shutil
 import logging
 
+#TODO: Try catch for most of the functions are needed
 #Note: Since these functions are operating-system-independent, they are kept as part of this package, rather than placing them in the operatingSystemFunctions package
 class FileOperations:
     def __init__(self):
@@ -25,8 +26,8 @@ class FileOperations:
         fileHandle.close()
         
     def readFromFile(self, filenameWithPath):
-        with open(filenameWithPath) as f:
-            lines = f.read().splitlines()#TODO: try catch
+        with open(filenameWithPath) as fileHandler:
+            lines = fileHandler.read().splitlines()#TODO: try catch
         return lines              
     
     def createDirectoryIfNotExisting(self, folder):
@@ -35,7 +36,7 @@ class FileOperations:
             except FileExistsError:#in case there's a race condition where some other process creates the directory before makedirs is called
                 pass
     
-    def isThisValidDirectory(self, folderpath):
+    def isValidDirectory(self, folderpath):
         return os.path.exists(folderpath)
     
     def moveFile(self, existingPath, existingFilename, newPath, newFilename):
@@ -47,4 +48,4 @@ class FileOperations:
 
     def writeTimeInformationToFile(self, pathWithFileName, timeInformation):
         """ Writes time information to file, checks if file is too large and creates a new file if necessary """
-        self.appendLinesToFile(pathWithFileName, [timeInformation])
+        self.appendLinesToFile(pathWithFileName, [timeInformation]) #The square brackets in [timeInformation] are necessary because otherwise, each character in the list or string will get written to a new line in the file

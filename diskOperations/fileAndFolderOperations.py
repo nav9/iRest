@@ -17,8 +17,11 @@ class FileOperations:
     
     def deleteFile(self, filenameWithPath):
         os.remove(filenameWithPath) #TODO: check if file exists before deleting
+
+    def renameFile(self, oldFilename, newFilename):
+        os.rename(oldFilename, newFilename)
         
-    def appendLinesToFile(self, filenameWithPath, listOfDataToWrite):
+    def appendLinesToFile(self, filenameWithPath, listOfDataToWrite): #TODO: This function needs to be improved to better recognize lists. Right now the list passed needs to be enclosed in square brackets when being passed. This should be avoided
         fileHandle = open(filenameWithPath, 'a+')
         for line in listOfDataToWrite:
             fileHandle.write(line)
@@ -44,7 +47,11 @@ class FileOperations:
         shutil.move(existingPath + existingFilename, newPath + newFilename)  
 
     def getFileSize(self, fileNameWithPath):
+        """ returns file size in bytes """
         return os.path.getsize(fileNameWithPath)    
+
+    # def getNamesOfFilesInDirectory(self, fullFolderPath):
+    #     return glob(os.path.join(self.folderName, self.archiveFileNamePrefix) + "*")
 
     def writeTimeInformationToFile(self, pathWithFileName, timeInformation):
         """ Writes time information to file, checks if file is too large and creates a new file if necessary """

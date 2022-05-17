@@ -20,4 +20,4 @@ You need to install the following programs to use iRest:
 ## On Linux (Ubuntu)  
 * Gnome screensaver (to detect when the screen is locked): `sudo apt install -y gnome-screensaver`
 * Speech Dispatcher engine (for spoken audio notifications. This would be pre-installed on Ubuntu): `sudo apt-get install speech-dispatcher` (https://command-not-found.com/spd-say).
-
+* To sort filenames with numbers correctly: `pip install natsort`

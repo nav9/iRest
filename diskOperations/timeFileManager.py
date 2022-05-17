@@ -17,7 +17,7 @@ class TimeFileManager:
         self.FILENAME_SEPARATOR = "_" #TODO: declare these constants in a separate class
         self.LAST_INDEX_OF_LIST = -1
         self.FIRST_INDEX_OF_LIST = 1
-        self.__renameTimerFileIfTooLarge()
+        self.__archiveTheTimerFileIfTooLarge()
 
     def writeTimeInformationToFile(self, dataToWrite):
         self.fileOps.writeTimeInformationToFile(self.pathWithFilename, str(dataToWrite))
@@ -25,16 +25,17 @@ class TimeFileManager:
         #--- To not let file size increase too much if program is run non-stop for many days            
         if self.numberOfWritesSinceProgramStart > self.TIMER_FILE_MAX_SIZE:#A check for any large enough number would do
             self.numberOfWritesSinceProgramStart = 0          
-            self.__renameTimerFileIfTooLarge()
+            self.__archiveTheTimerFileIfTooLarge()
 
-    def __renameTimerFileIfTooLarge(self):
+    def __archiveTheTimerFileIfTooLarge(self):
         """ Check if timer file is larger than a certain value and return True if so """
-        if self.fileOps.isValidFile(self.pathWithFilename):
+        if self.fileOps.isValidFile(self.pathWithFilename):#if file exists. If it doesn't exist, it'll get created when the program writes time information to disk
             highestOrdinal = self.__findHighestFileOrdinal()
-            newFilename = self.__createArchiveFilenameUsingOrdinal(highestOrdinal)
+            newFilename = self.__createArchiveFilenameUsingOrdinal(highestOrdinal + 1)
             self.fileOps.renameFile(self.pathWithFilename, os.path.join(self.folderName, newFilename))
             
     def __findHighestFileOrdinal(self):
+        """ The ordinal is the numbering given to the file. This function finds the highest number that has been reached. If 24 files have been archived, the highest ordinal will be 24, and the calling function will use 24+1 = 25 as the next file ordinal."""
         highestOrdinal = 1 #the default value it starts with
         #---search for files starting with the archive prefix
         archiveFiles = glob(os.path.join(self.folderName, self.archiveFileNamePrefix) + "*") #TODO: shift to fileAndFolderOperations class

@@ -1,6 +1,7 @@
 import os
 import shutil
 import logging
+from collections import deque
 
 #TODO: Try catch for most of the functions are needed
 #Note: Since these functions are operating-system-independent, they are kept as part of this package, rather than placing them in the operatingSystemFunctions package
@@ -48,7 +49,12 @@ class FileOperations:
 
     def getFileSize(self, fileNameWithPath):
         """ returns file size in bytes """
-        return os.path.getsize(fileNameWithPath)    
+        return os.path.getsize(fileNameWithPath)   
+
+    def getLastLinesOfThisFile(self, fileNameWithPath, numberOfLinesToGet):
+        """ Gets the last n number of lines from a file. Caution: use only with small files, since this iterates the entire file. Better solutions exist for large files: https://stackoverflow.com/questions/136168/get-last-n-lines-of-a-file-similar-to-tail"""
+        with open(fileNameWithPath) as fileHandler:
+            return deque(fileHandler, numberOfLinesToGet) 
 
     # def getNamesOfFilesInDirectory(self, fullFolderPath):
     #     return glob(os.path.join(self.folderName, self.archiveFileNamePrefix) + "*")

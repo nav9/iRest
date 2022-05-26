@@ -13,7 +13,7 @@ More information here:
 # IDE used  
 VS Code. You'll notice some extra files like launch.json that are located in the ".vscode" folder. Such files are specific to VS Code. These files and the IDE are not essential to running the program. You can simply run the program from the commandline using `python3 main.py`.
 
-# Supporting programs required 
+# Supporting programs required to run iRest 
 Python 3.3+   
 You need to install the following programs to use iRest:  
   
@@ -21,3 +21,8 @@ You need to install the following programs to use iRest:
 * Gnome screensaver (to detect when the screen is locked): `sudo apt install -y gnome-screensaver`
 * Speech Dispatcher engine (for spoken audio notifications. This would be pre-installed on Ubuntu): `sudo apt-get install speech-dispatcher` (https://command-not-found.com/spd-say).
 * To sort filenames with numbers correctly: `pip install natsort`
+  
+  
+# To run test cases  
+Install PyTest: `pip install pytest`  
+

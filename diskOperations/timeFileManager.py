@@ -4,6 +4,23 @@ from glob import glob
 import logging
 import natsort
 
+""" 
+Keeping track of the amount of time the eyes were strained, requires tracking the total
+time even when the computer is restarted or the screen is locked. The only way to track it 
+accurately is to store data in a file periodically and examine the latest stored data sequence,
+upto a time period that allows determining if the user is strained or has obtained sufficient 
+rest. This class performs the function of storing data into a file. When the file gets too large,
+the file is renamed (you could consider it being archived, although the word 'archive' here is
+a misnomer, because the file is only being renamed) and a new file is created for storing the latest
+time data. So after some time, the pattern of files created will be something like this:
+Archive1_timeFileName.txt, Archive2_timeFileName.txt, timeFileName.txt.
+The Archive1_timeFileName.txt file will contain data from the start of the program. The remaining 
+data follows in Archive2_timeFileName.txt, and timeFileName.txt is the file to which the newest data 
+is written. When timeFileName.txt exceeds a size threshold, it will be renamed to Archive3_timeFileName.txt,
+and a new timeFileName.txt gets created. Since it is time consuming to constantly access the files
+to retrieve the past data, a FIFO deque (of limited length) stores the latest time data. When the program starts, the deque
+is populated with data from the older files if they exist.
+ """
 class TimeFileManager:
     def __init__(self, folderNameWithoutFolderSlash, fileNameWithoutFileExtension, fileOperationsHandler):
         self.STRAIN_DATA_HISTORY_LENGTH = 360 #TODO: calculate this based on the size of the interval during which file writes happen
@@ -26,6 +43,7 @@ class TimeFileManager:
         self.isTheUserStrained()
 
     def isTheUserStrained(self):
+        #Checks the self.historicalStrainData
         pass
 
     def writeTimeInformationToFile(self, dataToWrite):

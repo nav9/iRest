@@ -84,6 +84,7 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         time.sleep(self.SLEEP_SECONDS) #relinquish program control to OS
         if self.operatingSystemAdapter != None: #because the program should be capable of working even if the OS could not be identified
             if self.operatingSystemAdapter.isUserRelaxingTheirEyes():   
+                #---subtract worked time
                 if self.workedTime > 0:
                     self.workedTime = abs(self.workedTime - (self.SLEEP_SECONDS / self.restRatio))                    
                 logging.info(f"Screen locked. Worked time = {self.workedTime}")

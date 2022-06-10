@@ -18,9 +18,10 @@ The Archive1_timeFileName.txt file will contain data from the start of the progr
 data follows in Archive2_timeFileName.txt, and timeFileName.txt is the file to which the newest data 
 is written. When timeFileName.txt exceeds a size threshold, it will be renamed to Archive3_timeFileName.txt,
 and a new timeFileName.txt gets created. Since it is time consuming to constantly access the files
-to retrieve the past data, a FIFO deque (of limited length) stores the latest time data. When the program starts, the deque
-is populated with data from the older files if they exist.
- """
+to retrieve the past data, a FIFO deque (of limited length) stores the history of time data and the
+latest time data. When the program starts, the deque is populated with some of the most recent data 
+from the older files if they exist.
+"""
 class TimeFileManager:
     def __init__(self, folderNameWithoutFolderSlash, fileNameWithoutFileExtension, fileOperationsHandler):
         self.STRAIN_DATA_HISTORY_LENGTH = 360 #TODO: calculate this based on the size of the interval during which file writes happen
@@ -38,7 +39,7 @@ class TimeFileManager:
         self.FILENAME_SEPARATOR = "_" #TODO: declare these constants in a separate class
         self.LAST_INDEX_OF_LIST = -1
         self.FIRST_INDEX_OF_LIST = 1
-        self.__archiveTheTimerFileIfTooLarge()
+        self.__archiveTheTimerFileIfItIsTooLarge()
         self.__extractHistoricalTimeDataFromFiles()
         self.isTheUserStrained()
 
@@ -47,13 +48,14 @@ class TimeFileManager:
         pass
 
     def writeTimeInformationToFile(self, dataToWrite):
-        self.historicalStrainData.append(dataToWrite)
+        self.historicalStrainData.append(dataToWrite) #appending to the deque
+        #---appending the same information to the time file
         self.fileOps.writeTimeInformationToFile(self.timerFileNameWithPath, str(dataToWrite))
-        self.numberOfWritesSinceProgramStart = self.numberOfWritesSinceProgramStart + 1
+        self.numberOfWritesSinceProgramStart += 1
         #--- To not let file size increase too much if program is run non-stop for many days            
         if self.numberOfWritesSinceProgramStart > self.FREQUENCY_TO_CHECK_FILE_SIZE:
             self.numberOfWritesSinceProgramStart = 0          
-            self.__archiveTheTimerFileIfTooLarge()
+            self.__archiveTheTimerFileIfItIsTooLarge()
 
     def __extractHistoricalTimeDataFromFiles(self):
         historicalData = deque() #TODO: check order in which data is populated and the validity of data retrieved
@@ -68,7 +70,7 @@ class TimeFileManager:
                         break
         self.historicalStrainData += historicalData
 
-    def __archiveTheTimerFileIfTooLarge(self):
+    def __archiveTheTimerFileIfItIsTooLarge(self):
         """ Check if timer file is larger than a certain value and return True if so """
         if self.fileOps.isValidFile(self.timerFileNameWithPath):#if file exists. If it doesn't exist, it'll get created when the program writes time information to disk
             if self.fileOps.getFileSize(self.timerFileNameWithPath) > self.TIMER_FILE_MAX_SIZE:
@@ -86,8 +88,9 @@ class TimeFileManager:
             logging.info(f"The archive files are: {archiveFiles}")
             #TODO: try catch for if the filenames don't have any substring we are looking for
             fileNameWithHighestOrdinal = archiveFiles[self.LAST_INDEX_OF_LIST]
-            fileNameWithHighestOrdinal = fileNameWithHighestOrdinal.split(self.FILENAME_SEPARATOR)[self.FIRST_INDEX_OF_LIST] #get the "Archive1" part of the string, where the "1" is an example of the ordinal
+            fileNameWithHighestOrdinal = fileNameWithHighestOrdinal.split(self.FILENAME_SEPARATOR)[self.FIRST_INDEX_OF_LIST] #get the "Archive1" part of the string, where the "1" is an example of the ordinal            
             #---extract the digit in the substring (https://stackoverflow.com/questions/4289331/how-to-extract-numbers-from-a-string-in-python)
+            #CAUTION/BUG: The digit extractor extracts 34 from "abc34ldfds.txt", but will extract 3436 from "abc34ld_d36fds.txt". So when naming files, be careful not to have another portion of the file containing some number
             highestOrdinal = int(''.join(filter(str.isdigit, fileNameWithHighestOrdinal))) 
         return highestOrdinal
 

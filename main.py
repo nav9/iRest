@@ -28,7 +28,7 @@ if __name__ == '__main__':
     logging.info("iRest program started")
     config = configHandler.ConfigurationHandler()
     fileOps = fileAndFolderOperations.FileOperations()
-    operatingSystemCheck = operatingSystemDiversifier.OperatingSystemChecker()
+    operatingSystemCheck = operatingSystemDiversifier.OperatingSystemIdentifier()
     operatingSystemAdapter = operatingSystemCheck.getOperatingSystemAdapterInstance() 
     allTimers = []
     defaultTimer = timers.DefaultTimer(operatingSystemAdapter, fileOps)

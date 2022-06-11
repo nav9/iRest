@@ -1,4 +1,5 @@
 import os 
+import sys #for exit()
 from collections import deque
 from glob import glob
 import logging
@@ -30,15 +31,15 @@ class TimeFileManager:
         self.fileNameWithoutExtension = fileNameWithoutFileExtension
         self.archiveFileNamePrefix = "Archive"
         self.fileExtension = ".txt"
-        self.timerFileNameWithPath = os.path.join(self.folderName, self.fileNameWithoutExtension, self.fileExtension)
+        self.timerFileNameWithPath = os.path.join(self.folderName, self.fileNameWithoutExtension + self.fileExtension)
         self.numberOfWritesSinceProgramStart = 0 #to not let file size increase too much if program is run non-stop for many days
-        self.TIMER_FILE_MAX_SIZE = 10000 #bytes
-        self.FREQUENCY_TO_CHECK_FILE_SIZE = 500
+        self.TIMER_FILE_MAX_SIZE = 75 #10000 #bytes
+        self.FREQUENCY_TO_CHECK_FILE_SIZE = 1 #500 
         self.fileOps = fileOperationsHandler
         self.fileOps.createDirectoryIfNotExisting(self.folderName) #The folder to store time files         
         self.FILENAME_SEPARATOR = "_" #TODO: declare these constants in a separate class
         self.LAST_INDEX_OF_LIST = -1
-        self.FIRST_INDEX_OF_LIST = 1
+        self.FIRST_INDEX_OF_LIST = 0
         self.__archiveTheTimerFileIfItIsTooLarge()
         self.__extractHistoricalTimeDataFromFiles()
         self.isTheUserStrained()
@@ -53,7 +54,7 @@ class TimeFileManager:
         self.fileOps.writeTimeInformationToFile(self.timerFileNameWithPath, str(dataToWrite))
         self.numberOfWritesSinceProgramStart += 1
         #--- To not let file size increase too much if program is run non-stop for many days            
-        if self.numberOfWritesSinceProgramStart > self.FREQUENCY_TO_CHECK_FILE_SIZE:
+        if self.numberOfWritesSinceProgramStart >= self.FREQUENCY_TO_CHECK_FILE_SIZE:
             self.numberOfWritesSinceProgramStart = 0          
             self.__archiveTheTimerFileIfItIsTooLarge()
 
@@ -61,6 +62,8 @@ class TimeFileManager:
         historicalData = deque() #TODO: check order in which data is populated and the validity of data retrieved
         if self.fileOps.isValidFile(self.timerFileNameWithPath):#if timer file exists, get as many lines from the end of the file as possible
             historicalData = self.fileOps.getLastLinesOfThisFile(self, self.timerFileNameWithPath, self.STRAIN_DATA_HISTORY_LENGTH)
+            print("Historical data:")
+            print(historicalData)
             if len(historicalData) < self.STRAIN_DATA_HISTORY_LENGTH:
                 archiveFiles = self.__getSortedListOfArchiveFiles(listOrderReversalNeeded = True)
                 for oneFile in archiveFiles:
@@ -91,7 +94,11 @@ class TimeFileManager:
             fileNameWithHighestOrdinal = fileNameWithHighestOrdinal.split(self.FILENAME_SEPARATOR)[self.FIRST_INDEX_OF_LIST] #get the "Archive1" part of the string, where the "1" is an example of the ordinal            
             #---extract the digit in the substring (https://stackoverflow.com/questions/4289331/how-to-extract-numbers-from-a-string-in-python)
             #CAUTION/BUG: The digit extractor extracts 34 from "abc34ldfds.txt", but will extract 3436 from "abc34ld_d36fds.txt". So when naming files, be careful not to have another portion of the file containing some number
-            highestOrdinal = int(''.join(filter(str.isdigit, fileNameWithHighestOrdinal))) 
+            try: 
+                highestOrdinal = int(''.join(filter(str.isdigit, fileNameWithHighestOrdinal))) 
+            except ValueError:
+                logging.error(f"Filename does not seem to have a digit {fileNameWithHighestOrdinal}")
+                sys.exit()
         return highestOrdinal
 
     def __getSortedListOfArchiveFiles(self, listOrderReversalNeeded = False):

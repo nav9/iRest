@@ -52,7 +52,7 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         self.WORK_MINUTES = 20
         self.workInterval = TimeConstants.SECONDS_IN_MINUTE * self.WORK_MINUTES #how long to work (in seconds)
         self.restRatio = self.WORK_MINUTES / self.REST_MINUTES #Five minutes of rest for every 20 minutes of work
-        self.SLEEP_SECONDS = 10 #how long to sleep before checking system state (in seconds)
+        self.SLEEP_SECONDS = 1 #10 #how long to sleep before checking system state (in seconds)
         self.workedTime = 0
         self.lastCheckedTime = time.monotonic()
         self.timeFileManager = timeFileManager.TimeFileManager("timeFiles", "timeFile", fileOperationsHandler) #parameters passed: folderName, fileName

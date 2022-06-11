@@ -67,7 +67,7 @@ class LinuxFunctionality(OperatingSystemFunctionality):#For functions that are s
 #     WINDOWS = 1
 #     MAC = 2
 
-class OperatingSystemChecker:    
+class OperatingSystemIdentifier:    
     def __init__(self):
         #self.currentOperatingSystem = None
         self.operatingSystemAdapter = None

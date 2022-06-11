@@ -5,6 +5,17 @@ from glob import glob
 import logging
 import natsort
 
+class TimeConstants:
+    SECONDS_IN_MINUTE = 60
+    MINUTES_IN_HOUR = 60
+    HOURS_IN_DAY = 24
+
+class NatureOfActivity:
+    EYES_BEING_STRAINED = "eyes_strained"
+    SCREEN_LOCKED = "screen_locked"
+    TYPING = "typing"
+    MOUSE_MOVEMENT = "mouse_movement"
+
 """ 
 Keeping track of the amount of time the eyes were strained, requires tracking the total
 time even when the computer is restarted or the screen is locked. The only way to track it 
@@ -40,13 +51,14 @@ class TimeFileManager:
         self.FILENAME_SEPARATOR = "_" #TODO: declare these constants in a separate class
         self.LAST_INDEX_OF_LIST = -1
         self.FIRST_INDEX_OF_LIST = 0
+        self.__valueSanityCheck()
         self.__archiveTheTimerFileIfItIsTooLarge()
         self.__extractHistoricalTimeDataFromFiles()
         self.isTheUserStrained()
 
     def isTheUserStrained(self):
-        #Checks the self.historicalStrainData
-        pass
+        for timeData in reversed(self.historicalStrainData):
+            pass
 
     def writeTimeInformationToFile(self, dataToWrite):
         self.historicalStrainData.append(dataToWrite) #appending to the right of the deque
@@ -59,8 +71,14 @@ class TimeFileManager:
             self.__archiveTheTimerFileIfItIsTooLarge()
 
     def __extractHistoricalTimeDataFromFiles(self):
+        """ To be called only when this class is instantiated. Obtains historical time data if present """
+        self.historicalStrainData.clear()
         if self.fileOps.isValidFile(self.timerFileNameWithPath):#if timer file exists, get as many lines from the end of the file as possible
-            self.historicalStrainData.append(self.fileOps.getLastLinesOfThisFile(self.timerFileNameWithPath, self.STRAIN_DATA_HISTORY_LENGTH))
+            #---data from timeFile
+            dataFromArchive = self.fileOps.getLastLinesOfThisFile(self.timerFileNameWithPath, self.STRAIN_DATA_HISTORY_LENGTH)
+            for timeData in reversed(dataFromArchive):#iterating backward to the front of the deque
+                self.historicalStrainData.appendleft(timeData)            
+            #---data from archive files
             if len(self.historicalStrainData) < self.STRAIN_DATA_HISTORY_LENGTH:#if the data in timeFile is less than what we need for assessing if the User's eyes are strained, get more data from the archive files if they exist
                 archiveFiles = self.__getSortedListOfArchiveFiles(listOrderReversalNeeded = True)
                 for oneFile in archiveFiles:#Note: archive file names contain the relative path of the file + archive filename
@@ -96,7 +114,7 @@ class TimeFileManager:
                 highestOrdinal = int(''.join(filter(str.isdigit, fileNameWithHighestOrdinal))) 
             except ValueError:
                 logging.error(f"Filename needs to have a digit indicating the archive file ordinal {fileNameWithHighestOrdinal}")
-                sys.exit()
+                sys.exit("Archive filename error. Please see log file.")
         else:
             logging.info("No archive files found")
         return highestOrdinal
@@ -109,3 +127,11 @@ class TimeFileManager:
     def __createArchiveFileNameUsingOrdinal(self, ordinal):
         #--- Archive filename will be like "Archive1_timeFileName.txt"
         return self.archiveFileNamePrefix + str(ordinal) + self.FILENAME_SEPARATOR + self.fileNameWithoutExtension + self.fileExtension
+
+    def __valueSanityCheck(self):
+        if self.TIMER_FILE_MAX_SIZE < 50:
+            sys.exit(f"TIMER_FILE_MAX_SIZE {self.TIMER_FILE_MAX_SIZE} is too small")
+        if self.FREQUENCY_TO_CHECK_FILE_SIZE < 1:
+            sys.exit(f"FREQUENCY_TO_CHECK_FILE_SIZE {self.FREQUENCY_TO_CHECK_FILE_SIZE} is too small")            
+        if self.STRAIN_DATA_HISTORY_LENGTH < 2:
+            sys.exit(f"STRAIN_DATA_HISTORY_LENGTH {self.STRAIN_DATA_HISTORY_LENGTH} is too small") 

@@ -3,17 +3,6 @@ import logging
 from abc import ABC, abstractmethod
 from diskOperations import timeFileManager
 
-class TimeConstants:
-    SECONDS_IN_MINUTE = 60
-    MINUTES_IN_HOUR = 60
-    HOURS_IN_DAY = 24
-
-class NatureOfActivity:
-    EYES_BEING_STRAINED = "eyes_strained"
-    SCREEN_LOCKED = "screen_locked"
-    TYPING = "typing"
-    MOUSE_MOVEMENT = "mouse_movement"
-
 #Note: The program is designed such that multiple timers can be created and run simultaneously. This helps in simultaneously running a Neural Network or any such Machine Learning algorithm which learns from the User's preferences of how much rest they actually need, instead of sticking to pre-defined time intervals
 #Note: This abstract class specifies what functions all timers should implement
 class RestTimers(ABC): #Abstract parent class
@@ -50,7 +39,7 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
     def __init__(self, operatingSystemAdapter, fileOperationsHandler):#TODO: Load the values from a config file
         self.REST_MINUTES = 5
         self.WORK_MINUTES = 20
-        self.workInterval = TimeConstants.SECONDS_IN_MINUTE * self.WORK_MINUTES #how long to work (in seconds)
+        self.workInterval = timeFileManager.TimeConstants.SECONDS_IN_MINUTE * self.WORK_MINUTES #how long to work (in seconds)
         self.restRatio = self.WORK_MINUTES / self.REST_MINUTES #Five minutes of rest for every 20 minutes of work
         self.SLEEP_SECONDS = 1 #10 #how long to sleep before checking system state (in seconds)
         self.workedTime = 0
@@ -93,7 +82,7 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         self.workedTime = self.workedTime + self.SLEEP_SECONDS
         logging.info(f'Time elapsed: {elapsedTime}s. Worked time: {self.workedTime}s')
         epochTime = time.time()
-        dataToWrite = [epochTime, NatureOfActivity.EYES_BEING_STRAINED] #More data can be added to this list when writing, if necessary
+        dataToWrite = [epochTime, timeFileManager.NatureOfActivity.EYES_BEING_STRAINED] #More data can be added to this list when writing, if necessary
         self.timeFileManager.writeTimeInformationToFile(dataToWrite)
         
         if self.workedTime >= self.workInterval:

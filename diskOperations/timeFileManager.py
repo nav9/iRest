@@ -61,26 +61,26 @@ class TimeFileManager:
     def __extractHistoricalTimeDataFromFiles(self):
         historicalData = deque() #TODO: check order in which data is populated and the validity of data retrieved
         if self.fileOps.isValidFile(self.timerFileNameWithPath):#if timer file exists, get as many lines from the end of the file as possible
-            historicalData = self.fileOps.getLastLinesOfThisFile(self, self.timerFileNameWithPath, self.STRAIN_DATA_HISTORY_LENGTH)
-            print("Historical data:")
-            print(historicalData)
-            if len(historicalData) < self.STRAIN_DATA_HISTORY_LENGTH:
+            historicalData = self.fileOps.getLastLinesOfThisFile(self.timerFileNameWithPath, self.STRAIN_DATA_HISTORY_LENGTH)
+            if len(historicalData) < self.STRAIN_DATA_HISTORY_LENGTH:#if the data in timeFile is less than what we need for assessing if the User's eyes are strained, get more data from the archive files if they exist
                 archiveFiles = self.__getSortedListOfArchiveFiles(listOrderReversalNeeded = True)
-                for oneFile in archiveFiles:
-                    fullFilePath = os.join(self.folderName, oneFile)
-                    historicalData += self.fileOps.getLastLinesOfThisFile(self, fullFilePath, self.STRAIN_DATA_HISTORY_LENGTH)
+                print("Archive files: ", archiveFiles)
+                for oneFile in archiveFiles:#Note: archive file names contain the relative path of the file + archive filename
+                    historicalData += self.fileOps.getLastLinesOfThisFile(oneFile, self.STRAIN_DATA_HISTORY_LENGTH)
                     if len(historicalData) >= self.STRAIN_DATA_HISTORY_LENGTH:
                         break
         self.historicalStrainData += historicalData
+        print("Final historical data: ", self.historicalStrainData)
 
     def __archiveTheTimerFileIfItIsTooLarge(self):
         """ Check if timer file is larger than a certain value and return True if so """
         if self.fileOps.isValidFile(self.timerFileNameWithPath):#if file exists. If it doesn't exist, it'll get created when the program writes time information to disk
             if self.fileOps.getFileSize(self.timerFileNameWithPath) > self.TIMER_FILE_MAX_SIZE:
                 highestOrdinal = self.__findHighestArchiveFileOrdinal()
+                logging.info(f"New archive file ordinal: {highestOrdinal}")
                 newFilename = self.__createArchiveFileNameUsingOrdinal(highestOrdinal + 1)
                 self.fileOps.renameFile(self.timerFileNameWithPath, os.path.join(self.folderName, newFilename)) #The so-called "archiving" happens here
-                #The new timer file will automatically get created when the program needs to write to disk                
+                #Note: The new timer file will automatically get created when the program needs to write to disk                
             
     def __findHighestArchiveFileOrdinal(self):
         """ The ordinal is the numbering given to the file. This function finds the highest number that has been reached. If 24 files have been archived, the highest ordinal will be 24, and the calling function will use 24+1 = 25 as the next file ordinal."""
@@ -97,11 +97,14 @@ class TimeFileManager:
             try: 
                 highestOrdinal = int(''.join(filter(str.isdigit, fileNameWithHighestOrdinal))) 
             except ValueError:
-                logging.error(f"Filename does not seem to have a digit {fileNameWithHighestOrdinal}")
+                logging.error(f"Filename needs to have a digit indicating the archive file ordinal {fileNameWithHighestOrdinal}")
                 sys.exit()
+        else:
+            logging.info("No archive files found")
         return highestOrdinal
 
     def __getSortedListOfArchiveFiles(self, listOrderReversalNeeded = False):
+        """ Returns a list of archive filenames (wth folder path prefixed) natural sorted in the order of 1,2,3,4,5,6,7,8,9,10,... instead of the order 1,10,2,3,... that normally happens during a sort"""
         archiveFiles = glob(os.path.join(self.folderName, self.archiveFileNamePrefix) + "*") #TODO: shift to fileAndFolderOperations class
         return natsort.natsorted(archiveFiles, reverse = listOrderReversalNeeded) #To sort files with numbers in them, in the right order. An ordinary sort would sort the files as ["Archive_1.txt", "Archive_10.txt", "Archive_2.txt"]
 

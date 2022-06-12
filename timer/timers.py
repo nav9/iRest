@@ -41,7 +41,7 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         self.WORK_MINUTES = 20
         self.workInterval = timeFileManager.TimeConstants.SECONDS_IN_MINUTE * self.WORK_MINUTES #how long to work (in seconds)
         self.restRatio = self.WORK_MINUTES / self.REST_MINUTES #Five minutes of rest for every 20 minutes of work
-        self.SLEEP_SECONDS = 1 #10 #how long to sleep before checking system state (in seconds)
+        self.SLEEP_SECONDS = 10 #how long to sleep before checking system state (in seconds)
         self.workedTime = 0
         self.lastCheckedTime = time.monotonic()
         self.timeFileManager = timeFileManager.TimeFileManager("timeFiles", "timeFile", fileOperationsHandler) #parameters passed: folderName, fileName
@@ -70,25 +70,29 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
     #     self.timeFileManager.registerFileOperationsHandler(fileOperationsHandler)
     
     def execute(self):
-        time.sleep(self.SLEEP_SECONDS) #relinquish program control to OS
-        if self.operatingSystemAdapter != None: #because the program should be capable of working even if the OS could not be identified
-            if self.operatingSystemAdapter.isUserRelaxingTheirEyes():   
-                #---subtract worked time
-                if self.workedTime > 0:
-                    self.workedTime = abs(self.workedTime - (self.SLEEP_SECONDS / self.restRatio))                    
-                logging.info(f"Screen locked. Worked time = {self.workedTime}")
-                return
-        elapsedTime = time.monotonic() - self.lastCheckedTime
-        self.workedTime = self.workedTime + self.SLEEP_SECONDS
-        logging.info(f'Time elapsed: {elapsedTime}s. Worked time: {self.workedTime}s')
-        epochTime = time.time()
-        dataToWrite = [epochTime, timeFileManager.NatureOfActivity.EYES_BEING_STRAINED] #More data can be added to this list when writing, if necessary
-        self.timeFileManager.writeTimeInformationToFile(dataToWrite)
+        if self.timeFileManager.isTheUserStrained():
+            for notifierID, notifier in self.notifiers.items(): #If operating system was not recognized, the operating system adapter will be None, and no notifier will be registered
+                notifier.execute()
+
+        # time.sleep(self.SLEEP_SECONDS) #relinquish program control to OS
+        # if self.operatingSystemAdapter != None: #because the program should be capable of working even if the OS could not be identified
+        #     if self.operatingSystemAdapter.isUserRelaxingTheirEyes():   
+        #         #---subtract worked time
+        #         if self.workedTime > 0:
+        #             self.workedTime = abs(self.workedTime - (self.SLEEP_SECONDS / self.restRatio))                    
+        #         logging.info(f"Screen locked. Worked time = {self.workedTime}")
+        #         return
+        # elapsedTime = time.monotonic() - self.lastCheckedTime
+        # self.workedTime = self.workedTime + self.SLEEP_SECONDS
+        # logging.info(f'Time elapsed: {elapsedTime}s. Worked time: {self.workedTime}s')
+
+        epochTime = time.time() #epoch time is simply the time elapsed since a specific year (around 1970)
+        self.timeFileManager.writeTimeInformationToFile(epochTime, timeFileManager.NatureOfActivity.EYES_BEING_STRAINED) #More data can be added to this list when writing, if necessary
         
-        if self.workedTime >= self.workInterval:
-            self.lastCheckedTime = time.monotonic()
-            for notifierID, notifierRef in self.notifiers.items(): #If operating system was not recognized, the operating system adapter will be None, and no notifier will be registered
-                notifierRef.takeRestNotification()
+        # if self.workedTime >= self.workInterval:
+        #     self.lastCheckedTime = time.monotonic()
+        #     for notifierID, notifierRef in self.notifiers.items(): #If operating system was not recognized, the operating system adapter will be None, and no notifier will be registered
+        #         notifierRef.takeRestNotification()
                 
 
         

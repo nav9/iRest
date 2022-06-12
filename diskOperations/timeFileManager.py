@@ -44,8 +44,8 @@ class TimeFileManager:
         self.fileExtension = ".txt"
         self.timerFileNameWithPath = os.path.join(self.folderName, self.fileNameWithoutExtension + self.fileExtension)
         self.numberOfWritesSinceProgramStart = 0 #to not let file size increase too much if program is run non-stop for many days
-        self.TIMER_FILE_MAX_SIZE = 75 #10000 #bytes
-        self.FREQUENCY_TO_CHECK_FILE_SIZE = 1 #500 
+        self.TIMER_FILE_MAX_SIZE = 10000 #bytes
+        self.FREQUENCY_TO_CHECK_FILE_SIZE = 500 
         self.fileOps = fileOperationsHandler
         self.fileOps.createDirectoryIfNotExisting(self.folderName) #The folder to store time files         
         self.FILENAME_SEPARATOR = "_" #TODO: declare these constants in a separate class
@@ -57,10 +57,25 @@ class TimeFileManager:
         self.isTheUserStrained()
 
     def isTheUserStrained(self):
+        """ Go through historical data and find out how much time the user was strained and how much time user was not strained"""
+        #TODO: This function can be made a lot more efficient by reducing the number of calculations
+        userIsStrained = False
+        previousEpoch = None
+        previousActivity = None
+        totalStrainTime = 0
         for timeData in reversed(self.historicalStrainData):
-            pass
+            epochTime, natureOfActivity = self.__unpackTheTimeData(timeData)
+            if natureOfActivity == NatureOfActivity.EYES_BEING_STRAINED:
+                totalStrainTime = totalStrainTime + 
+            if previousEpoch:
+                pass
+            previousEpoch = epochTime
+            previousActivity = natureOfActivity
+                
+        return userIsStrained
 
-    def writeTimeInformationToFile(self, dataToWrite):
+    def writeTimeInformationToFile(self, epochTime, natureOfActivity):
+        dataToWrite = self.__packageTheTimeDataForWriting(epochTime, natureOfActivity)
         self.historicalStrainData.append(dataToWrite) #appending to the right of the deque
         #---appending the same information to the time file
         self.fileOps.writeTimeInformationToFile(self.timerFileNameWithPath, str(dataToWrite))
@@ -69,6 +84,12 @@ class TimeFileManager:
         if self.numberOfWritesSinceProgramStart >= self.FREQUENCY_TO_CHECK_FILE_SIZE:
             self.numberOfWritesSinceProgramStart = 0          
             self.__archiveTheTimerFileIfItIsTooLarge()
+
+    def __packageTheTimeDataForWriting(self, epochTime, natureOfActivity):
+        return [epochTime, natureOfActivity]
+
+    def __unpackTheTimeData(self, data):
+        return data[0], data[1]
 
     def __extractHistoricalTimeDataFromFiles(self):
         """ To be called only when this class is instantiated. Obtains historical time data if present """

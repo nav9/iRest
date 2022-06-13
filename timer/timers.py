@@ -4,7 +4,10 @@ from abc import ABC, abstractmethod
 from diskOperations import timeFileManager
 
 class OtherConstants:
-    FIRST_RUN = -999
+    PROGRAM_JUST_STARTED = -999
+    LAST_INDEX_OF_LIST = -1
+    PENULTIMATE_INDEX_OF_LIST = -1
+    FIRST_INDEX_OF_LIST = 0    
     
 class TimeConstants:
     SECONDS_IN_MINUTE = 60
@@ -58,7 +61,7 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         self.restRatio = self.WORK_MINUTES / self.REST_MINUTES #Five minutes of rest for every 20 minutes of work
         #CAUTION/BUG If the SLEEP_SECONDS value is changed, all old archive files and the time file needs to be deleted, since calculations of strain are based on the assumption that this value is constant across all those files
         self.SLEEP_SECONDS = 10 #how long to sleep before checking system state (in seconds). 
-        self.strainedDuration = OtherConstants.FIRST_RUN
+        self.strainedDuration = OtherConstants.PROGRAM_JUST_STARTED
         self.lastCheckedTime = time.monotonic()
         self.timeFileManager = timeFileManager.TimeFileManager("timeFiles", "timeFile", fileOperationsHandler) #parameters passed: folderName, fileName
         #self.timeFileManager.registerFileOperationsHandler(fileOperationsHandler)
@@ -89,7 +92,8 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
     def execute(self):
         time.sleep(self.SLEEP_SECONDS) #relinquish program control to the operating system, for a while
         currentTime = time.time() #epoch time is simply the time elapsed since a specific year (around 1970)
-        self.timeFileManager.writeTimeInformationToFile(currentTime, timeFileManager.NatureOfActivity.EYES_BEING_STRAINED) #More data can be added to this list when writing, if necessary        
+        #Note: For now, only NatureOfActivity.EYES_BEING_STRAINED is being written to file. Things like NatureOfActivity.SCREEN_LOCKED are not considered, since the strain duration can be determined even without them
+        self.timeFileManager.writeTimeInformationToFile(currentTime, NatureOfActivity.EYES_BEING_STRAINED) #More data can be added to this list when writing, if necessary        
         self.__checkIfUserIsStrained()
         if self.strainedDuration > self.allowedStrainDuration:#notify the User to take rest
             for notifierID, notifier in self.notifiers.items(): #If operating system was not recognized, the operating system adapter will be None, and no notifier will be registered. It will be an empty dict
@@ -109,21 +113,33 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
 
     def __checkIfUserIsStrained(self):
         """ Go through historical data and find out how much time the user was strained and how much time user was not strained"""
-        #TODO: This function can be made a lot more efficient by reducing the number of calculations
-
-        if self.strainedDuration == OtherConstants.FIRST_RUN:#need to examine past history of stored data since computer may have been restarted
+        #TODO: The examination of past time data needs to be more intelligent
+        if self.strainedDuration == OtherConstants.PROGRAM_JUST_STARTED:#need to examine past history of stored data since computer may have been restarted
             self.strainedDuration = 0
-            previousEpoch = None
+            previousTimestamp = None
             previousActivity = None            
-            for timeData in reversed(self.timeFileManager.historicalStrainData):
-                epochTime, natureOfActivity = self.timeFileManager.unpackTheTimeData(timeData)
-                if natureOfActivity == NatureOfActivity.EYES_BEING_STRAINED:
-                    totalStrainTime = totalStrainTime + self.SLEEP_SECONDS
-                if previousEpoch:
-                    pass
-                previousEpoch = epochTime
-                previousActivity = natureOfActivity
+            for timeData in reversed(self.timeFileManager.historicalStrainData):#iterates backward
+                currentTimestamp, natureOfActivity = self.timeFileManager.unpackTheTimeData(timeData)
+                if previousTimestamp == None:#first timestamp being considered
+                    if natureOfActivity == NatureOfActivity.EYES_BEING_STRAINED:
+                        self.strainedDuration = self.strainedDuration + self.SLEEP_SECONDS
+                        previousTimestamp = currentTimestamp
+                        previousActivity = natureOfActivity
+                else:#the remaining timestamps
+                    if natureOfActivity == NatureOfActivity.EYES_BEING_STRAINED:#add strained time
+                        self.strainedDuration = self.strainedDuration + self.SLEEP_SECONDS
+                        #---check if user had rested between current time and previous time. If yes, take into account the rested time by reducing the strained value
+                        if previousActivity == NatureOfActivity.EYES_BEING_STRAINED and (previousTimestamp - currentTimestamp) > self.SLEEP_SECONDS:
+                            self.strainedDuration = self.strainedDuration - (self.SLEEP_SECONDS / self.restRatio) 
+                        previousTimestamp = currentTimestamp
+                        previousActivity = natureOfActivity
+                #---stop examining the past if a sufficient amount of time has been analyzed
+                #write some code after determining how much time is sufficient time
         else:#simply examine the latest time slice
-            pass
+            currentTimestamp, natureOfActivity = self.timeFileManager.unpackTheTimeData(self.timeFileManager.historicalStrainData[OtherConstants.LAST_INDEX_OF_LIST])
+            self.strainedDuration = self.strainedDuration + self.SLEEP_SECONDS
+            previousTimestamp, previousActivity = self.timeFileManager.unpackTheTimeData(self.timeFileManager.historicalStrainData[OtherConstants.PENULTIMATE_INDEX_OF_LIST])
+            if previousActivity == NatureOfActivity.EYES_BEING_STRAINED and (previousTimestamp - currentTimestamp) > self.SLEEP_SECONDS:
+                self.strainedDuration = self.strainedDuration - (self.SLEEP_SECONDS / self.restRatio)        
                 
         

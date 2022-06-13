@@ -29,10 +29,11 @@ if __name__ == '__main__':
     config = configHandler.ConfigurationHandler()
     fileOps = fileAndFolderOperations.FileOperations()
     operatingSystemCheck = operatingSystemDiversifier.OperatingSystemIdentifier()
-    operatingSystemAdapter = operatingSystemCheck.getOperatingSystemAdapterInstance() 
+    operatingSystemAdapter = operatingSystemCheck.getOperatingSystemAdapterInstance() #If OS could not be identified, it will return None
     allTimers = []
     defaultTimer = timers.DefaultTimer(operatingSystemAdapter, fileOps)
-    defaultTimer.addThisNotifierToListOfNotifiers(operatingSystemAdapter.getAudioNotifier()) #TODO: take notifiers from the config file
+    if operatingSystemAdapter:#if OS was identified, get the audio notifier specific to that OS
+        defaultTimer.addThisNotifierToListOfNotifiers(operatingSystemAdapter.getAudioNotifier()) #TODO: take notifiers from the config file
     allTimers.append(defaultTimer)
 
     logging.info("Monitoring time ...")

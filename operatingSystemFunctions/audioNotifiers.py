@@ -35,16 +35,16 @@ class SpeedSayAudioNotifier_Linux(AudioNotifier):
         self.userNotified = False
         self.notifiedTime = None
 
-    def execute(self):
+    def execute(self):#This function may get called multiple times, so it has to take care of not annoying the User with too many notifications. So a cooldown time was used to allow for some time until the next notification
         #Note: Notification cooling time was used within the class itself (instead of externally) since other notifiers may do notification at their own frequencies
         if self.userNotified:
             elapsedTime = time.monotonic() - self.notifiedTime
-            if elapsedTime >= self.COOLDOWN_SECONDS:
+            if elapsedTime >= self.COOLDOWN_SECONDS:#So actual time until the next notification will be COOLDOWN_SECONDS + number of seconds until execute() is invoked again
                 self.userNotified = False            
-        else:#notify User
-            self.notifiedTime = time.monotonic()
+        else:#notify User            
             speechCommand = self.fullCommand[:] #shallow copy by value
             speechCommand.append(self.takeRestMessage)
             subprocess.run(speechCommand)
+            self.notifiedTime = time.monotonic()
             self.userNotified = True
 

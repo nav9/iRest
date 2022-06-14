@@ -58,7 +58,8 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         self.REST_MINUTES = 5
         self.WORK_MINUTES = 20
         self.allowedStrainDuration = TimeConstants.SECONDS_IN_MINUTE * self.WORK_MINUTES #how long to work (in seconds). How many seconds the eyes can be permitted to be strained
-        self.restRatio = self.WORK_MINUTES * self.REST_MINUTES #Five minutes of rest for every 20 minutes of work
+        self.restRatio = self.WORK_MINUTES / self.REST_MINUTES #Five minutes of rest for every 20 minutes of work
+        logging.debug(f"RestRatio={self.restRatio} = work minutes {self.WORK_MINUTES} * rest minutes {self.REST_MINUTES}")
         #CAUTION/BUG If the SLEEP_SECONDS value is changed, all old archive files and the time file needs to be deleted, since calculations of strain are based on the assumption that this value is constant across all those files. This can be mitigated by storing the sleep time value when writing timestamps to the file each time
         self.SLEEP_SECONDS = 10 #how long to sleep before checking system state (in seconds). 
         self.strainedDuration = OtherConstants.PROGRAM_JUST_STARTED

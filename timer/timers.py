@@ -152,7 +152,9 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
 
     def __subtractStrain(self, restDuration):
         logging.debug(f"Rested duration: {restDuration}s. Subtracting {restDuration * self.restRatio} from strained duration {self.strainedDuration}")
-        self.strainedDuration = self.strainedDuration - (restDuration * self.restRatio) 
+        self.strainedDuration = self.strainedDuration - (restDuration * self.restRatio)
+        if self.strainedDuration < 0: 
+            self.strainedDuration = 0
 
     def __notifyUserIfTheyNeedToTakeRest(self):
         logging.debug("-----> Current strained time: " + time.strftime("%H:%M:%S", time.gmtime(self.strainedDuration)))

@@ -7,7 +7,7 @@ from operatingSystemFunctions import audioNotifiers
 class OperatingSystemFunctionality(ABC):#Abstract parent class
     #Note: Abstract methods have to be implemented by child classes because they would be invoked by other classes
     @abstractmethod
-    def isUserRelaxingTheirEyes(self):#This can be checked via various techniques. Screen lock or inactivity etc.
+    def isScreenLocked(self):#This can be checked via various techniques. Screen lock or inactivity etc.
         """ Returns True if the User is relaxing their eyes. False otherwise """
         pass
 
@@ -22,7 +22,7 @@ class LinuxFunctionality(OperatingSystemFunctionality):#For functions that are s
         self.gnomeScreensaverPresent = self.__isGnomeScreensaverPresent()
         self.audioNotifier = audioNotifiers.SpeedSayAudioNotifier_Linux()
     
-    def isUserRelaxingTheirEyes(self):
+    def isScreenLocked(self):
         return self.__isScreenLocked()
 
     def getAudioNotifier(self):
@@ -82,6 +82,7 @@ class OperatingSystemIdentifier:
         if self.__isThisProgramRunningInMac():
             #self.currentOperatingSystem = OperatingSystemID.MAC
             logging.info("MacOS detected")
+        logging.warn("Operating system could not be identified. Functionality like lock screen detection won't work.")
 
     def __isThisProgramRunningInLinux(self):
         #return 'Linux' in platform.platform() #Does the string returned by platform() contain the substring "Linux"? For example, in Ubuntu, the output is: 'Linux-5.11.0-27-generic-x86_64-with-glibc2.10'

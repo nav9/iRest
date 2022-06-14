@@ -58,7 +58,7 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         self.REST_MINUTES = 5
         self.WORK_MINUTES = 20
         self.allowedStrainDuration = TimeConstants.SECONDS_IN_MINUTE * self.WORK_MINUTES #how long to work (in seconds). How many seconds the eyes can be permitted to be strained
-        self.restRatio = self.WORK_MINUTES / self.REST_MINUTES #Five minutes of rest for every 20 minutes of work
+        self.restRatio = self.WORK_MINUTES * self.REST_MINUTES #Five minutes of rest for every 20 minutes of work
         #CAUTION/BUG If the SLEEP_SECONDS value is changed, all old archive files and the time file needs to be deleted, since calculations of strain are based on the assumption that this value is constant across all those files
         self.SLEEP_SECONDS = 10 #how long to sleep before checking system state (in seconds). 
         self.strainedDuration = OtherConstants.PROGRAM_JUST_STARTED
@@ -92,54 +92,62 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
     def execute(self):
         time.sleep(self.SLEEP_SECONDS) #relinquish program control to the operating system, for a while
         currentTime = time.time() #epoch time is simply the time elapsed since a specific year (around 1970)
-        #Note: For now, only NatureOfActivity.EYES_BEING_STRAINED is being written to file. Things like NatureOfActivity.SCREEN_LOCKED are not considered, since the strain duration can be determined even without them
-        self.timeFileManager.writeTimeInformationToFile(currentTime, NatureOfActivity.EYES_BEING_STRAINED) #More data can be added to this list when writing, if necessary        
-        self.__checkIfUserIsStrained()
-        if self.strainedDuration > self.allowedStrainDuration:#notify the User to take rest
-            for notifierID, notifier in self.notifiers.items(): #If operating system was not recognized, the operating system adapter will be None, and no notifier will be registered. It will be an empty dict
-                notifier.execute() #within each notifier's execute(), there will be a cooldown timer, which will ensure that the notification is not repeated until some time has passed, even if execute() is invoked frequently
-
-        # time.sleep(self.SLEEP_SECONDS) #relinquish program control to OS
-        # if self.operatingSystemAdapter != None: #because the program should be capable of working even if the OS could not be identified
-        #     if self.operatingSystemAdapter.isUserRelaxingTheirEyes():   
-        #         #---subtract worked time
-        #         if self.workedTime > 0:
-        #             self.workedTime = abs(self.workedTime - (self.SLEEP_SECONDS / self.restRatio))                    
-        #         logging.info(f"Screen locked. Worked time = {self.workedTime}")
-        #         return
-        # elapsedTime = time.monotonic() - self.lastCheckedTime
-        # self.workedTime = self.workedTime + self.SLEEP_SECONDS
-        # logging.info(f'Time elapsed: {elapsedTime}s. Worked time: {self.workedTime}s')
+        screenLocked = False
+        if self.operatingSystemAdapter != None: #because the program should be capable of working even if the OS could not be identified
+            screenLocked = self.operatingSystemAdapter.isScreenLocked()
+        if screenLocked: #screen lock situation is currently being considered the equivalent of suspend or shutdown, so no need to write to file
+            logging.info(f"Screen locked: {currentTime}")
+            #self.timeFileManager.writeTimeInformationToFile(currentTime, NatureOfActivity.SCREEN_LOCKED) 
+        else:
+            #Note: For now, only NatureOfActivity.EYES_BEING_STRAINED is being written to file. Things like NatureOfActivity.SCREEN_LOCKED are not considered, since the strain duration can be determined even without them
+            self.timeFileManager.writeTimeInformationToFile(currentTime, NatureOfActivity.EYES_BEING_STRAINED) #More data can be added to this list when writing, if necessary                    
+            self.__checkIfUserIsStrained()
+            self.__notifyUserIfTheyNeedToTakeRest()
 
     def __checkIfUserIsStrained(self):
         """ Go through historical data and find out how much time the user was strained and how much time user was not strained"""
         #TODO: The examination of past time data needs to be more intelligent
         if self.strainedDuration == OtherConstants.PROGRAM_JUST_STARTED:#need to examine past history of stored data since computer may have been restarted
+            logging.info("Program just started")
             self.strainedDuration = 0
             previousTimestamp = None
             previousActivity = None            
             for timeData in reversed(self.timeFileManager.historicalStrainData):#iterates backward
+                logging.info("Examining time data: ", str(timeData))
                 currentTimestamp, natureOfActivity = self.timeFileManager.unpackTheTimeData(timeData)
-                if previousTimestamp == None:#first timestamp being considered
+                if previousTimestamp == None: #first timestamp being considered
+                    logging.info("Considering initial (last) timestamp in deque")
                     if natureOfActivity == NatureOfActivity.EYES_BEING_STRAINED:
-                        self.strainedDuration = self.strainedDuration + self.SLEEP_SECONDS
+                        self.__addStrain()
                         previousTimestamp = currentTimestamp
                         previousActivity = natureOfActivity
                 else:#the remaining timestamps
                     if natureOfActivity == NatureOfActivity.EYES_BEING_STRAINED:#add strained time
-                        self.strainedDuration = self.strainedDuration + self.SLEEP_SECONDS
+                        self.__addStrain()
                         #---check if user had rested between current time and previous time. If yes, take into account the rested time by reducing the strained value
                         if previousActivity == NatureOfActivity.EYES_BEING_STRAINED and (previousTimestamp - currentTimestamp) > self.SLEEP_SECONDS:
-                            self.strainedDuration = self.strainedDuration - (self.SLEEP_SECONDS / self.restRatio) 
+                            self.__subtractStrain((previousTimestamp - currentTimestamp) - self.SLEEP_SECONDS) 
                         previousTimestamp = currentTimestamp
                         previousActivity = natureOfActivity
-                #---stop examining the past if a sufficient amount of time has been analyzed
+                #---stop examining the past if a sufficient amount of time has been analyzed (for example, if the difference of the first and second timestamps are one hour, there's no need to examine more time slices, since it's obvious the User got an hour's rest already)
                 #write some code after determining how much time is sufficient time
-        else:#simply examine the latest time slice
+        else: #simply examine the latest time slice
             currentTimestamp, natureOfActivity = self.timeFileManager.unpackTheTimeData(self.timeFileManager.historicalStrainData[OtherConstants.LAST_INDEX_OF_LIST])
-            self.strainedDuration = self.strainedDuration + self.SLEEP_SECONDS
+            self.__addStrain()
             previousTimestamp, previousActivity = self.timeFileManager.unpackTheTimeData(self.timeFileManager.historicalStrainData[OtherConstants.PENULTIMATE_INDEX_OF_LIST])
             if previousActivity == NatureOfActivity.EYES_BEING_STRAINED and (previousTimestamp - currentTimestamp) > self.SLEEP_SECONDS:
-                self.strainedDuration = self.strainedDuration - (self.SLEEP_SECONDS / self.restRatio)        
-                
-        
+                self.__subtractStrain((previousTimestamp - currentTimestamp) - self.SLEEP_SECONDS)    
+    
+    def __addStrain(self):
+        self.strainedDuration = self.strainedDuration + self.SLEEP_SECONDS
+        logging.info(f"Strained for: {self.SLEEP_SECONDS}s")
+
+    def __subtractStrain(self, restDuration):
+        self.strainedDuration = self.strainedDuration - (restDuration * self.restRatio) 
+        logging.info(f"Rested duration: {restDuration}s")
+
+    def __notifyUserIfTheyNeedToTakeRest(self):
+        if self.strainedDuration > self.allowedStrainDuration: #notify the User to take rest
+            logging.info(f"* Please take rest. Strained duration: {self.strainedDuration}")
+            for notifierID, notifier in self.notifiers.items(): #If operating system was not recognized, the operating system adapter will be None, and no notifier will be registered. It will be an empty dict
+                notifier.execute() #within each notifier's execute(), there will be a cooldown timer, which will ensure that the notification is not repeated until some time has passed, even if execute() is invoked frequently        

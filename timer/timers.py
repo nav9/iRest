@@ -6,7 +6,7 @@ from diskOperations import timeFileManager
 class OtherConstants:
     PROGRAM_JUST_STARTED = -999
     LAST_INDEX_OF_LIST = -1
-    PENULTIMATE_INDEX_OF_LIST = -1
+    PENULTIMATE_INDEX_OF_LIST = -2
     FIRST_INDEX_OF_LIST = 0    
     
 class TimeConstants:
@@ -59,7 +59,7 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         self.WORK_MINUTES = 20
         self.allowedStrainDuration = TimeConstants.SECONDS_IN_MINUTE * self.WORK_MINUTES #how long to work (in seconds). How many seconds the eyes can be permitted to be strained
         self.restRatio = self.WORK_MINUTES * self.REST_MINUTES #Five minutes of rest for every 20 minutes of work
-        #CAUTION/BUG If the SLEEP_SECONDS value is changed, all old archive files and the time file needs to be deleted, since calculations of strain are based on the assumption that this value is constant across all those files
+        #CAUTION/BUG If the SLEEP_SECONDS value is changed, all old archive files and the time file needs to be deleted, since calculations of strain are based on the assumption that this value is constant across all those files. This can be mitigated by storing the sleep time value when writing timestamps to the file each time
         self.SLEEP_SECONDS = 10 #how long to sleep before checking system state (in seconds). 
         self.strainedDuration = OtherConstants.PROGRAM_JUST_STARTED
         self.lastCheckedTime = time.monotonic()
@@ -100,23 +100,23 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
             #self.timeFileManager.writeTimeInformationToFile(currentTime, NatureOfActivity.SCREEN_LOCKED) 
         else:
             #Note: For now, only NatureOfActivity.EYES_BEING_STRAINED is being written to file. Things like NatureOfActivity.SCREEN_LOCKED are not considered, since the strain duration can be determined even without them
+            logging.debug(f"Strained currentTime: {currentTime}, nature: {NatureOfActivity.EYES_BEING_STRAINED}")
             self.timeFileManager.writeTimeInformationToFile(currentTime, NatureOfActivity.EYES_BEING_STRAINED) #More data can be added to this list when writing, if necessary                    
             self.__checkIfUserIsStrained()
-            self.__notifyUserIfTheyNeedToTakeRest()
-
+    
     def __checkIfUserIsStrained(self):
         """ Go through historical data and find out how much time the user was strained and how much time user was not strained"""
         #TODO: The examination of past time data needs to be more intelligent
         if self.strainedDuration == OtherConstants.PROGRAM_JUST_STARTED:#need to examine past history of stored data since computer may have been restarted
-            logging.info("Program just started")
             self.strainedDuration = 0
             previousTimestamp = None
-            previousActivity = None            
+            previousActivity = None
+            logging.debug(f"Program just started. Examining all data in deque. historicalStrainData length: {len(self.timeFileManager.historicalStrainData)}")          
             for timeData in reversed(self.timeFileManager.historicalStrainData):#iterates backward
-                logging.info("Examining time data: ", str(timeData))
+                logging.debug(f"Examining time data: {str(timeData)}")
                 currentTimestamp, natureOfActivity = self.timeFileManager.unpackTheTimeData(timeData)
                 if previousTimestamp == None: #first timestamp being considered
-                    logging.info("Considering initial (last) timestamp in deque")
+                    logging.debug("Considering initial (last) timestamp in deque")
                     if natureOfActivity == NatureOfActivity.EYES_BEING_STRAINED:
                         self.__addStrain()
                         previousTimestamp = currentTimestamp
@@ -125,6 +125,7 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
                     if natureOfActivity == NatureOfActivity.EYES_BEING_STRAINED:#add strained time
                         self.__addStrain()
                         #---check if user had rested between current time and previous time. If yes, take into account the rested time by reducing the strained value
+                        logging.debug(f"Checking if prev time {previousTimestamp} - current time: {currentTimestamp} = {previousTimestamp-currentTimestamp} > sleep seconds: {self.SLEEP_SECONDS}")
                         if previousActivity == NatureOfActivity.EYES_BEING_STRAINED and (previousTimestamp - currentTimestamp) > self.SLEEP_SECONDS:
                             self.__subtractStrain((previousTimestamp - currentTimestamp) - self.SLEEP_SECONDS) 
                         previousTimestamp = currentTimestamp
@@ -132,21 +133,26 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
                 #---stop examining the past if a sufficient amount of time has been analyzed (for example, if the difference of the first and second timestamps are one hour, there's no need to examine more time slices, since it's obvious the User got an hour's rest already)
                 #write some code after determining how much time is sufficient time
         else: #simply examine the latest time slice
+            logging.debug(f"Examining only the latest time slice. historicalStrainData length: {len(self.timeFileManager.historicalStrainData)}")  
             currentTimestamp, natureOfActivity = self.timeFileManager.unpackTheTimeData(self.timeFileManager.historicalStrainData[OtherConstants.LAST_INDEX_OF_LIST])
-            self.__addStrain()
+            if natureOfActivity == NatureOfActivity.EYES_BEING_STRAINED:
+                self.__addStrain()
             previousTimestamp, previousActivity = self.timeFileManager.unpackTheTimeData(self.timeFileManager.historicalStrainData[OtherConstants.PENULTIMATE_INDEX_OF_LIST])
+            logging.debug(f"checking if prev time {previousTimestamp} - current time: {currentTimestamp} = {previousTimestamp-currentTimestamp} > sleep seconds: {self.SLEEP_SECONDS}")
             if previousActivity == NatureOfActivity.EYES_BEING_STRAINED and (previousTimestamp - currentTimestamp) > self.SLEEP_SECONDS:
-                self.__subtractStrain((previousTimestamp - currentTimestamp) - self.SLEEP_SECONDS)    
+                self.__subtractStrain((previousTimestamp - currentTimestamp) - self.SLEEP_SECONDS)  
+        self.__notifyUserIfTheyNeedToTakeRest()  
     
     def __addStrain(self):
-        self.strainedDuration = self.strainedDuration + self.SLEEP_SECONDS
-        logging.info(f"Strained for: {self.SLEEP_SECONDS}s")
+        logging.debug(f"Adding strain of {self.SLEEP_SECONDS}s to strained duration {self.strainedDuration}")
+        self.strainedDuration = self.strainedDuration + self.SLEEP_SECONDS        
 
     def __subtractStrain(self, restDuration):
+        logging.debug(f"Rested duration: {restDuration}s. Subtracting {restDuration * self.restRatio} from strained duration {self.strainedDuration}")
         self.strainedDuration = self.strainedDuration - (restDuration * self.restRatio) 
-        logging.info(f"Rested duration: {restDuration}s")
 
     def __notifyUserIfTheyNeedToTakeRest(self):
+        logging.debug("-----> Current strained time: " + time.strftime("%H:%M:%S", time.gmtime(self.strainedDuration)))
         if self.strainedDuration > self.allowedStrainDuration: #notify the User to take rest
             logging.info(f"* Please take rest. Strained duration: {self.strainedDuration}")
             for notifierID, notifier in self.notifiers.items(): #If operating system was not recognized, the operating system adapter will be None, and no notifier will be registered. It will be an empty dict

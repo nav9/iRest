@@ -82,7 +82,8 @@ class OperatingSystemIdentifier:
         if self.__isThisProgramRunningInMac():
             #self.currentOperatingSystem = OperatingSystemID.MAC
             logging.info("MacOS detected")
-        logging.warn("Operating system could not be identified. Functionality like lock screen detection won't work.")
+        if self.operatingSystemAdapter == None:
+            logging.warn("Operating system could not be identified. Functionality like lock screen detection won't work.")
 
     def __isThisProgramRunningInLinux(self):
         #return 'Linux' in platform.platform() #Does the string returned by platform() contain the substring "Linux"? For example, in Ubuntu, the output is: 'Linux-5.11.0-27-generic-x86_64-with-glibc2.10'

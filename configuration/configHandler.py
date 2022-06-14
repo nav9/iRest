@@ -12,7 +12,7 @@ class ConfigurationHandler:
         configFileFound = True
         #try:
         self.config.read(self.configFilename)
-        logging.info(self.config.sections)
+        #logging.info(self.config.sections)
         #except:
             #configFileFound = False
 

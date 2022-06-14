@@ -5,17 +5,6 @@ from glob import glob
 import logging
 import natsort
 
-class TimeConstants:
-    SECONDS_IN_MINUTE = 60
-    MINUTES_IN_HOUR = 60
-    HOURS_IN_DAY = 24
-
-class NatureOfActivity:
-    EYES_BEING_STRAINED = "eyes_strained"
-    SCREEN_LOCKED = "screen_locked"
-    TYPING = "typing"
-    MOUSE_MOVEMENT = "mouse_movement"
-
 """ 
 Keeping track of the amount of time the eyes were strained, requires tracking the total
 time even when the computer is restarted or the screen is locked. The only way to track it 
@@ -54,28 +43,9 @@ class TimeFileManager:
         self.__valueSanityCheck()
         self.__archiveTheTimerFileIfItIsTooLarge()
         self.__extractHistoricalTimeDataFromFiles()
-        self.isTheUserStrained()
 
-    def isTheUserStrained(self):
-        """ Go through historical data and find out how much time the user was strained and how much time user was not strained"""
-        #TODO: This function can be made a lot more efficient by reducing the number of calculations
-        userIsStrained = False
-        previousEpoch = None
-        previousActivity = None
-        totalStrainTime = 0
-        for timeData in reversed(self.historicalStrainData):
-            epochTime, natureOfActivity = self.__unpackTheTimeData(timeData)
-            if natureOfActivity == NatureOfActivity.EYES_BEING_STRAINED:
-                totalStrainTime = totalStrainTime + 
-            if previousEpoch:
-                pass
-            previousEpoch = epochTime
-            previousActivity = natureOfActivity
-                
-        return userIsStrained
-
-    def writeTimeInformationToFile(self, epochTime, natureOfActivity):
-        dataToWrite = self.__packageTheTimeDataForWriting(epochTime, natureOfActivity)
+    def writeTimeInformationToFile(self, currentTime, natureOfActivity):
+        dataToWrite = self.__packTheTimeDataForWriting(currentTime, natureOfActivity)
         self.historicalStrainData.append(dataToWrite) #appending to the right of the deque
         #---appending the same information to the time file
         self.fileOps.writeTimeInformationToFile(self.timerFileNameWithPath, str(dataToWrite))
@@ -85,10 +55,10 @@ class TimeFileManager:
             self.numberOfWritesSinceProgramStart = 0          
             self.__archiveTheTimerFileIfItIsTooLarge()
 
-    def __packageTheTimeDataForWriting(self, epochTime, natureOfActivity):
-        return [epochTime, natureOfActivity]
+    def __packTheTimeDataForWriting(self, currentTime, natureOfActivity):
+        return [currentTime, natureOfActivity]
 
-    def __unpackTheTimeData(self, data):
+    def unpackTheTimeData(self, data):
         return data[0], data[1]
 
     def __extractHistoricalTimeDataFromFiles(self):

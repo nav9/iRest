@@ -11,7 +11,7 @@ class AudioNotifier(ABC):#Abstract parent class
         pass
 
     @abstractmethod
-    def notifyUserToTakeRest(self):
+    def execute(self):
         """ Plays an audio notification to remind the user to take rest. Function does not return anything """
         pass
 

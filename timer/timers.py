@@ -137,10 +137,11 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
             currentTimestamp, natureOfActivity = self.timeFileManager.unpackTheTimeData(self.timeFileManager.historicalStrainData[OtherConstants.LAST_INDEX_OF_LIST])
             if natureOfActivity == NatureOfActivity.EYES_BEING_STRAINED:
                 self.__addStrain()
-            previousTimestamp, previousActivity = self.timeFileManager.unpackTheTimeData(self.timeFileManager.historicalStrainData[OtherConstants.PENULTIMATE_INDEX_OF_LIST])
-            logging.debug(f"checking if prev time {previousTimestamp} - current time: {currentTimestamp} = {previousTimestamp-currentTimestamp} > sleep seconds: {self.SLEEP_SECONDS}")
-            if previousActivity == NatureOfActivity.EYES_BEING_STRAINED and (previousTimestamp - currentTimestamp) > self.SLEEP_SECONDS:
-                self.__subtractStrain((previousTimestamp - currentTimestamp) - self.SLEEP_SECONDS)  
+            if len(self.timeFileManager.historicalStrainData) > 1:
+                previousTimestamp, previousActivity = self.timeFileManager.unpackTheTimeData(self.timeFileManager.historicalStrainData[OtherConstants.PENULTIMATE_INDEX_OF_LIST])
+                logging.debug(f"checking if prev time {previousTimestamp} - current time: {currentTimestamp} = {previousTimestamp-currentTimestamp} > sleep seconds: {self.SLEEP_SECONDS}")
+                if previousActivity == NatureOfActivity.EYES_BEING_STRAINED and (previousTimestamp - currentTimestamp) > self.SLEEP_SECONDS:
+                    self.__subtractStrain((previousTimestamp - currentTimestamp) - self.SLEEP_SECONDS)  
         self.__notifyUserIfTheyNeedToTakeRest()  
     
     def __addStrain(self):

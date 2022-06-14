@@ -125,9 +125,9 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
                     if natureOfActivity == NatureOfActivity.EYES_BEING_STRAINED:#add strained time
                         self.__addStrain()
                         #---check if user had rested between current time and previous time. If yes, take into account the rested time by reducing the strained value
-                        logging.debug(f"Checking if prev time {previousTimestamp} - current time: {currentTimestamp} = {previousTimestamp-currentTimestamp} > sleep seconds: {self.SLEEP_SECONDS}")
-                        if previousActivity == NatureOfActivity.EYES_BEING_STRAINED and (previousTimestamp - currentTimestamp) > self.SLEEP_SECONDS:
-                            self.__subtractStrain((previousTimestamp - currentTimestamp) - self.SLEEP_SECONDS) 
+                        logging.debug(f"Checking if prev time {previousTimestamp} - current time: {currentTimestamp} = {currentTimestamp-previousTimestamp} > sleep seconds: {self.SLEEP_SECONDS}")
+                        if previousActivity == NatureOfActivity.EYES_BEING_STRAINED and (currentTimestamp - previousTimestamp) > self.SLEEP_SECONDS:
+                            self.__subtractStrain((currentTimestamp - previousTimestamp) - self.SLEEP_SECONDS) 
                         previousTimestamp = currentTimestamp
                         previousActivity = natureOfActivity
                 #---stop examining the past if a sufficient amount of time has been analyzed (for example, if the difference of the first and second timestamps are one hour, there's no need to examine more time slices, since it's obvious the User got an hour's rest already)
@@ -139,9 +139,9 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
                 self.__addStrain()
             if len(self.timeFileManager.historicalStrainData) > 1:
                 previousTimestamp, previousActivity = self.timeFileManager.unpackTheTimeData(self.timeFileManager.historicalStrainData[OtherConstants.PENULTIMATE_INDEX_OF_LIST])
-                logging.debug(f"checking if prev time {previousTimestamp} - current time: {currentTimestamp} = {previousTimestamp-currentTimestamp} > sleep seconds: {self.SLEEP_SECONDS}")
-                if previousActivity == NatureOfActivity.EYES_BEING_STRAINED and (previousTimestamp - currentTimestamp) > self.SLEEP_SECONDS:
-                    self.__subtractStrain((previousTimestamp - currentTimestamp) - self.SLEEP_SECONDS)  
+                logging.debug(f"checking if prev time {previousTimestamp} - current time: {currentTimestamp} = {currentTimestamp-previousTimestamp} > sleep seconds: {self.SLEEP_SECONDS}")
+                if previousActivity == NatureOfActivity.EYES_BEING_STRAINED and (currentTimestamp - previousTimestamp) > self.SLEEP_SECONDS:
+                    self.__subtractStrain((currentTimestamp - previousTimestamp) - self.SLEEP_SECONDS)  
         self.__notifyUserIfTheyNeedToTakeRest()  
     
     def __addStrain(self):

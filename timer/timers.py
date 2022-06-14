@@ -66,10 +66,10 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         self.strainedDuration = OtherConstants.PROGRAM_JUST_STARTED
         self.lastCheckedTime = time.monotonic()
         self.timeFileManager = timeFileManager.TimeFileManager("timeFiles", "timeFile", fileOperationsHandler) #parameters passed: folderName, fileName
-        #self.timeFileManager.registerFileOperationsHandler(fileOperationsHandler)
-        self.__checkIfUserIsStrained()
+        #self.timeFileManager.registerFileOperationsHandler(fileOperationsHandler)       
         self.notifiers = {} #references to various objects that can be used to notify the user
         self.operatingSystemAdapter = operatingSystemAdapter #value will be None if no OS was identified
+        self.__checkIfUserIsStrained()
         
     def addThisNotifierToListOfNotifiers(self, notifier):
         if notifier.id not in self.notifiers:#is notifier not already registered here
@@ -115,8 +115,7 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
             previousActivity = None
             logging.debug(f"Program just started. Examining all data in deque. historicalStrainData length: {len(self.timeFileManager.historicalStrainData)}")          
             for timeData in reversed(self.timeFileManager.historicalStrainData):#iterates backward
-                print("time dat: ", timeData)
-                #logging.debug(f"Examining time data: {str(timeData)}")
+                logging.debug(f"Examining time data: {str(timeData)}")
                 currentTimestamp, natureOfActivity = self.timeFileManager.unpackTheTimeData(timeData)
                 if previousTimestamp == None: #first timestamp being considered
                     logging.debug("Considering initial (last) timestamp in deque")
@@ -128,9 +127,10 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
                     if natureOfActivity == NatureOfActivity.EYES_BEING_STRAINED:#add strained time
                         self.__addStrain()
                         #---check if user had rested between current time and previous time. If yes, take into account the rested time by reducing the strained value
-                        logging.debug(f"Checking if prev time {previousTimestamp} - current time: {currentTimestamp} = {currentTimestamp-previousTimestamp} > sleep seconds: {self.SLEEP_SECONDS}")
-                        if previousActivity == NatureOfActivity.EYES_BEING_STRAINED and (currentTimestamp - previousTimestamp) > self.SLEEP_SECONDS + TimeConstants.ONE_SECOND:
-                            self.__subtractStrain((currentTimestamp - previousTimestamp) - self.SLEEP_SECONDS) 
+                        timeDifference = abs(currentTimestamp-previousTimestamp) #value in seconds
+                        logging.debug(f"Checking if prev time {previousTimestamp} - current time: {currentTimestamp} = {timeDifference} > sleep seconds: {self.SLEEP_SECONDS}+1={self.SLEEP_SECONDS+TimeConstants.ONE_SECOND}")
+                        if previousActivity == NatureOfActivity.EYES_BEING_STRAINED and timeDifference > self.SLEEP_SECONDS + TimeConstants.ONE_SECOND:
+                            self.__subtractStrain(timeDifference - self.SLEEP_SECONDS) 
                         previousTimestamp = currentTimestamp
                         previousActivity = natureOfActivity
                 #---stop examining the past if a sufficient amount of time has been analyzed (for example, if the difference of the first and second timestamps are one hour, there's no need to examine more time slices, since it's obvious the User got an hour's rest already)
@@ -142,20 +142,18 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
                 self.__addStrain()
             if len(self.timeFileManager.historicalStrainData) > 1:#there are at least two elements in the queue
                 previousTimestamp, previousActivity = self.timeFileManager.unpackTheTimeData(self.timeFileManager.historicalStrainData[OtherConstants.PENULTIMATE_INDEX_OF_LIST])
-                print("previousTimestamp: ", previousTimestamp)
-                print("previousAc:", previousActivity)
-                print("prev:", previousTimestamp, type(previousTimestamp), "curr:", currentTimestamp, type(currentTimestamp), "sleep:", self.SLEEP_SECONDS, type(self.SLEEP_SECONDS))
-                logging.debug(f"checking if prev time {previousTimestamp} - current time: {currentTimestamp} = {currentTimestamp-previousTimestamp} > sleep seconds: {self.SLEEP_SECONDS}")
-                if previousActivity == NatureOfActivity.EYES_BEING_STRAINED and (currentTimestamp - previousTimestamp) > self.SLEEP_SECONDS + TimeConstants.ONE_SECOND:
-                    self.__subtractStrain((currentTimestamp - previousTimestamp) - self.SLEEP_SECONDS)  
+                timeDifference = abs(currentTimestamp-previousTimestamp) #value in seconds
+                logging.debug(f"checking if prev time {previousTimestamp} - current time: {currentTimestamp} = {timeDifference} > sleep seconds: {self.SLEEP_SECONDS}+1={self.SLEEP_SECONDS+TimeConstants.ONE_SECOND}")
+                if previousActivity == NatureOfActivity.EYES_BEING_STRAINED and timeDifference > self.SLEEP_SECONDS + TimeConstants.ONE_SECOND:
+                    self.__subtractStrain(timeDifference - self.SLEEP_SECONDS)  
         self.__notifyUserIfTheyNeedToTakeRest()  
     
     def __addStrain(self):
-        logging.debug(f"Adding strain of {self.SLEEP_SECONDS}s to strained duration {self.strainedDuration}")
+        logging.debug(f"+++ Adding strain of {self.SLEEP_SECONDS}s to strained duration {self.strainedDuration}")
         self.strainedDuration = self.strainedDuration + self.SLEEP_SECONDS        
 
     def __subtractStrain(self, restDuration):
-        logging.debug(f"Rested duration: {restDuration}s. Subtracting {restDuration * self.restRatio} from strained duration {self.strainedDuration}")
+        logging.debug(f"--- Rested duration: {restDuration}s. Subtracting {restDuration * self.restRatio} from strained duration {self.strainedDuration}")
         self.strainedDuration = self.strainedDuration - (restDuration * self.restRatio)
         if self.strainedDuration < 0: 
             self.strainedDuration = 0

@@ -54,7 +54,7 @@ class FileOperations:
     def getLastLinesOfThisFile(self, fileNameWithPath, numberOfLinesToGet):
         """ Gets the last n number of lines from a file. Caution: use only with small files, since this iterates the entire file. Better solutions exist for large files: https://stackoverflow.com/questions/136168/get-last-n-lines-of-a-file-similar-to-tail"""
         with open(fileNameWithPath) as fileHandler:
-            return deque(fileHandler, numberOfLinesToGet) 
+            return deque(fileHandler, numberOfLinesToGet) #TODO: Try using yield instead
 
     # def getNamesOfFilesInDirectory(self, fullFolderPath):
     #     return glob(os.path.join(self.folderName, self.archiveFileNamePrefix) + "*")

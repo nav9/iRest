@@ -11,12 +11,13 @@ from operatingSystemFunctions import operatingSystemDiversifier
 from diskOperations import fileAndFolderOperations
 
 logFileName = 'logs.log'
-logging.basicConfig(level=logging.DEBUG, format='%(levelname)s %(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S') #outputs to console
+loggingLevel = logging.DEBUG
+logging.basicConfig(level=loggingLevel, format='%(levelname)s %(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S') #outputs to console
 #log = logging.getLogger(__name__)
 handler = RotatingFileHandler(logFileName, maxBytes=100000, backupCount=2)#TODO: Shift to config file
 handler.formatter = logging.Formatter(fmt='%(levelname)s %(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S') #setting this was necessary to get it to write the format to file. Without this, only the message part of the log would get written to the file
 logging.getLogger().addHandler(handler)
-logging.getLogger().setLevel(logging.DEBUG)
+logging.getLogger().setLevel(loggingLevel)
 
 #-------------------------------------------------------------
 #-------------------------------------------------------------

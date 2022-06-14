@@ -40,7 +40,7 @@ class TimeFileManager:
         self.FILENAME_SEPARATOR = "_" #TODO: declare these constants in a separate class
         self.LAST_INDEX_OF_LIST = -1
         self.FIRST_INDEX_OF_LIST = 0
-        self.__valueSanityCheck()
+        self.__checkIfSomeValuesAssignedAreAppropriate()
         self.__archiveTheTimerFileIfItIsTooLarge()
         self.__extractHistoricalTimeDataFromFiles()
 
@@ -59,7 +59,10 @@ class TimeFileManager:
         return [currentTime, natureOfActivity]
 
     def unpackTheTimeData(self, data):
-        return data[0], data[1]
+        return data[0], data[1] #currentTime, natureOfActivity
+
+    def unpackTheTimeDataAndConvertDatatypes(self, data):
+        return [float(data[0]), data[1]] #currentTime, natureOfActivity
 
     def __extractHistoricalTimeDataFromFiles(self):
         """ To be called only when this class is instantiated. Obtains historical time data if present """
@@ -67,6 +70,8 @@ class TimeFileManager:
         if self.fileOps.isValidFile(self.timerFileNameWithPath):#if timer file exists, get as many lines from the end of the file as possible
             #---data from timeFile
             dataFromArchive = self.fileOps.getLastLinesOfThisFile(self.timerFileNameWithPath, self.STRAIN_DATA_HISTORY_LENGTH)
+            #---convert the current time from string to float
+            dataFromArchive = [self.unpackTheTimeDataAndConvertDatatypes(x) for x in dataFromArchive]
             for timeData in reversed(dataFromArchive):#iterating backward to the front of the deque
                 self.historicalStrainData.appendleft(timeData)            
             #---data from archive files
@@ -119,7 +124,7 @@ class TimeFileManager:
         #--- Archive filename will be like "Archive1_timeFileName.txt"
         return self.archiveFileNamePrefix + str(ordinal) + self.FILENAME_SEPARATOR + self.fileNameWithoutExtension + self.fileExtension
 
-    def __valueSanityCheck(self):
+    def __checkIfSomeValuesAssignedAreAppropriate(self):
         if self.TIMER_FILE_MAX_SIZE < 50:
             sys.exit(f"TIMER_FILE_MAX_SIZE {self.TIMER_FILE_MAX_SIZE} is too small")
         if self.FREQUENCY_TO_CHECK_FILE_SIZE < 1:

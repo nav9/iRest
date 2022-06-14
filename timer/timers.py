@@ -115,7 +115,8 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
             previousActivity = None
             logging.debug(f"Program just started. Examining all data in deque. historicalStrainData length: {len(self.timeFileManager.historicalStrainData)}")          
             for timeData in reversed(self.timeFileManager.historicalStrainData):#iterates backward
-                logging.debug(f"Examining time data: {str(timeData)}")
+                print("time dat: ", timeData)
+                #logging.debug(f"Examining time data: {str(timeData)}")
                 currentTimestamp, natureOfActivity = self.timeFileManager.unpackTheTimeData(timeData)
                 if previousTimestamp == None: #first timestamp being considered
                     logging.debug("Considering initial (last) timestamp in deque")
@@ -141,6 +142,9 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
                 self.__addStrain()
             if len(self.timeFileManager.historicalStrainData) > 1:#there are at least two elements in the queue
                 previousTimestamp, previousActivity = self.timeFileManager.unpackTheTimeData(self.timeFileManager.historicalStrainData[OtherConstants.PENULTIMATE_INDEX_OF_LIST])
+                print("previousTimestamp: ", previousTimestamp)
+                print("previousAc:", previousActivity)
+                print("prev:", previousTimestamp, type(previousTimestamp), "curr:", currentTimestamp, type(currentTimestamp), "sleep:", self.SLEEP_SECONDS, type(self.SLEEP_SECONDS))
                 logging.debug(f"checking if prev time {previousTimestamp} - current time: {currentTimestamp} = {currentTimestamp-previousTimestamp} > sleep seconds: {self.SLEEP_SECONDS}")
                 if previousActivity == NatureOfActivity.EYES_BEING_STRAINED and (currentTimestamp - previousTimestamp) > self.SLEEP_SECONDS + TimeConstants.ONE_SECOND:
                     self.__subtractStrain((currentTimestamp - previousTimestamp) - self.SLEEP_SECONDS)  

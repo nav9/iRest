@@ -1,5 +1,6 @@
 import os 
 import sys #for exit()
+import ast #to convert string representation of list to actual list
 from collections import deque
 from glob import glob
 import logging
@@ -61,9 +62,6 @@ class TimeFileManager:
     def unpackTheTimeData(self, data):
         return data[0], data[1] #currentTime, natureOfActivity
 
-    def unpackTheTimeDataAndConvertDatatypes(self, data):
-        return [float(data[0]), data[1]] #currentTime, natureOfActivity
-
     def __extractHistoricalTimeDataFromFiles(self):
         """ To be called only when this class is instantiated. Obtains historical time data if present """
         self.historicalStrainData.clear()
@@ -71,7 +69,7 @@ class TimeFileManager:
             #---data from timeFile
             dataFromArchive = self.fileOps.getLastLinesOfThisFile(self.timerFileNameWithPath, self.STRAIN_DATA_HISTORY_LENGTH)
             #---convert the current time from string to float
-            dataFromArchive = [self.unpackTheTimeDataAndConvertDatatypes(x) for x in dataFromArchive]
+            dataFromArchive = [ast.literal_eval(x) for x in dataFromArchive] #to convert string representation of the lists to actual lists
             for timeData in reversed(dataFromArchive):#iterating backward to the front of the deque
                 self.historicalStrainData.appendleft(timeData)            
             #---data from archive files

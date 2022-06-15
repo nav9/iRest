@@ -65,8 +65,7 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         self.SLEEP_SECONDS = 10 #how long to sleep before checking system state (in seconds). 
         self.strainedDuration = OtherConstants.PROGRAM_JUST_STARTED
         self.lastCheckedTime = time.monotonic()
-        #CAUTION/BUG: Do not add any extra underscores to the filename, as some functions depend on the position of underscores. Use any other symbol if you want, but not underscores
-        self.timeFileManager = timeFileManager.TimeFileManager("iRest_timeFiles", "timeFile", fileOperationsHandler) #parameters passed: folderName, fileName
+        self.timeFileManager = timeFileManager.TimeFileManager("timeFiles_iRest", "timeFile", fileOperationsHandler) #parameters passed: folderName, fileName
         #self.timeFileManager.registerFileOperationsHandler(fileOperationsHandler)       
         self.notifiers = {} #references to various objects that can be used to notify the user
         self.operatingSystemAdapter = operatingSystemAdapter #value will be None if no OS was identified

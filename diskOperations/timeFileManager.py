@@ -26,7 +26,9 @@ from the older files if they exist.
 """
 class TimeFileManager:
     def __init__(self, folderNameWithoutFolderSlash, fileNameWithoutFileExtension, fileOperationsHandler):
+        self.FILENAME_SEPARATOR = "_" #TODO: declare these constants in a separate class
         self.STRAIN_DATA_HISTORY_LENGTH = 360 #TODO: calculate this based on the size of the interval during which file writes happen
+        self.__doNotAllowUnderscore(fileNameWithoutFileExtension)
         self.historicalStrainData = deque(maxlen = self.STRAIN_DATA_HISTORY_LENGTH) #maxlen ensures a FIFO behaviour when using append. Items are added from the right and removed from the left     
         self.folderName = folderNameWithoutFolderSlash
         self.fileNameWithoutExtension = fileNameWithoutFileExtension
@@ -37,13 +39,16 @@ class TimeFileManager:
         self.TIMER_FILE_MAX_SIZE = 10000 #bytes
         self.FREQUENCY_TO_CHECK_FILE_SIZE = 500 
         self.fileOps = fileOperationsHandler
-        self.fileOps.createDirectoryIfNotExisting(self.folderName) #The folder to store time files         
-        self.FILENAME_SEPARATOR = "_" #TODO: declare these constants in a separate class
+        self.fileOps.createDirectoryIfNotExisting(self.folderName) #The folder to store time files                 
         self.LAST_INDEX_OF_LIST = -1
         self.FIRST_INDEX_OF_LIST = 0
         self.__checkIfSomeValuesAssignedAreAppropriate()
         self.__archiveTheTimerFileIfItIsTooLarge()
         self.__extractHistoricalTimeDataFromFiles()
+
+    def __doNotAllowUnderscore(self, filename):
+        if self.FILENAME_SEPARATOR in filename:
+            sys.exit(self.FILENAME_SEPARATOR + " is not allowed for time filenames, since one of the functions uses it for extracting substrings from filenames.")
 
     def writeTimeInformationToFile(self, currentTime, natureOfActivity):
         dataToWrite = self.__packTheTimeDataForWriting(currentTime, natureOfActivity)

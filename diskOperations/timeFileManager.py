@@ -69,6 +69,7 @@ class TimeFileManager:
             #---data from timeFile
             dataFromArchive = self.fileOps.getLastLinesOfThisFile(self.timerFileNameWithPath, self.STRAIN_DATA_HISTORY_LENGTH)
             #---convert the current time from string to float
+            #TODO: the literal eval needs to be done while loading the data from disk itself. Shift it there
             dataFromArchive = [ast.literal_eval(x) for x in dataFromArchive] #to convert string representation of the lists to actual lists
             for timeData in reversed(dataFromArchive):#iterating backward to the front of the deque
                 self.historicalStrainData.appendleft(timeData)            

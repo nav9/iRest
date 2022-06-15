@@ -164,3 +164,19 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
             logging.info(f"* Please take rest. Strained duration: {self.strainedDuration}")
             for notifierID, notifier in self.notifiers.items(): #If operating system was not recognized, the operating system adapter will be None, and no notifier will be registered. It will be an empty dict
                 notifier.execute() #within each notifier's execute(), there will be a cooldown timer, which will ensure that the notification is not repeated until some time has passed, even if execute() is invoked frequently        
+
+
+#----------------------------------------------------
+#----------------------------------------------------
+#----------------------------------------------------
+
+#TODO: Ideas for other possible timers
+class VideoAndRSI_AwareTimer(RestTimers):#Does not increase strain duration if User might be watching a video. Is aware of mouse clicks and keyboard presses, so takes into account RSI (Repetitive Strain Injury)
+    def __init__():
+        pass
+
+class NeuralNetworkTimer(RestTimers):#Asks the user and learns patterns of when the User is tired, so that strain is customized to the User
+    def __init__():
+        pass    
+
+    

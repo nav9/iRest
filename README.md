@@ -6,9 +6,7 @@ A program that reminds you to rest your eyes. This program is being created afte
 ## iRest was created because...
 I (Navin) have spent almost a decade, suffering from chronic eye strain. When new spectacles, eye drops and a lot of the other nonsense didn't cure me, I had to figure out what actually does cure eye strain. The answer was simply to get proper rest, sleep and nutrition. iRest helps with getting proper rest. A key feature is that it is designed to take into account shutdowns, system restarts, lock-screen mode and will perhaps even be designed to use Machine Learning to understand and adapt to our work patterns.   
 Many people have created software for taking rest. However, most of them are created with a poor understanding of what actually cures the strain.  
-More information here:  
-* https://nav9.medium.com/the-real-cure-for-eye-strain-6483490d150f
-* https://nrecursions.blogspot.com/2020/11/the-real-cure-for-eye-strain.html
+More information here: https://nrecursions.blogspot.com/2020/11/the-real-cure-for-eye-strain.html
   
 
 # IDE used  

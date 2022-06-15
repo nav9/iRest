@@ -10,7 +10,7 @@ from logging.handlers import RotatingFileHandler
 from operatingSystemFunctions import operatingSystemDiversifier
 from diskOperations import fileAndFolderOperations
 
-logFileName = 'logs.log'
+logFileName = 'iRest_logs.log'
 loggingLevel = logging.DEBUG
 logging.basicConfig(level=loggingLevel, format='%(levelname)s %(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S') #outputs to console
 #log = logging.getLogger(__name__)

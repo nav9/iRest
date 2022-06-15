@@ -39,7 +39,7 @@ class SpeedSayAudioNotifier_Linux(AudioNotifier):
         #Note: Notification cooling time was used within the class itself (instead of externally) since other notifiers may do notification at their own frequencies
         if self.userNotified:            
             elapsedTime = time.monotonic() - self.notifiedTime
-            logging.debug("Audio notification cooldown elapsed time: {elapsedTime}. Cooldown seconds: {self.COOLDOWN_SECONDS}")
+            logging.debug(f"Audio notification cooldown elapsed time: {elapsedTime}. Cooldown seconds: {self.COOLDOWN_SECONDS}")
             if elapsedTime >= self.COOLDOWN_SECONDS:#So actual time until the next notification will be COOLDOWN_SECONDS + number of seconds until execute() is invoked again
                 self.userNotified = False            
         else:#notify User

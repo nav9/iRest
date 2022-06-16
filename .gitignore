@@ -1,6 +1,6 @@
 # User defined
-timeFiles/
-*.log
+timeFiles_iRest/
+logs_*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

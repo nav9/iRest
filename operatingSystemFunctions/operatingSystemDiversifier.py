@@ -3,6 +3,7 @@ import subprocess
 from sys import platform #to check which OS the program is running on
 from abc import ABC, abstractmethod
 from operatingSystemFunctions import audioNotifiers
+from operatingSystemFunctions import graphicalNotifiers
 
 class OperatingSystemFunctionality(ABC):#Abstract parent class
     #Note: Abstract methods have to be implemented by child classes because they would be invoked by other classes
@@ -20,13 +21,18 @@ class LinuxFunctionality(OperatingSystemFunctionality):#For functions that are s
     def __init__(self):  
         self.encoding = 'utf-8'
         self.gnomeScreensaverPresent = self.__isGnomeScreensaverPresent()
+        #TODO: code needs to be written to dynamically switch to any other notifier
         self.audioNotifier = audioNotifiers.SpeedSayAudioNotifier_Linux()
+        self.graphicalNotifier = graphicalNotifiers.PlyerGraphicalNotifier()
     
     def isScreenLocked(self):
         return self.__isScreenLocked()
 
     def getAudioNotifier(self):
         return self.audioNotifier
+
+    def getGraphicalNotifier(self):
+        return self.graphicalNotifier
     
     def __isScreenLocked(self):
         theProcess = subprocess.Popen('gnome-screensaver-command -q | grep "is active"', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)

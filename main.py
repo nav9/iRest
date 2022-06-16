@@ -35,6 +35,7 @@ if __name__ == '__main__':
     defaultTimer = timers.DefaultTimer(operatingSystemAdapter, fileOps)
     if operatingSystemAdapter:#if OS was identified, get the audio notifier specific to that OS
         defaultTimer.addThisNotifierToListOfNotifiers(operatingSystemAdapter.getAudioNotifier()) #TODO: take notifiers from the config file
+        defaultTimer.addThisNotifierToListOfNotifiers(operatingSystemAdapter.getGraphicalNotifier()) #TODO: take notifiers from the config file
     allTimers.append(defaultTimer)
 
     logging.info("Monitoring time ...")

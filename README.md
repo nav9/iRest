@@ -10,19 +10,27 @@ More information here: https://nrecursions.blogspot.com/2020/11/the-real-cure-fo
   
 
 # IDE used  
-VS Code. You'll notice some extra files like launch.json that are located in the ".vscode" folder. Such files are specific to VS Code. These files and the IDE are not essential to running the program. You can simply run the program from the commandline using `python3 main.py`.
+VS Code. You'll notice some extra files like launch.json that are located in the `.vscode` folder. Such files are specific to VS Code. These files and the IDE are not essential to running the program. You can simply run the program from the commandline using `python3 main.py`.
   
 
 # Supporting programs required to run iRest 
 * Python==3.3   
-* For configurations: `pip install dynaconf==3.1.9`  
+* For configurations: `pip install dynaconf==3.1.9` (not yet used in the program)  
 * To sort filenames with numbers correctly: `pip install natsort==8.1.0`  
+* For graphical notification displays (crossplatform): `pip install plyer==2.0.0`
+* For playing sound files (crossplatform): `pip install ffmpeg-python==0.2.0 pydub==0.25.1`
   
 ## On Linux (Ubuntu 16.04)  
 * Gnome screensaver (to detect when the screen is locked): `sudo apt install -y gnome-screensaver`.
-* Speech Dispatcher engine (for spoken audio notifications. This would be pre-installed on Ubuntu). If it isn't alredy installed, you can install it using: `sudo apt-get install speech-dispatcher` (https://command-not-found.com/spd-say).
+* Speech Dispatcher engine (for spoken audio notifications. This would be pre-installed on Ubuntu). If it isn't already installed, you can install it using: `sudo apt-get install speech-dispatcher` (https://command-not-found.com/spd-say).
   
   
-# To run test cases  
+# To run test cases (yet to be programmed)  
 Install PyTest: `pip install pytest==7.1.2`  
+  
+  
+# Attribution  
+* Sound files are from https://notificationsounds.com
+* I created the icon files. I'm providing them under the Creative Commons Attribution 4.0 International Public License: https://creativecommons.org/licenses/by/4.0/legalcode
+
 

@@ -3,6 +3,14 @@ This program is under construction.
 # About iRest  
 A program that reminds you to rest your eyes. This program is being created after more than a decade of my experience with chronic eye strain and my eventual recovery. The "i" at the beginning of "iRest" has nothing to do with the Apple company. The "i" refers to you.
   
+# To run the program  
+`python main.py`  
+  
+## To run from Ubuntu's startup applications  
+In this case, the time files and log files will be created in Ubuntu's home folder. It's helpful to redirect stdout in this manner to be able to see the reason for any crashes.    
+Use this line in the "command" field: `python /path/to/iRest/main.py 2>> iRestErrors.log`  
+If the application to run startup apps is missing in your newer version of Ubuntu, simply install it: `sudo apt-get install gnome-startup-applications`.  
+  
 ## iRest was created because...
 I (Navin) have spent almost a decade, suffering from chronic eye strain. When new spectacles, eye drops and a lot of the other nonsense didn't cure me, I had to figure out what actually does cure eye strain. The answer was simply to get proper rest, sleep and nutrition. iRest helps with getting proper rest. A key feature is that it is designed to take into account shutdowns, system restarts, lock-screen mode and will perhaps even be designed to use Machine Learning to understand and adapt to our work patterns.   
 Many people have created software for taking rest. However, most of them are created with a poor understanding of what actually cures the strain.  
@@ -27,7 +35,7 @@ VS Code. You'll notice some extra files like launch.json that are located in the
   
 # To run test cases (yet to be programmed)  
 Install PyTest: `pip install pytest==7.1.2`  
-  
+   
   
 # Attribution  
 * Sound files are from https://notificationsounds.com

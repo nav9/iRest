@@ -1,4 +1,5 @@
 import os
+import ast #to convert string representation of list to actual list
 import shutil
 import logging
 from collections import deque
@@ -53,8 +54,11 @@ class FileOperations:
 
     def getLastLinesOfThisFile(self, fileNameWithPath, numberOfLinesToGet):
         """ Gets the last n number of lines from a file. Caution: use only with small files, since this iterates the entire file. Better solutions exist for large files: https://stackoverflow.com/questions/136168/get-last-n-lines-of-a-file-similar-to-tail"""
+        lastLines = deque(maxlen = numberOfLinesToGet) #FIFO deque that stores a fixed number of items
         with open(fileNameWithPath) as fileHandler:
-            return deque(fileHandler, numberOfLinesToGet) #TODO: Try using yield instead
+            for line in fileHandler:
+                lastLines.append(ast.literal_eval(line)) #to convert string representation of the lists to actual lists
+        return lastLines
 
     # def getNamesOfFilesInDirectory(self, fullFolderPath):
     #     return glob(os.path.join(self.folderName, self.archiveFileNamePrefix) + "*")

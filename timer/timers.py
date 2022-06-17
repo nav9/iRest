@@ -142,7 +142,10 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
                 self.__addStrain()
             if len(self.timeFileManager.historicalStrainData) > 1:#there are at least two elements in the queue
                 previousTimestamp, previousActivity = self.timeFileManager.unpackTheTimeData(self.timeFileManager.historicalStrainData[OtherConstants.PENULTIMATE_INDEX_OF_LIST])
-                timeDifference = abs(currentTimestamp-previousTimestamp) #value in seconds
+                print("Historical data: ", self.timeFileManager.historicalStrainData)
+                print("curr", currentTimestamp)
+                print("prev", previousTimestamp)
+                timeDifference = abs(currentTimestamp - previousTimestamp) #value in seconds
                 logging.debug(f"checking if prev time {previousTimestamp} - current time: {currentTimestamp} = {timeDifference} > sleep seconds: {self.SLEEP_SECONDS}+1={self.SLEEP_SECONDS+TimeConstants.ONE_SECOND}")
                 if previousActivity == NatureOfActivity.EYES_BEING_STRAINED and timeDifference > self.SLEEP_SECONDS + TimeConstants.ONE_SECOND:
                     self.__subtractStrain(timeDifference - self.SLEEP_SECONDS)  

@@ -22,7 +22,7 @@ class LinuxFunctionality(OperatingSystemFunctionality):#For functions that are s
         self.encoding = 'utf-8'
         self.gnomeScreensaverPresent = self.__isGnomeScreensaverPresent()
         #TODO: code needs to be written to dynamically switch to any other notifier
-        self.audioNotifier = audioNotifiers.SpeedSayAudioNotifier_Linux()
+        self.audioNotifier = audioNotifiers.SpeedSaySpeechNotifier_Linux()
         self.graphicalNotifier = graphicalNotifiers.PlyerGraphicalNotifier()
     
     def isScreenLocked(self):

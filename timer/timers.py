@@ -95,8 +95,9 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         time.sleep(self.SLEEP_SECONDS) #relinquish program control to the operating system, for a while
         currentTime = time.time() #epoch time is simply the time elapsed since a specific year (around 1970)
         screenLocked = False
+        logging.debug(f"OS adapter: {self.operatingSystemAdapter}")
         if self.operatingSystemAdapter != None: #because the program should be capable of working even if the OS could not be identified
-            screenLocked = self.operatingSystemAdapter.isScreenLocked()
+            screenLocked = self.operatingSystemAdapter.isScreenLocked()            
         if screenLocked: #screen lock situation is currently being considered the equivalent of suspend or shutdown, so no need to write to file
             logging.info(f"Screen locked: {currentTime}")
             #self.timeFileManager.writeTimeInformationToFile(currentTime, NatureOfActivity.SCREEN_LOCKED) 

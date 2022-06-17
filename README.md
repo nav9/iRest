@@ -8,7 +8,7 @@ A program that reminds you to rest your eyes. This program is being created afte
   
 ## To run from Ubuntu's startup applications  
 In this case, the time files and log files will be created in Ubuntu's home folder. It's helpful to redirect stdout in this manner to be able to see the reason for any crashes.    
-Use this line in the "command" field: `python /path/to/iRest/main.py >> iRestErrors.log`  
+Use this line in the "command" field: `python -B /path/to/iRest/main.py >> iRestErrors.log`. The `-B` flag is to prevent Python from generating the `__pycache__` folder and `.pyc` bytecode files.  
 If the application to run startup apps is missing in your newer version of Ubuntu, simply install it: `sudo apt-get install gnome-startup-applications`.  
   
 ## iRest was created because...

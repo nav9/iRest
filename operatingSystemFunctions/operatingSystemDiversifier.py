@@ -39,6 +39,7 @@ class LinuxFunctionality(OperatingSystemFunctionality):#For functions that are s
         locked = False
         if len(theProcess.stdout.readlines()) > 0:
             locked = True
+            logging.debug(f"SCREEN LOCKED status: {locked}")        
         return locked
 
     def __isGnomeScreensaverPresent(self):

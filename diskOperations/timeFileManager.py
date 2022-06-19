@@ -27,6 +27,7 @@ class TimeFileManager:
     def __init__(self, folderNameWithoutFolderSlash, fileNameWithoutFileExtension, fileOperationsHandler):
         self.FILENAME_SEPARATOR = "_" #TODO: declare these constants in a separate class
         self.STRAIN_DATA_HISTORY_LENGTH = 360 #TODO: calculate this based on the size of the interval during which file writes happen
+        self.__doNotAllowUnderscore(folderNameWithoutFolderSlash)
         self.__doNotAllowUnderscore(fileNameWithoutFileExtension)
         self.historicalStrainData = deque(maxlen = self.STRAIN_DATA_HISTORY_LENGTH) #maxlen ensures a FIFO behaviour when using append. Items are added from the right and removed from the left     
         self.folderName = folderNameWithoutFolderSlash
@@ -101,7 +102,7 @@ class TimeFileManager:
         archiveFiles = self.__getSortedListOfArchiveFiles()
         if archiveFiles: #if list not empty
             logging.info(f"The archive files are: {archiveFiles}")
-            #TODO: try catch for if the filenames don't have any substring we are looking for
+            #TODO: try catch in case the filenames don't have any substring we are looking for
             fileNameWithHighestOrdinal = archiveFiles[self.LAST_INDEX_OF_LIST]
             fileNameWithHighestOrdinal = fileNameWithHighestOrdinal.split(self.FILENAME_SEPARATOR)[self.FIRST_INDEX_OF_LIST] #get the "Archive1" part of the string, where the "1" is an example of the ordinal            
             #---extract the digit in the substring (https://stackoverflow.com/questions/4289331/how-to-extract-numbers-from-a-string-in-python)

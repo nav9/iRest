@@ -32,6 +32,11 @@ VS Code. You'll notice some extra files like launch.json that are located in the
 * Gnome screensaver (to detect when the screen is locked): `sudo apt install -y gnome-screensaver`.
 * Speech Dispatcher engine (for spoken audio notifications. This would be pre-installed on Ubuntu). If it isn't already installed, you can install it using: `sudo apt-get install speech-dispatcher` (https://command-not-found.com/spd-say).
   
+## On Windows (8.1)   
+* Install Python 3.6+ and add Python to the PATH variable during installation itself (you'll be shown a checkbox).  
+* Download `ffmpeg` and add the path to ffmpeg's bin folder to the System PATH variable.  
+* `pip install natsort plyer ffmpeg-python pydub`  
+* Add iRest to Windows startup by pressing `Win+R` and type `shell:startup`. You'll be taken to the `C:\Users\<username>\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup` folder. Here, create an `irest.bat` file containing the lines `cd C:\Users\Navin\Desktop\iRest-main\` and `python main.py` in the next line.  
   
 # To run test cases (yet to be programmed)  
 Install PyTest: `pip install pytest==7.1.2`  

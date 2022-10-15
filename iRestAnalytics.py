@@ -1,3 +1,4 @@
+#Note: This is an old program that may need to be modified
 import matplotlib.pyplot as plt
 
 logFile = "irest.log"

@@ -14,12 +14,17 @@ class TimeConstants:
     MINUTES_IN_HOUR = 60
     HOURS_IN_DAY = 24
     ONE_SECOND = 1
+    
+class Names:
+    ARCHIVE_FOLDER = "timeFiles-iRest"
+    TIME_FILE = "timeFile"
 
 class NatureOfActivity:
     EYES_BEING_STRAINED = "eyes_strained"
     SCREEN_LOCKED = "screen_locked"
     TYPING = "typing"
     MOUSE_MOVEMENT = "mouse_movement"
+    WATCHING_VIDEO = "watching_video"
 
 #Note: The program is designed such that multiple timers can be created and run simultaneously. This helps in simultaneously running a Neural Network or any such Machine Learning algorithm which learns from the User's preferences of how much rest they actually need, instead of sticking to pre-defined time intervals
 #Note: This abstract class specifies what functions all timers should implement
@@ -65,7 +70,7 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         self.SLEEP_SECONDS = 10 #how long to sleep before checking system state (in seconds). 
         self.strainedDuration = OtherConstants.PROGRAM_JUST_STARTED
         self.lastCheckedTime = time.monotonic()
-        self.timeFileManager = timeFileManager.TimeFileManager("timeFiles-iRest", "timeFile", fileOperationsHandler) #parameters passed: folderName, fileName
+        self.timeFileManager = timeFileManager.TimeFileManager(Names.ARCHIVE_FOLDER, Names.TIME_FILE, fileOperationsHandler) #parameters passed: folderName, fileName
         #self.timeFileManager.registerFileOperationsHandler(fileOperationsHandler)       
         self.notifiers = {} #references to various objects that can be used to notify the user
         self.operatingSystemAdapter = operatingSystemAdapter #value will be None if no OS was identified
@@ -175,7 +180,7 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
 #----------------------------------------------------
 
 #TODO: Ideas for other possible timers
-class VideoAndRSI_AwareTimer(RestTimers):#Does not increase strain duration if User might be watching a video. Is aware of mouse clicks and keyboard presses, so takes into account RSI (Repetitive Strain Injury)
+class VideoAndRSI_AwareTimer(RestTimers):#Does not increase strain duration too fast if User might be watching a video. Is aware of mouse clicks and keyboard presses, so takes into account RSI (Repetitive Strain Injury)
     def __init__():
         pass
 

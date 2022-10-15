@@ -5,6 +5,10 @@ from glob import glob
 import logging
 import natsort
 
+class TimeDataStore:
+    CURRENT_TIME = 0
+    NATURE_OF_ACTIVITY = 1
+    
 """ 
 Keeping track of the amount of time the eyes were strained, requires tracking the total
 time even when the computer is restarted or the screen is locked. The only way to track it 
@@ -36,7 +40,7 @@ class TimeFileManager:
         self.fileExtension = ".txt"
         self.timerFileNameWithPath = os.path.join(self.folderName, self.fileNameWithoutExtension + self.fileExtension)
         self.numberOfWritesSinceProgramStart = 0 #to not let file size increase too much if program is run non-stop for many days
-        self.TIMER_FILE_MAX_SIZE = 10000 #bytes
+        self.TIMER_FILE_MAX_SIZE = 100000 #bytes
         self.FREQUENCY_TO_CHECK_FILE_SIZE = 500 
         self.fileOps = fileOperationsHandler
         self.fileOps.createDirectoryIfNotExisting(self.folderName) #The folder to store time files                 
@@ -62,10 +66,10 @@ class TimeFileManager:
             self.__archiveTheTimerFileIfItIsTooLarge()
 
     def __packTheTimeDataForWriting(self, currentTime, natureOfActivity):
-        return [currentTime, natureOfActivity]
-
+        return [currentTime, natureOfActivity] #TODO: The better way would be to use a map, for flexibility and to not have future errors about the order of storage, if anything is changed
+        
     def unpackTheTimeData(self, data):
-        return data[0], data[1] #currentTime, natureOfActivity
+        return data[TimeDataStore.CURRENT_TIME], data[TimeDataStore.NATURE_OF_ACTIVITY] #currentTime, natureOfActivity
 
     def __extractHistoricalTimeDataFromFiles(self):
         """ To be called only when this class is instantiated. Obtains historical time data if present """

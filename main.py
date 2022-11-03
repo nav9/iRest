@@ -31,16 +31,21 @@ logging.getLogger().setLevel(loggingLevel)
 if __name__ == '__main__':
     logging.info("\n\n---------------------------------")
     logging.info("iRest program started")
+    #---Initialize helper classes
     config = configHandler.ConfigurationHandler()
     fileOps = fileAndFolderOperations.FileOperations()
     operatingSystemCheck = operatingSystemDiversifier.OperatingSystemIdentifier()
     operatingSystemAdapter = operatingSystemCheck.getOperatingSystemAdapterInstance() #If OS could not be identified, it will return None
+    #---Create the timer(s)
     allTimers = []
     defaultTimer = timers.DefaultTimer(operatingSystemAdapter, fileOps)
     if operatingSystemAdapter:#if OS was identified, get the audio notifier specific to that OS
         defaultTimer.addThisNotifierToListOfNotifiers(operatingSystemAdapter.getAudioNotifier()) #TODO: take notifiers from the config file
         defaultTimer.addThisNotifierToListOfNotifiers(operatingSystemAdapter.getGraphicalNotifier()) #TODO: take notifiers from the config file
     allTimers.append(defaultTimer)
+    #---Add timer to GUI if needed
+    for timer in allTimers:
+        timer.addToGUI()
 
     logging.info("Monitoring time ...")
 

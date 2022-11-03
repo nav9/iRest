@@ -15,7 +15,7 @@ class TimeConstants:
     HOURS_IN_DAY = 24
     ONE_SECOND = 1
     
-class Names:
+class Names:#Note: These names may have to be made specific to specific timers
     ARCHIVE_FOLDER = "timeFiles-iRest"
     TIME_FILE = "timeFile"
 
@@ -140,7 +140,7 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
                         previousTimestamp = currentTimestamp
                         previousActivity = natureOfActivity
                 #---stop examining the past if a sufficient amount of time has been analyzed (for example, if the difference of the first and second timestamps are one hour, there's no need to examine more time slices, since it's obvious the User got an hour's rest already)
-                #write some code after determining how much time is sufficient time
+                #TODO: write some code after determining how much time is sufficient time that's analyzed
         else: #simply examine the latest time slice
             logging.debug(f"Examining only the latest time slice. historicalStrainData length: {len(self.timeFileManager.historicalStrainData)}")  
             currentTimestamp, natureOfActivity = self.timeFileManager.unpackTheTimeData(self.timeFileManager.historicalStrainData[OtherConstants.LAST_INDEX_OF_LIST])
@@ -148,9 +148,9 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
                 self.__addStrain()
             if len(self.timeFileManager.historicalStrainData) > 1:#there are at least two elements in the queue
                 previousTimestamp, previousActivity = self.timeFileManager.unpackTheTimeData(self.timeFileManager.historicalStrainData[OtherConstants.PENULTIMATE_INDEX_OF_LIST])
-                print("Historical data: ", self.timeFileManager.historicalStrainData)
-                print("curr", currentTimestamp)
-                print("prev", previousTimestamp)
+                #logging.debug(f"Historical data: " + str(self.timeFileManager.historicalStrainData))
+                #logging.debug(f"curr" + str(currentTimestamp))
+                #logging.debug(f"prev" + str(previousTimestamp))
                 timeDifference = abs(currentTimestamp - previousTimestamp) #value in seconds
                 logging.debug(f"checking if prev time {previousTimestamp} - current time: {currentTimestamp} = {timeDifference} > sleep seconds: {self.SLEEP_SECONDS}+1={self.SLEEP_SECONDS+TimeConstants.ONE_SECOND}")
                 if previousActivity == NatureOfActivity.EYES_BEING_STRAINED and timeDifference > self.SLEEP_SECONDS + TimeConstants.ONE_SECOND:
@@ -174,6 +174,8 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
             for notifierID, notifier in self.notifiers.items(): #If operating system was not recognized, the operating system adapter will be None, and no notifier will be registered. It will be an empty dict
                 notifier.execute() #within each notifier's execute(), there will be a cooldown timer, which will ensure that the notification is not repeated until some time has passed, even if execute() is invoked frequently        
 
+    def addToGUI(self):
+        pass
 
 #----------------------------------------------------
 #----------------------------------------------------

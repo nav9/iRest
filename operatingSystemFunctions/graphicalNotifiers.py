@@ -40,7 +40,7 @@ class PlyerGraphicalNotifier(GraphicalNotifier):
         else:#notify User
             logging.debug("Audio notifier sending notification")
             #Note: notify command documentation: https://plyer.readthedocs.io/en/latest/index.html?highlight=notify#plyer.facades.Notification.notify and https://stackoverflow.com/a/42085439/453673       
-            notification.notify(title='iRest reminder',message="Please take rest now. You've strained your eyes.", app_name='iRest')
+            notification.notify(title = 'iRest reminder', message = "Please take rest now. You've strained your eyes.", app_name = 'iRest')
             self.notifiedTime = time.monotonic()
             self.userNotified = True
 

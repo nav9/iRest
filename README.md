@@ -1,4 +1,4 @@
-This program is under construction.
+This program is under construction, but can still be used.  
   
 # About iRest  
 A program that reminds you to rest your eyes. This program is being created after more than a decade of my experience with chronic eye strain and my eventual recovery. The "i" at the beginning of "iRest" has nothing to do with the Apple company. The "i" refers to you, when you use the program.
@@ -22,20 +22,23 @@ VS Code. You'll notice some extra files like launch.json that are located in the
   
 
 # Supporting programs required to run iRest  
-These could have been mentioned in a `requirements.txt` file, but is mentioned as such to not have to constantly go through the extra steps of keeping the `readme` explanations and `requirements.txt` file synchronized.
+These could have been mentioned in a `requirements.txt` file, but is mentioned as such to not have to constantly go through the extra steps of keeping the `readme` explanations and `requirements.txt` file synchronized.  
 * Python version 3.3+ (in this case, version 3.9.6). It is recommended that you install Python either using PyEnv or Anaconda/Miniconda.     
 * `pip install natsort==8.1.0`: To sort filenames with numbers correctly.  
-* `pip install plyer==2.0.0`: For graphical notification displays (supposed to be crossplatform).
-* `pip install ffmpeg-python==0.2.0 pydub==0.25.1`: For playing sound files (supposed to be crossplatform).
+* `pip install plyer==2.0.0`: For graphical notification displays (supposed to be crossplatform).  
+* `pip install ffmpeg-python==0.2.0 pydub==0.25.1`: For playing sound files (supposed to be crossplatform).  
 * `pip install PySimpleGUI=4.60.3`: For a GUI control panel (supposed to be crossplatform).   
 * `pip install dynaconf==3.1.9` (not yet used in the program): For configurations.  
-  
+    
 ## On Linux (Ubuntu 16.04)  
-* `sudo apt install -y gnome-screensaver`: Gnome screensaver (to detect when the screen is locked).
-* `sudo apt-get install speech-dispatcher`: Speech Dispatcher engine (for spoken audio notifications. This would be pre-installed on Ubuntu). If it isn't already installed, you can install it using (https://command-not-found.com/spd-say).
+* `sudo apt install -y gnome-screensaver`: Gnome screensaver (to detect when the screen is locked).  
+* `sudo apt-get install speech-dispatcher`: Speech Dispatcher engine (for spoken audio notifications. This would be pre-installed on Ubuntu).   If it isn't already installed, you can install it using (https://command-not-found.com/spd-say).  
   
-## On Windows and Mac  
-Not yet tested.
+## On Windows (8.1)   
+* Install Python 3.6+ and add Python to the PATH variable during installation itself (you'll be shown a checkbox).  
+* Download `ffmpeg` and add the path to ffmpeg's bin folder to the System PATH variable.  
+* `pip install natsort plyer ffmpeg-python pydub`  
+* Add iRest to Windows startup by pressing `Win+R` and type `shell:startup`. You'll be taken to the `C:\Users\<username>\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup` folder. Here, create an `irest.bat` file containing the lines `cd C:\Users\Navin\Desktop\iRest-main\` and `python main.py` in the next line.  
   
 # To run test cases (yet to be programmed)  
 Install PyTest: `pip install pytest==7.1.2`  

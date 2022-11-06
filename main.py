@@ -3,6 +3,7 @@ A program that helps remind users to take rest breaks. For more
 information, see the readme file and license file.
 """
 import sys
+from time import sleep
 
 sys.dont_write_bytecode = True #Prevents the creation of some annoying cache files and folders. This line has to be present before all the other imports: https://docs.python.org/3/library/sys.html#sys.dont_write_bytecode and https://stackoverflow.com/a/71434629/453673 
 
@@ -12,6 +13,7 @@ from configuration import configHandler
 from logging.handlers import RotatingFileHandler
 from operatingSystemFunctions import operatingSystemDiversifier
 from diskOperations import fileAndFolderOperations
+from gui import simpleGUI
 
 #TODO: shift log file config to file
 logFileName = 'logs_iRest.log'
@@ -29,13 +31,14 @@ logging.getLogger().setLevel(loggingLevel)
 #-------------------------------------------------------------
 #-------------------------------------------------------------
 if __name__ == '__main__':
+    SLEEP_SECONDS = 0.01
     logging.info("\n\n---------------------------------")
     logging.info("iRest program started")
     #---Initialize helper classes
     config = configHandler.ConfigurationHandler()
     fileOps = fileAndFolderOperations.FileOperations()
     operatingSystemCheck = operatingSystemDiversifier.OperatingSystemIdentifier()
-    operatingSystemAdapter = operatingSystemCheck.getOperatingSystemAdapterInstance() #If OS could not be identified, it will return None
+    operatingSystemAdapter = operatingSystemCheck.getOperatingSystemAdapterInstance() #If OS could not be identified, it will return None    
     #---Create the timer(s)
     allTimers = []
     defaultTimer = timers.DefaultTimer(operatingSystemAdapter, fileOps)
@@ -43,14 +46,18 @@ if __name__ == '__main__':
         defaultTimer.addThisNotifierToListOfNotifiers(operatingSystemAdapter.getAudioNotifier()) #TODO: take notifiers from the config file
         defaultTimer.addThisNotifierToListOfNotifiers(operatingSystemAdapter.getGraphicalNotifier()) #TODO: take notifiers from the config file
     allTimers.append(defaultTimer)
-    #---Add timer to GUI if needed
-    for timer in allTimers:
-        timer.addToGUI()
-
+    #---Initialize the main GUI interface
+    gui = simpleGUI.MainInterface()
+    gui.addThisBackend(defaultTimer) #backends can be timers or other classes too which need a GUI representation
+    gui.createLayout()
     logging.info("Monitoring time ...")
 
     while True:
         for timer in allTimers:
             timer.execute()
+        if gui.notClosedGUI(): gui.runEventLoop()
+        else: break
+        sleep(SLEEP_SECONDS) #relinquish program control to the operating system, for a while
+    logging.info("iRest has been stopped")
     
     

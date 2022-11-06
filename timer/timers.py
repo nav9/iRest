@@ -2,6 +2,7 @@ import time
 import logging
 from abc import ABC, abstractmethod
 from diskOperations import timeFileManager
+from gui import simpleGUI
 
 class OtherConstants:
     PROGRAM_JUST_STARTED = -999
@@ -67,15 +68,19 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         self.restRatio = self.WORK_MINUTES / self.REST_MINUTES #Five minutes of rest for every 20 minutes of work
         logging.debug(f"RestRatio={self.restRatio} = work minutes {self.WORK_MINUTES} * rest minutes {self.REST_MINUTES}")
         #CAUTION/BUG If the SLEEP_SECONDS value is changed, all old archive files and the time file needs to be deleted, since calculations of strain are based on the assumption that this value is constant across all those files. This can be mitigated by storing the sleep time value when writing timestamps to the file each time
-        self.SLEEP_SECONDS = 10 #how long to sleep before checking system state (in seconds). 
+        self.CHECKING_INTERVAL = 10 #how long to sleep before checking system state (in seconds). 
         self.strainedDuration = OtherConstants.PROGRAM_JUST_STARTED
-        self.lastCheckedTime = time.monotonic()
+        self.lastCheckedTime = time.time()
         self.timeFileManager = timeFileManager.TimeFileManager(Names.ARCHIVE_FOLDER, Names.TIME_FILE, fileOperationsHandler) #parameters passed: folderName, fileName
         #self.timeFileManager.registerFileOperationsHandler(fileOperationsHandler)       
         self.notifiers = {} #references to various objects that can be used to notify the user
         self.operatingSystemAdapter = operatingSystemAdapter #value will be None if no OS was identified
-        self.__checkIfUserIsStrained()
+        self.GUI_Layout = simpleGUI.DefaultTimerLayout(self)
+        self.__checkIfUserIsStrained()       
         
+    def getGUIRef(self):
+        return self.GUI_Layout
+    
     def addThisNotifierToListOfNotifiers(self, notifier):
         if notifier.id not in self.notifiers:#is notifier not already registered here
             logging.info(f"Registering notifier: {notifier.id}")
@@ -97,8 +102,11 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
     #     self.timeFileManager.registerFileOperationsHandler(fileOperationsHandler)
     
     def execute(self):
-        time.sleep(self.SLEEP_SECONDS) #relinquish program control to the operating system, for a while
         currentTime = time.time() #epoch time is simply the time elapsed since a specific year (around 1970)
+        if abs(self.lastCheckedTime - currentTime) >= self.CHECKING_INTERVAL:            
+            self.lastCheckedTime = currentTime
+        else:
+            return #not yet time to do any checks, so let other modules get their share of processing time
         screenLocked = False
         logging.debug(f"OS adapter: {self.operatingSystemAdapter}")
         if self.operatingSystemAdapter != None: #because the program should be capable of working even if the OS could not be identified
@@ -111,7 +119,7 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
             logging.debug(f"Strained currentTime: {currentTime}, nature: {NatureOfActivity.EYES_BEING_STRAINED}")
             self.timeFileManager.writeTimeInformationToFile(currentTime, NatureOfActivity.EYES_BEING_STRAINED) #More data can be added to this list when writing, if necessary                    
             self.__checkIfUserIsStrained()
-    
+
     def __checkIfUserIsStrained(self):
         """ Go through historical data and find out how much time the user was strained and how much time user was not strained"""
         #TODO: The examination of past time data needs to be more intelligent
@@ -134,9 +142,9 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
                         self.__addStrain()
                         #---check if user had rested between current time and previous time. If yes, take into account the rested time by reducing the strained value
                         timeDifference = abs(currentTimestamp-previousTimestamp) #value in seconds
-                        logging.debug(f"Checking if prev time {previousTimestamp} - current time: {currentTimestamp} = {timeDifference} > sleep seconds: {self.SLEEP_SECONDS}+1={self.SLEEP_SECONDS+TimeConstants.ONE_SECOND}")
-                        if previousActivity == NatureOfActivity.EYES_BEING_STRAINED and timeDifference > self.SLEEP_SECONDS + TimeConstants.ONE_SECOND:
-                            self.__subtractStrain(timeDifference - self.SLEEP_SECONDS) 
+                        logging.debug(f"Checking if prev time {previousTimestamp} - current time: {currentTimestamp} = {timeDifference} > sleep seconds: {self.CHECKING_INTERVAL}+1={self.CHECKING_INTERVAL+TimeConstants.ONE_SECOND}")
+                        if previousActivity == NatureOfActivity.EYES_BEING_STRAINED and timeDifference > self.CHECKING_INTERVAL + TimeConstants.ONE_SECOND:
+                            self.__subtractStrain(timeDifference - self.CHECKING_INTERVAL) 
                         previousTimestamp = currentTimestamp
                         previousActivity = natureOfActivity
                 #---stop examining the past if a sufficient amount of time has been analyzed (for example, if the difference of the first and second timestamps are one hour, there's no need to examine more time slices, since it's obvious the User got an hour's rest already)
@@ -152,14 +160,14 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
                 #logging.debug(f"curr" + str(currentTimestamp))
                 #logging.debug(f"prev" + str(previousTimestamp))
                 timeDifference = abs(currentTimestamp - previousTimestamp) #value in seconds
-                logging.debug(f"checking if prev time {previousTimestamp} - current time: {currentTimestamp} = {timeDifference} > sleep seconds: {self.SLEEP_SECONDS}+1={self.SLEEP_SECONDS+TimeConstants.ONE_SECOND}")
-                if previousActivity == NatureOfActivity.EYES_BEING_STRAINED and timeDifference > self.SLEEP_SECONDS + TimeConstants.ONE_SECOND:
-                    self.__subtractStrain(timeDifference - self.SLEEP_SECONDS)  
+                logging.debug(f"checking if prev time {previousTimestamp} - current time: {currentTimestamp} = {timeDifference} > sleep seconds: {self.CHECKING_INTERVAL}+1={self.CHECKING_INTERVAL+TimeConstants.ONE_SECOND}")
+                if previousActivity == NatureOfActivity.EYES_BEING_STRAINED and timeDifference > self.CHECKING_INTERVAL + TimeConstants.ONE_SECOND:
+                    self.__subtractStrain(timeDifference - self.CHECKING_INTERVAL)  
         self.__notifyUserIfTheyNeedToTakeRest()  
     
     def __addStrain(self):
-        logging.debug(f"+++ Adding strain of {self.SLEEP_SECONDS}s to strained duration {self.strainedDuration}")
-        self.strainedDuration = self.strainedDuration + self.SLEEP_SECONDS        
+        logging.debug(f"+++ Adding strain of {self.CHECKING_INTERVAL}s to strained duration {self.strainedDuration}")
+        self.strainedDuration = self.strainedDuration + self.CHECKING_INTERVAL        
 
     def __subtractStrain(self, restDuration):
         logging.debug(f"--- Rested duration: {restDuration}s. Subtracting {restDuration * self.restRatio} from strained duration {self.strainedDuration}")
@@ -174,8 +182,8 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
             for notifierID, notifier in self.notifiers.items(): #If operating system was not recognized, the operating system adapter will be None, and no notifier will be registered. It will be an empty dict
                 notifier.execute() #within each notifier's execute(), there will be a cooldown timer, which will ensure that the notification is not repeated until some time has passed, even if execute() is invoked frequently        
 
-    def addToGUI(self):
-        pass
+    def getStrainDetails(self):
+        return self.strainedDuration, self.allowedStrainDuration, time.strftime("%H:%M:%S", time.gmtime(self.strainedDuration))
 
 #----------------------------------------------------
 #----------------------------------------------------

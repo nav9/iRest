@@ -13,12 +13,11 @@ class WidgetConstants:
     
 
 class DefaultTimerLayout:#The layouts will be initialized in the timer classes and then be passed to the main interface
-    def __init__(self, backendReference) -> None:
-        self.timer = backendReference
+    def __init__(self, backendRef) -> None:
+        self.timer = backendRef
         self.layout = [
                         [simpleGUI.Text("Strained time: "), simpleGUI.Text(size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.STRAINED_TIME_TEXT)],
                         [simpleGUI.Text("Allowed strain: "), simpleGUI.Text(size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.ALLOWED_STRAIN_TEXT)],
-                        #[simpleGUI.Text(self.strainInfo), simpleGUI.Text(size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.STRAINED_INFO_TEXT)],
                         [simpleGUI.Button(WidgetConstants.PAUSE_BUTTON), simpleGUI.Button(WidgetConstants.PLAY_BUTTON)]
                     ]
         
@@ -37,16 +36,17 @@ class DefaultTimerLayout:#The layouts will be initialized in the timer classes a
     
 class MainInterface:
     def __init__(self):
-        simpleGUI.theme('Dark Blue 13') 
+        #simpleGUI.theme('Dark Blue 13') 
+        self.WINDOW_WAIT_TIMEOUT_MILLISECOND = 100 #the amount of time the window waits for user input before relinquishing control to other processes
         self.programRunning = True
         self.window = None #will be instantiated when layout is created
-        self.backends = []
-        self.backendGUIRefs = []
+        self.backends = [] #the backend objects related to the GUI section being displayed
+        self.backendGUIRefs = [] #the GUI layout objects 
         self.layout = []
         
-    def addThisBackend(self, backendReference):
-        self.backends.append(backendReference)
-        self.backendGUIRefs.append(backendReference.getGUIRef())
+    def addThisBackend(self, backendRef):
+        self.backends.append(backendRef)
+        self.backendGUIRefs.append(backendRef.getGUIRef())
         
     def createLayout(self):
         for guiRef in self.backendGUIRefs:#iterate all the supplied layouts and append them in the main interface
@@ -55,8 +55,7 @@ class MainInterface:
         self.window = simpleGUI.Window(WidgetConstants.WINDOW_TITLE, self.layout)
     
     def runEventLoop(self):#this function should get called repeatedly from an external while loop
-        event, values = self.window.read()
-        print(event, values)
+        event, values = self.window.read(timeout = self.WINDOW_WAIT_TIMEOUT_MILLISECOND) 
         if event == simpleGUI.WIN_CLOSED or event == simpleGUI.Exit:
             self.closeWindow()
         for guiRef in self.backendGUIRefs:
@@ -66,5 +65,5 @@ class MainInterface:
         self.window.close()
         self.programRunning = False
         
-    def notClosedGUI(self):
+    def checkIfNotClosedGUI(self):
         return self.programRunning

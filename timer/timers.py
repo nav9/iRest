@@ -95,12 +95,6 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         else:
             logging.info(f"No such notifier registered: {notifier.id}")
 
-    # def registerOperatingSystemAdapter(self, operatingSystemAdapter):
-    #     self.operatingSystemAdapter = operatingSystemAdapter  
-
-    # def registerFileOperationsHandler(self, fileOperationsHandler):
-    #     self.timeFileManager.registerFileOperationsHandler(fileOperationsHandler)
-    
     def execute(self):
         currentTime = time.time() #epoch time is simply the time elapsed since a specific year (around 1970)
         if abs(self.lastCheckedTime - currentTime) >= self.CHECKING_INTERVAL:            
@@ -183,7 +177,8 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
                 notifier.execute() #within each notifier's execute(), there will be a cooldown timer, which will ensure that the notification is not repeated until some time has passed, even if execute() is invoked frequently        
 
     def getStrainDetails(self):
-        return self.strainedDuration, self.allowedStrainDuration, time.strftime("%H:%M:%S", time.gmtime(self.strainedDuration))
+        print(f"strained duration {self.strainedDuration}")
+        return self.strainedDuration, time.strftime("%Hh %Mm %Ss", time.gmtime(self.allowedStrainDuration)), time.strftime("%Hh %Mm %Ss", time.gmtime(self.strainedDuration))
 
 #----------------------------------------------------
 #----------------------------------------------------

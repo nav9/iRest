@@ -19,10 +19,8 @@ class DefaultTimerLayout:#The layouts will be initialized in the timer classes a
     def __init__(self, backendRef) -> None:
         self.timer = backendRef
         self.layout = [
-                        [simpleGUI.Text("Strained time: "), simpleGUI.Text(size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.STRAINED_TIME_TEXT)],
-                        [simpleGUI.Text("Allowed strain: "), simpleGUI.Text(size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.ALLOWED_STRAIN_TEXT)],
-                        [simpleGUI.Text(f"Program Status: "), simpleGUI.Text(WidgetConstants.DEFAULT_TIMER_RUNNING_MESSAGE, size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.DEFAULT_TIMER_STATUS_TEXT)],
-                        [simpleGUI.Text(f"Audio Status: "), simpleGUI.Text(WidgetConstants.AUDIO_ACTIVE_MESSAGE, size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.AUDIO_STATUS_TEXT)],
+                        [simpleGUI.Text("Strained time: "), simpleGUI.Text(size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.STRAINED_TIME_TEXT), simpleGUI.Text("Allowed strain: "), simpleGUI.Text(size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.ALLOWED_STRAIN_TEXT)],
+                        [simpleGUI.Text(f"Program Status: "), simpleGUI.Text(WidgetConstants.DEFAULT_TIMER_RUNNING_MESSAGE, size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.DEFAULT_TIMER_STATUS_TEXT), simpleGUI.Text(f"Audio Status: "), simpleGUI.Text(WidgetConstants.AUDIO_ACTIVE_MESSAGE, size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.AUDIO_STATUS_TEXT)],
                         [simpleGUI.Button(WidgetConstants.PAUSE_RUN_TOGGLE_BUTTON), simpleGUI.Button(WidgetConstants.MUTE_UNMUTE_TOGGLE_BUTTON)]
                     ]
         

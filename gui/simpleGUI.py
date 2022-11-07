@@ -2,10 +2,12 @@ import PySimpleGUI as simpleGUI
 
 class WidgetConstants:
     TEXT_SIZE = (12, 1)
-    STRAINED_TIME_TEXT = 'statusTextfield'
-    ALLOWED_STRAIN_TEXT = 'allowedStrain'
-    DEFAULT_TIMER_STATUS_TEXT = 'DefaultTimerStatus'
+    STRAINED_TIME_TEXT = '-statusTextfield-'
+    ALLOWED_STRAIN_TEXT = '-allowedStrain-'
+    DEFAULT_TIMER_STATUS_TEXT = '-DefaultTimerStatus-'
+    AUDIO_STATUS_TEXT = '-AudioStatus-'
     DEFAULT_TIMER_RUNNING_MESSAGE = "Running"
+    AUDIO_ACTIVE_MESSAGE = "Audio active"
     PAUSE_RUN_TOGGLE_BUTTON = 'Pause/Run'
     MUTE_UNMUTE_TOGGLE_BUTTON = 'Mute/Unmute'
     MUTE_BUTTON = 'Mute'
@@ -19,7 +21,8 @@ class DefaultTimerLayout:#The layouts will be initialized in the timer classes a
         self.layout = [
                         [simpleGUI.Text("Strained time: "), simpleGUI.Text(size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.STRAINED_TIME_TEXT)],
                         [simpleGUI.Text("Allowed strain: "), simpleGUI.Text(size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.ALLOWED_STRAIN_TEXT)],
-                        [simpleGUI.Text(f"Status: "), simpleGUI.Text(WidgetConstants.DEFAULT_TIMER_RUNNING_MESSAGE, size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.DEFAULT_TIMER_STATUS_TEXT)],
+                        [simpleGUI.Text(f"Program Status: "), simpleGUI.Text(WidgetConstants.DEFAULT_TIMER_RUNNING_MESSAGE, size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.DEFAULT_TIMER_STATUS_TEXT)],
+                        [simpleGUI.Text(f"Audio Status: "), simpleGUI.Text(WidgetConstants.AUDIO_ACTIVE_MESSAGE, size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.AUDIO_STATUS_TEXT)],
                         [simpleGUI.Button(WidgetConstants.PAUSE_RUN_TOGGLE_BUTTON), simpleGUI.Button(WidgetConstants.MUTE_UNMUTE_TOGGLE_BUTTON)]
                     ]
         
@@ -32,12 +35,19 @@ class DefaultTimerLayout:#The layouts will be initialized in the timer classes a
         window[WidgetConstants.ALLOWED_STRAIN_TEXT].update(allowedStrainDuration)
         if event == WidgetConstants.PAUSE_RUN_TOGGLE_BUTTON:
             paused = self.timer.togglePauseStrainedTimeMeasurement()
-            if paused:
-                window[WidgetConstants.DEFAULT_TIMER_STATUS_TEXT].update("Paused")
+            message = "Unknown"
+            if paused: message = "Paused"
+            else: message = WidgetConstants.DEFAULT_TIMER_RUNNING_MESSAGE    
+            window[WidgetConstants.DEFAULT_TIMER_STATUS_TEXT].update(message)
+        if event == WidgetConstants.MUTE_UNMUTE_TOGGLE_BUTTON:
+            toggleState = self.timer.toggleAllAudioNotifiers()
+            message = "No audio notifiers"
+            if toggleState == None: pass
             else:
-                window[WidgetConstants.DEFAULT_TIMER_STATUS_TEXT].update(WidgetConstants.DEFAULT_TIMER_RUNNING_MESSAGE)
-    
-    
+                if toggleState: message = WidgetConstants.AUDIO_ACTIVE_MESSAGE
+                else: message = "Audio muted"
+            window[WidgetConstants.AUDIO_STATUS_TEXT].update(message)
+            
 class MainInterface:
     def __init__(self):
         #simpleGUI.theme('Dark Blue 13') 

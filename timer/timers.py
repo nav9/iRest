@@ -3,6 +3,7 @@ import logging
 from abc import ABC, abstractmethod
 from diskOperations import timeFileManager
 from gui import simpleGUI
+from configuration import configHandler
 
 class OtherConstants:
     PROGRAM_JUST_STARTED = -999
@@ -76,7 +77,7 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         self.notifiers = {} #references to various objects that can be used to notify the user
         self.operatingSystemAdapter = operatingSystemAdapter #value will be None if no OS was identified
         self.GUI_Layout = simpleGUI.DefaultTimerLayout(self)
-        self.guiPauseState = False
+        self.userPausedTimerViaGUI = False
         self.__checkIfUserIsStrained(0)  #the zero is the elapsed strain time     
         
     def getGUIRef(self):
@@ -97,12 +98,19 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
             logging.info(f"No such notifier registered: {notifier.id}")
 
     def togglePauseStrainedTimeMeasurement(self):
-        self.guiPauseState = not self.guiPauseState
-        return self.guiPauseState
+        self.userPausedTimerViaGUI = not self.userPausedTimerViaGUI
+        return self.userPausedTimerViaGUI
+    
+    def toggleAllAudioNotifiers(self):
+        toggleState = None
+        for notifierID, notifier in self.notifiers.items():
+            if notifier.category == configHandler.NotifierConstants.AUDIO_NOTIFIER:
+                toggleState = notifier.toggleNotifierActiveState()
+        return toggleState
         
     def execute(self):
         currentTime = time.time() #epoch time is simply the time elapsed since a specific year (around 1970)
-        if self.guiPauseState:#if the user paused the timer via the GUI
+        if self.userPausedTimerViaGUI:#if the user paused the timer via the GUI
             self.lastCheckedTime = currentTime
             return
         elapsedTime = abs(self.lastCheckedTime - currentTime)

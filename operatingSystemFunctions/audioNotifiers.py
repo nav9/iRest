@@ -5,8 +5,10 @@ import subprocess
 from pydub import AudioSegment
 from pydub.playback import play
 from abc import ABC, abstractmethod
+from configuration import configHandler
 
 class AudioNotifier(ABC):#Abstract parent class
+    category = configHandler.NotifierConstants.AUDIO_NOTIFIER
     #Note: Abstract methods have to be implemented by child classes because they would be invoked by other classes
     @abstractmethod
     def __init__(self):
@@ -17,7 +19,10 @@ class AudioNotifier(ABC):#Abstract parent class
     def execute(self):
         """ Plays an audio notification to remind the user to take rest. Function does not return anything """
         pass
-
+    
+    def toggleNotifierActiveState(self):
+        """ Toggles the isActive boolean. Returns the state boolean """
+        pass
     # @abstractmethod
     # def notifyUserThatRestPeriodIsOver(self):
     #     """ Plays an audio notification to inform the user that the resting period completed. Function does not return anything """
@@ -37,8 +42,11 @@ class SpeedSaySpeechNotifier_Linux(AudioNotifier):
         self.SECONDS_TO_WAIT_UNTIL_REPEAT_NOTIFICATION = 120 #After the first audio notification, no more notifications would happen during a cooldown period, even if execute() is called repeatedly
         self.userNotified = False
         self.notifiedTime = None
+        self.isActive = True
 
     def execute(self):#This function may get called multiple times, so it has to take care of not annoying the User with too many notifications. So a cooldown time was used to allow for some time until the next notification
+        if not self.isActive:
+            return
         #Note: Notification cooling time was used within the class itself (instead of externally) since other notifiers may do notification at their own frequencies
         if self.userNotified:            
             elapsedTime = time.monotonic() - self.notifiedTime
@@ -52,6 +60,11 @@ class SpeedSaySpeechNotifier_Linux(AudioNotifier):
             subprocess.run(speechCommand)
             self.notifiedTime = time.monotonic()
             self.userNotified = True
+                       
+    def toggleNotifierActiveState(self):
+        self.isActive = not self.isActive
+        return self.isActive     
+
 
 class PydubSoundNotifier_Linux(AudioNotifier): #https://realpython.com/playing-and-recording-sound-python/
     def __init__(self):
@@ -61,8 +74,11 @@ class PydubSoundNotifier_Linux(AudioNotifier): #https://realpython.com/playing-a
         self.SECONDS_TO_WAIT_UNTIL_REPEAT_NOTIFICATION = 60 #After the first audio notification, no more notifications would happen during a cooldown period, even if execute() is called repeatedly
         self.userNotified = False
         self.notifiedTime = None
+        self.isActive = True
 
     def execute(self):#This function may get called multiple times, so it has to take care of not annoying the User with too many notifications. So a cooldown time was used to allow for some time until the next notification
+        if not self.isActive:
+            return        
         #Note: Notification cooling time was used within the class itself (instead of externally) since other notifiers may do notification at their own frequencies
         if self.userNotified:            
             elapsedTime = time.monotonic() - self.notifiedTime
@@ -74,3 +90,7 @@ class PydubSoundNotifier_Linux(AudioNotifier): #https://realpython.com/playing-a
             play(AudioSegment.from_mp3(self.soundFile))
             self.notifiedTime = time.monotonic()
             self.userNotified = True
+
+    def toggleNotifierActiveState(self):
+        self.isActive = not self.isActive
+        return self.isActive  

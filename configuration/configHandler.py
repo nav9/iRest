@@ -2,6 +2,10 @@ import logging
 import configparser
 #from configparser import ConfigParser
 
+class NotifierConstants:
+    AUDIO_NOTIFIER = "audioNotifier"
+    GRAPHICAL_NOTIFIER = "graphicalNotifier"
+
 class ConfigurationHandler:
     def __init__(self):
         self.configFilename = "iRestConfig.ini"        

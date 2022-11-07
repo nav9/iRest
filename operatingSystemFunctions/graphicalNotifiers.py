@@ -3,8 +3,10 @@ import logging
 #from plyer.utils import platform #this is needed only for icon display
 from plyer import notification
 from abc import ABC, abstractmethod
+from configuration import configHandler
 
 class GraphicalNotifier(ABC):#Abstract parent class
+    category = configHandler.NotifierConstants.GRAPHICAL_NOTIFIER
     #Note: Abstract methods have to be implemented by child classes because they would be invoked by other classes
     @abstractmethod
     def __init__(self):
@@ -16,6 +18,10 @@ class GraphicalNotifier(ABC):#Abstract parent class
         """ Displays a notification to remind the user to take rest. Function does not return anything """
         pass
 
+    def toggleNotifierActiveState(self):
+        """ Toggles the isActive boolean """
+        pass
+    
     # @abstractmethod
     # def notifyUserThatRestPeriodIsOver(self):
     #     """ Displays a notification to inform the user that the resting period completed. Function does not return anything """
@@ -29,6 +35,7 @@ class PlyerGraphicalNotifier(GraphicalNotifier):
         self.SECONDS_TO_WAIT_UNTIL_REPEAT_NOTIFICATION = 60 #After the first audio notification, no more notifications would happen during a cooldown period, even if execute() is called repeatedly
         self.userNotified = False
         self.notifiedTime = None
+        self.isActive = True
 
     def execute(self):#This function may get called multiple times, so it has to take care of not annoying the User with too many notifications. So a cooldown time was used to allow for some time until the next notification
         #Note: Notification cooling time was used within the class itself (instead of externally) since other notifiers may do notification at their own frequencies
@@ -44,3 +51,6 @@ class PlyerGraphicalNotifier(GraphicalNotifier):
             self.notifiedTime = time.monotonic()
             self.userNotified = True
 
+    def toggleNotifierActiveState(self):
+        self.isActive = not self.isActive
+        return self.isActive   

@@ -4,9 +4,10 @@ class WidgetConstants:
     TEXT_SIZE = (12, 1)
     STRAINED_TIME_TEXT = 'statusTextfield'
     ALLOWED_STRAIN_TEXT = 'allowedStrain'
-    STRAINED_INFO_TEXT = 'strainedInfoTextfield'
-    PAUSE_BUTTON = 'Pause'
-    PLAY_BUTTON = 'Continue'
+    DEFAULT_TIMER_STATUS_TEXT = 'DefaultTimerStatus'
+    DEFAULT_TIMER_RUNNING_MESSAGE = "Running"
+    PAUSE_RUN_TOGGLE_BUTTON = 'Pause/Run'
+    MUTE_UNMUTE_TOGGLE_BUTTON = 'Mute/Unmute'
     MUTE_BUTTON = 'Mute'
     UNMUTE_BUTTON = 'Un-mute'
     WINDOW_TITLE = 'iRest'
@@ -18,7 +19,8 @@ class DefaultTimerLayout:#The layouts will be initialized in the timer classes a
         self.layout = [
                         [simpleGUI.Text("Strained time: "), simpleGUI.Text(size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.STRAINED_TIME_TEXT)],
                         [simpleGUI.Text("Allowed strain: "), simpleGUI.Text(size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.ALLOWED_STRAIN_TEXT)],
-                        [simpleGUI.Button(WidgetConstants.PAUSE_BUTTON), simpleGUI.Button(WidgetConstants.PLAY_BUTTON)]
+                        [simpleGUI.Text(f"Status: "), simpleGUI.Text(WidgetConstants.DEFAULT_TIMER_RUNNING_MESSAGE, size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.DEFAULT_TIMER_STATUS_TEXT)],
+                        [simpleGUI.Button(WidgetConstants.PAUSE_RUN_TOGGLE_BUTTON), simpleGUI.Button(WidgetConstants.MUTE_UNMUTE_TOGGLE_BUTTON)]
                     ]
         
     def getLayout(self):
@@ -28,10 +30,12 @@ class DefaultTimerLayout:#The layouts will be initialized in the timer classes a
         strainedDuration, allowedStrainDuration, formattedStrainedTime = self.timer.getStrainDetails()
         window[WidgetConstants.STRAINED_TIME_TEXT].update(formattedStrainedTime)
         window[WidgetConstants.ALLOWED_STRAIN_TEXT].update(allowedStrainDuration)
-        # if event == WidgetConstants.PAUSE_BUTTON:
-        #     self.window[WidgetConstants.STRAINED_TIME_TEXT].update('Paused program')        
-        # if event == WidgetConstants.PLAY_BUTTON:
-        #     self.window[WidgetConstants.STRAINED_TIME_TEXT].update('Program running') 
+        if event == WidgetConstants.PAUSE_RUN_TOGGLE_BUTTON:
+            paused = self.timer.togglePauseStrainedTimeMeasurement()
+            if paused:
+                window[WidgetConstants.DEFAULT_TIMER_STATUS_TEXT].update("Paused")
+            else:
+                window[WidgetConstants.DEFAULT_TIMER_STATUS_TEXT].update(WidgetConstants.DEFAULT_TIMER_RUNNING_MESSAGE)
     
     
 class MainInterface:

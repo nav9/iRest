@@ -1,3 +1,4 @@
+import os
 import PySimpleGUI as simpleGUI
 
 class WidgetConstants:
@@ -45,7 +46,7 @@ class DefaultTimerLayout:#The layouts will be initialized in the timer classes a
                 if toggleState: message = WidgetConstants.AUDIO_ACTIVE_MESSAGE
                 else: message = "Audio muted"
             window[WidgetConstants.AUDIO_STATUS_TEXT].update(message)
-            
+
 class MainInterface:
     def __init__(self):
         #simpleGUI.theme('Dark Blue 13') 
@@ -55,6 +56,7 @@ class MainInterface:
         self.backends = [] #the backend objects related to the GUI section being displayed
         self.backendGUIRefs = [] #the GUI layout objects 
         self.layout = []
+        self.iconFile = os.path.join("icons", "iRest_icon.png")
         
     def addThisBackend(self, backendRef):
         self.backends.append(backendRef)
@@ -64,7 +66,7 @@ class MainInterface:
         for guiRef in self.backendGUIRefs:#iterate all the supplied layouts and append them in the main interface
             self.layout.extend(guiRef.getLayout()) 
         #---create the window using all supplied layouts
-        self.window = simpleGUI.Window(WidgetConstants.WINDOW_TITLE, self.layout)
+        self.window = simpleGUI.Window(WidgetConstants.WINDOW_TITLE, icon = self.iconFile, layout = self.layout)
     
     def runEventLoop(self):#this function should get called repeatedly from an external while loop
         event, values = self.window.read(timeout = self.WINDOW_WAIT_TIMEOUT_MILLISECOND) 

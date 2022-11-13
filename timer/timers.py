@@ -27,6 +27,8 @@ class NatureOfActivity:
     TYPING = "typing"
     MOUSE_MOVEMENT = "mouse_movement"
     WATCHING_VIDEO = "watching_video"
+    
+
 
 #Note: The program is designed such that multiple timers can be created and run simultaneously. This helps in simultaneously running a Neural Network or any such Machine Learning algorithm which learns from the User's preferences of how much rest they actually need, instead of sticking to pre-defined time intervals
 #Note: This abstract class specifies what functions all timers should implement

@@ -2,6 +2,7 @@ import os
 import sys #for exit()
 from collections import deque
 from glob import glob
+from configuration import configHandler
 import logging
 import natsort
 
@@ -44,8 +45,6 @@ class TimeFileManager:
         self.FREQUENCY_TO_CHECK_FILE_SIZE = 500 
         self.fileOps = fileOperationsHandler
         self.fileOps.createDirectoryIfNotExisting(self.folderName) #The folder to store time files                 
-        self.LAST_INDEX_OF_LIST = -1
-        self.FIRST_INDEX_OF_LIST = 0
         self.__checkIfSomeValuesAssignedAreAppropriate()
         self.__archiveTheTimerFileIfItIsTooLarge()
         self.__extractHistoricalTimeDataFromFiles()
@@ -53,7 +52,7 @@ class TimeFileManager:
     def __doNotAllowUnderscore(self, filename):
         if self.FILENAME_SEPARATOR in filename:
             sys.exit(self.FILENAME_SEPARATOR + " is not allowed for time filenames, since one of the functions uses it for extracting substrings from filenames.")
-
+        
     def writeTimeInformationToFile(self, currentTime, natureOfActivity):
         dataToWrite = self.__packTheTimeDataForWriting(currentTime, natureOfActivity)
         self.historicalStrainData.append(dataToWrite) #appending to the right of the deque
@@ -107,8 +106,8 @@ class TimeFileManager:
         if archiveFiles: #if list not empty
             logging.info(f"The archive files are: {archiveFiles}")
             #TODO: try catch in case the filenames don't have any substring we are looking for
-            fileNameWithHighestOrdinal = archiveFiles[self.LAST_INDEX_OF_LIST]
-            fileNameWithHighestOrdinal = fileNameWithHighestOrdinal.split(self.FILENAME_SEPARATOR)[self.FIRST_INDEX_OF_LIST] #get the "Archive1" part of the string, where the "1" is an example of the ordinal            
+            fileNameWithHighestOrdinal = archiveFiles[configHandler.GlobalConstants.LAST_INDEX_OF_LIST]
+            fileNameWithHighestOrdinal = fileNameWithHighestOrdinal.split(self.FILENAME_SEPARATOR)[configHandler.GlobalConstants.FIRST_INDEX_OF_LIST] #get the "Archive1" part of the string, where the "1" is an example of the ordinal            
             #---extract the digit in the substring (https://stackoverflow.com/questions/4289331/how-to-extract-numbers-from-a-string-in-python)
             #CAUTION/BUG: The digit extractor extracts 34 from "abc34ldfds.txt", but will extract 3436 from "abc34ld_d36fds.txt". So when naming files, be careful not to have another portion of the file containing some number
             try: 

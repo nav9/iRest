@@ -4,7 +4,7 @@ import shutil
 import logging
 from collections import deque
 
-#TODO: Try catch for most of the functions are needed
+#TODO: Try catch is needed for most of these functions
 #Note: Since these functions are operating-system-independent, they are kept as part of this package, rather than placing them in the operatingSystemFunctions package
 class FileOperations:
     def __init__(self):
@@ -17,8 +17,19 @@ class FileOperations:
         filename, fileExtension = os.path.splitext(filenameOrPathWithFilename)
         return filename, fileExtension
     
-    def deleteFile(self, filenameWithPath):
-        os.remove(filenameWithPath) #TODO: check if file exists before deleting
+    def deleteFolderIfItExists(self, folderPath):
+        try:
+            if os.path.exists(folderPath):
+                shutil.rmtree(folderPath, ignore_errors = True) #The ignore_errors is for when the folder has read-only files https://stackoverflow.com/a/303225/453673
+        except Exception as e:
+            logging.error("Error when deleting folder: " + folderPath + ". Exception: " + str(e))    
+    
+    def deleteFileIfItExists(self, filenameWithPath):
+        try:
+            if os.path.isfile(filenameWithPath):
+                os.remove(filenameWithPath)
+        except Exception as e:
+            logging.error("Error when deleting file: " + filenameWithPath + ". Exception: " + str(e))
 
     def renameFile(self, oldFilename, newFilename):
         os.rename(oldFilename, newFilename)
@@ -40,7 +51,10 @@ class FileOperations:
             try: os.makedirs(folder)
             except FileExistsError:#in case there's a race condition where some other process creates the directory before makedirs is called
                 pass
-    
+
+    def getListOfSubfoldersInThisFolder(self, folderNameWithPath):
+        return next(os.walk(folderNameWithPath))[self.SUBDIRECTORIES]
+        
     def isValidDirectory(self, folderpath):
         return os.path.exists(folderpath)
     
@@ -66,3 +80,18 @@ class FileOperations:
     def writeTimeInformationToFile(self, pathWithFileName, timeInformation):
         """ Writes time information to file, checks if file is too large and creates a new file if necessary """
         self.appendLinesToFile(pathWithFileName, [timeInformation]) #The square brackets in [timeInformation] are necessary because otherwise, each character in the list or string will get written to a new line in the file
+
+    """ Copy file to another directory. Renaming while moving is possible.  If destination specifies a directory, the file will be copied into destination using the base filename from the source. If destination specifies a file that already exists, it will be replaced. """
+    def copyFile(self, filenameWithPath, destinationFolderOrFileWithPath):
+        pathToCopiedFile = None
+        try:
+            pathToCopiedFile = shutil.copy2(filenameWithPath, destinationFolderOrFileWithPath)
+        except FileNotFoundError:
+            logging.error("Could not find file: " + filenameWithPath + " or folder " + destinationFolderOrFileWithPath)    
+        return pathToCopiedFile
+    
+    def getListOfFilesInThisFolder(self, folderNameWithPath):
+        return next(os.walk(folderNameWithPath))[self.FILES_IN_FOLDER]
+    
+    def getListOfSubfoldersInThisFolder(self, folderNameWithPath):
+        return next(os.walk(folderNameWithPath))[self.SUBDIRECTORIES]    

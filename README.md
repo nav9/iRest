@@ -40,8 +40,9 @@ These could have been mentioned in a `requirements.txt` file, but is mentioned a
 * `pip install natsort plyer ffmpeg-python pydub`  
 * Add iRest to Windows startup by pressing `Win+R` and type `shell:startup`. You'll be taken to the `C:\Users\<username>\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup` folder. Here, create an `irest.bat` file containing the lines `cd C:\Users\Navin\Desktop\iRest-main\` and `python main.py` in the next line.  
   
-# To run test cases (yet to be programmed)  
-Install PyTest: `pip install pytest==7.1.2`  
+# To run the tests  
+`pip3 install pytest=7.1.2`  
+Use `pytest` at the commandline to run the test cases. Do this in the root program directory.  
    
   
 # Attribution  

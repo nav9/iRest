@@ -5,6 +5,10 @@ import configparser
 class NotifierConstants:
     AUDIO_NOTIFIER = "audioNotifier"
     GRAPHICAL_NOTIFIER = "graphicalNotifier"
+    
+class GlobalConstants:
+    LAST_INDEX_OF_LIST = -1
+    FIRST_INDEX_OF_LIST = 0    
 
 class ConfigurationHandler:
     def __init__(self):

@@ -10,25 +10,17 @@ class TimeDataStore:
     CURRENT_TIME = 0
     NATURE_OF_ACTIVITY = 1
     
-""" 
-Keeping track of the amount of time the eyes were strained, requires tracking the total
-time even when the computer is restarted or the screen is locked. The only way to track it 
-accurately is to store data in a file periodically and examine the latest stored data sequence,
-upto a time period that allows determining if the user is strained or has obtained sufficient 
-rest. This class performs the function of storing data into a file. When the file gets too large,
-the file is renamed (you could consider it being archived, although the word 'archive' here is
-a misnomer, because the file is only being renamed) and a new file is created for storing the latest
-time data. So after some time, the pattern of files created will be something like this:
-Archive1_timeFileName.txt, Archive2_timeFileName.txt, timeFileName.txt.
-The Archive1_timeFileName.txt file will contain data from the start of the program. The remaining 
-data follows in Archive2_timeFileName.txt, and timeFileName.txt is the file to which the newest data 
-is written. When timeFileName.txt exceeds a size threshold, it will be renamed to Archive3_timeFileName.txt,
-and a new timeFileName.txt gets created. Since it is time consuming to constantly access the files
-to retrieve the past data, a FIFO deque (of limited length) stores the history of time data and the
-latest time data. When the program starts, the deque is populated with some of the most recent data 
-from the older files if they exist.
-"""
 class TimeFileManager:
+    """ 
+    Keeping track of the amount of time the eyes were strained, requires tracking the total time even when the computer is restarted or the screen is locked. The only way to track it 
+    accurately is to store data in a file periodically and examine the latest stored data sequence, upto a time period that allows determining if the user is strained or has obtained sufficient 
+    rest. This class performs the function of storing data into a file. When the file gets too large, the file is renamed (you could consider it being archived, although the word 'archive' here is
+    a misnomer, because the file is only being renamed) and a new file is created for storing the latest time data. So after some time, the pattern of files created will be something like this:
+    Archive1_timeFileName.txt, Archive2_timeFileName.txt, timeFileName.txt.The Archive1_timeFileName.txt file will contain data from the start of the program. The remaining 
+    data follows in Archive2_timeFileName.txt, and timeFileName.txt is the file to which the newest data is written. When timeFileName.txt exceeds a size threshold, it will be renamed to Archive3_timeFileName.txt,
+    and a new timeFileName.txt gets created. Since it is time consuming to constantly access the files to retrieve the past data, a FIFO deque (of limited length) stores the history of time data and the
+    latest time data. When the program starts, the deque is populated with some of the most recent data from the older files if they exist.
+    """    
     def __init__(self, folderNameWithoutFolderSlash, fileNameWithoutFileExtension, fileOperationsHandler):
         self.FILENAME_SEPARATOR = "_" #TODO: declare these constants in a separate class
         self.STRAIN_DATA_HISTORY_LENGTH = 360 #TODO: calculate this based on the size of the interval during which file writes happen
@@ -42,7 +34,7 @@ class TimeFileManager:
         self.timerFileNameWithPath = os.path.join(self.folderName, self.fileNameWithoutExtension + self.fileExtension)
         self.numberOfWritesSinceProgramStart = 0 #to not let file size increase too much if program is run non-stop for many days
         self.TIMER_FILE_MAX_SIZE = 100000 #bytes
-        self.FREQUENCY_TO_CHECK_FILE_SIZE = 500 
+        self.FREQUENCY_TO_CHECK_FILE_SIZE = 500 #writes
         self.fileOps = fileOperationsHandler
         self.fileOps.createDirectoryIfNotExisting(self.folderName) #The folder to store time files                 
         self.__checkIfSomeValuesAssignedAreAppropriate()
@@ -51,7 +43,7 @@ class TimeFileManager:
 
     def __doNotAllowUnderscore(self, filename):
         if self.FILENAME_SEPARATOR in filename:
-            sys.exit(self.FILENAME_SEPARATOR + " is not allowed for time filenames, since one of the functions uses it for extracting substrings from filenames.")
+            raise ValueError(self.FILENAME_SEPARATOR + " is not allowed for time filenames, since one of the functions uses it for extracting substrings from filenames.")
         
     def writeTimeInformationToFile(self, currentTime, natureOfActivity):
         dataToWrite = self.__packTheTimeDataForWriting(currentTime, natureOfActivity)

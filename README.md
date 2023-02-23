@@ -1,4 +1,4 @@
-This program is under construction, but can still be used.  
+This program is under construction. Not yet ready to be used.
   
 # About iRest  
 A program that reminds you to rest your eyes. This program is being created after more than a decade of my experience with chronic eye strain and my eventual recovery. The "i" at the beginning of "iRest" has nothing to do with the Apple company. The "i" refers to you, when you use the program.
@@ -27,7 +27,7 @@ These could have been mentioned in a `requirements.txt` file, but is mentioned a
 * `pip install natsort==8.1.0`: To sort filenames with numbers correctly.  
 * `pip install plyer==2.0.0`: For graphical notification displays (supposed to be crossplatform).  
 * `pip install ffmpeg-python==0.2.0 pydub==0.25.1`: For playing sound files (supposed to be crossplatform).  
-* `pip install PySimpleGUI=4.60.3`: For a GUI control panel (supposed to be crossplatform).   
+* `pip install PySimpleGUI==4.60.3`: For a GUI control panel (supposed to be crossplatform).   
 * `pip install dynaconf==3.1.9` (not yet used in the program): For configurations.  
     
 ## On Linux (Ubuntu 16.04)  
@@ -51,5 +51,5 @@ Use `pytest` at the commandline to run the test cases. Do this in the root progr
   
 # TODO
 * Reduce the strain rate value when watching a video. Program needs to detect the active window (https://stackoverflow.com/questions/52545937/how-can-i-list-all-open-x11-windows-on-gnu-linux-from-a-python-script, https://stackoverflow.com/questions/55547940/how-to-get-a-list-of-the-name-of-every-open-window, https://stackoverflow.com/questions/5262413/does-xlib-have-an-active-window-event). This could also be programmed with a computer vision algorithm, to check if the video is being played on YouTube.
-* Start iRest as a GUI using PySimpleGUI. This would make it easier to pause the program and to view metrics.
+* Start iRest as a GUI using PySimpleGUI or any other GUI. This would make it easier to pause the program and to view metrics.
 * Adding test cases.

@@ -70,6 +70,8 @@ class TimeFileManager:
             dataFromArchive = self.fileOps.getLastLinesOfThisFile(self.timerFileNameWithPath, self.STRAIN_DATA_HISTORY_LENGTH)
             for timeData in reversed(dataFromArchive):#iterating backward to the front of the deque
                 self.historicalStrainData.appendleft(timeData)            
+                if len(self.historicalStrainData) >= self.STRAIN_DATA_HISTORY_LENGTH:
+                    return
             #---data from archive files
             if len(self.historicalStrainData) < self.STRAIN_DATA_HISTORY_LENGTH:#if the data in timeFile is less than what we need for assessing if the User's eyes are strained, get more data from the archive files if they exist
                 archiveFiles = self.__getSortedListOfArchiveFiles(listOrderReversalNeeded = True)
@@ -77,8 +79,8 @@ class TimeFileManager:
                     dataFromArchive = self.fileOps.getLastLinesOfThisFile(oneFile, self.STRAIN_DATA_HISTORY_LENGTH)
                     for timeData in reversed(dataFromArchive):#iterating backward to the front of the deque
                         self.historicalStrainData.appendleft(timeData)
-                    if len(self.historicalStrainData) >= self.STRAIN_DATA_HISTORY_LENGTH:
-                        break
+                        if len(self.historicalStrainData) >= self.STRAIN_DATA_HISTORY_LENGTH:
+                            return
 
     def __archiveTheTimerFileIfItIsTooLarge(self):
         """ Check if timer file is larger than a certain value and return True if so """

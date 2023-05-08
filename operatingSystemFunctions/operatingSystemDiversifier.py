@@ -35,11 +35,19 @@ class LinuxFunctionality(OperatingSystemFunctionality):#For functions that are s
         return self.graphicalNotifier
     
     def __isScreenLocked(self):
-        theProcess = subprocess.Popen('gnome-screensaver-command -q | grep "is active"', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        theProcess = subprocess.Popen('gnome-screensaver-command -q', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         locked = False
-        if len(theProcess.stdout.readlines()) > 0:
+        screenLocked = "is active"
+        screenNotLocked = "is inactive"
+        receivedOutput = " ".join(str(x) for x in theProcess.stdout.readlines()) #readlines() returns a list. This line converts the list to a string
+        if screenLocked in receivedOutput:
             locked = True
-            logging.debug(f"SCREEN LOCKED status: {locked}")        
+        else: 
+            if screenNotLocked in receivedOutput:
+                locked = False
+            else:
+                logging.error(f"GNOME SCREENSAVER OUTPUT UNKNOWN. CHECK AND REPROGRAM: {receivedOutput}")                            
+        logging.debug(f"SCREEN LOCKED status: {locked}")        
         return locked
 
     def __isGnomeScreensaverPresent(self):

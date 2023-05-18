@@ -1,5 +1,6 @@
 import logging
 import subprocess
+import PySimpleGUI
 from sys import platform #to check which OS the program is running on
 from abc import ABC, abstractmethod
 from operatingSystemFunctions import audioNotifiers
@@ -67,12 +68,14 @@ class LinuxFunctionality(OperatingSystemFunctionality):#For functions that are s
             except FileNotFoundError as e:
                 screenSaverPresent = False
             if not screenSaverPresent:
-                logging.info("--------- INSTALLATION ---------")                      
-                logging.info("Gnome screensaver is missing (needed for lock-screen detection). It needs your permission to install it...")
-                screensaverInstallCommands = ['sudo', 'apt', 'install', '-y', 'gnome-screensaver'] 
+                logging.info("--------- INSTALLATION REQUIRED ---------")                      
+                errorMessage = "Gnome screensaver is missing (needed for lock-screen detection). Please install it using 'sudo apt install -y gnome-screensaver'"
+                logging.info(errorMessage)
+                PySimpleGUI.popup(errorMessage, title="iRest")
+                #screensaverInstallCommands = ['sudo', 'apt', 'install', '-y', 'gnome-screensaver'] 
                 #logging.info("Running this command: ", ' '.join(screensaverInstallCommands))
-                response = subprocess.Popen(screensaverInstallCommands, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)   
-                response.wait()  
+                #response = subprocess.Popen(screensaverInstallCommands, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)   
+                #response.wait()  
                 #logging.info("Installing...")           
 
         return screenSaverPresent

@@ -54,31 +54,31 @@ class LinuxFunctionality(OperatingSystemFunctionality):#For functions that are s
 
     def __isGnomeScreensaverPresent(self):
         screenSaverPresent = False
-        while not screenSaverPresent:
-            try:
-                response = subprocess.Popen(['gnome-screensaver'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-                stdout, stderr = response.communicate()
-                if stderr != None:
-                    logging.error("Error during check for Gnome screensaver: ", stderr)                                        
-                stdoutConverted = stdout.decode(self.encoding)
-                if 'not found' in stdoutConverted:                     
-                    screenSaverPresent = False
-                if 'screensaver already running' in stdoutConverted: 
-                    screenSaverPresent = True
-                    logging.info("Gnome screensaver detected. Lock-screen detection will work fine.")
-            except FileNotFoundError as e:
+        #while not screenSaverPresent:
+        try:
+            response = subprocess.Popen(['gnome-screensaver'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            stdout, stderr = response.communicate()
+            if stderr != None:
+                logging.error("Error during check for Gnome screensaver: ", stderr)                                        
+            stdoutConverted = stdout.decode(self.encoding)
+            if 'not found' in stdoutConverted:                     
                 screenSaverPresent = False
-            if not screenSaverPresent:
-                logging.info("--------- INSTALLATION REQUIRED ---------")                      
-                errorMessage = "Gnome screensaver is missing (needed for lock-screen detection). Please install it using 'sudo apt install -y gnome-screensaver'"
-                logging.info(errorMessage)
-                PySimpleGUI.popup(errorMessage, title="iRest")
-                sys.exit()
-                #screensaverInstallCommands = ['sudo', 'apt', 'install', '-y', 'gnome-screensaver'] 
-                #logging.info("Running this command: ", ' '.join(screensaverInstallCommands))
-                #response = subprocess.Popen(screensaverInstallCommands, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)   
-                #response.wait()  
-                #logging.info("Installing...")           
+            if 'screensaver already running' in stdoutConverted: 
+                screenSaverPresent = True
+                logging.info("Gnome screensaver detected. Lock-screen detection will work fine.")
+        except FileNotFoundError as e:
+            screenSaverPresent = False
+        if not screenSaverPresent:
+            logging.info("--------- INSTALLATION REQUIRED ---------")                      
+            errorMessage = "Gnome screensaver is missing (needed for lock-screen detection). Please install it using 'sudo apt install -y gnome-screensaver'"
+            logging.info(errorMessage)
+            PySimpleGUI.popup(errorMessage, title="iRest")
+            #sys.exit()
+            #screensaverInstallCommands = ['sudo', 'apt', 'install', '-y', 'gnome-screensaver'] 
+            #logging.info("Running this command: ", ' '.join(screensaverInstallCommands))
+            #response = subprocess.Popen(screensaverInstallCommands, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)   
+            #response.wait()  
+            #logging.info("Installing...")           
 
         return screenSaverPresent
 

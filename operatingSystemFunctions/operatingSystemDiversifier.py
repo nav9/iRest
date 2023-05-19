@@ -7,6 +7,10 @@ from abc import ABC, abstractmethod
 from operatingSystemFunctions import audioNotifiers
 from operatingSystemFunctions import graphicalNotifiers
 
+class Constants:
+    FIRST_ELEMENT_OF_ARRAY = 0
+    SECOND_ELEMENT_OF_ARRAY = 1
+
 class OperatingSystemFunctionality(ABC):#Abstract parent class
     #Note: Abstract methods have to be implemented by child classes because they would be invoked by other classes
     @abstractmethod
@@ -51,23 +55,37 @@ class LinuxFunctionality(OperatingSystemFunctionality):#For functions that are s
                 logging.error(f"GNOME SCREENSAVER OUTPUT UNKNOWN. CHECK AND REPROGRAM: {receivedOutput}")                            
         logging.debug(f"SCREEN LOCKED status: {locked}")        
         return locked
+    
+    def __isThisAppInstalled(self, appName):
+        appInstalled = False
+        status = subprocess.getstatusoutput("dpkg-query -W -f='${Status}' " + appName)
+        if not status[Constants.FIRST_ELEMENT_OF_ARRAY]:
+            if 'installed' in status[Constants.SECOND_ELEMENT_OF_ARRAY]:
+                appInstalled = True
+        return appInstalled
 
     def __isGnomeScreensaverPresent(self):
         screenSaverPresent = False
         #while not screenSaverPresent:
         try:
-            response = subprocess.Popen(['gnome-screensaver'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            stdout, stderr = response.communicate()
-            if stderr != None:
-                logging.error("Error during check for Gnome screensaver: ", stderr)                                        
-            stdoutConverted = stdout.decode(self.encoding)
-            if 'not found' in stdoutConverted:                     
-                screenSaverPresent = False
-            if 'screensaver already running' in stdoutConverted: 
-                screenSaverPresent = True
-                logging.info("Gnome screensaver detected. Lock-screen detection will work fine.")
+            app = 'gnome-screensaver'
+            logging.info(f"Checking if {app} is installed...")
+            screenSaverPresent = self.__isThisAppInstalled(app)
+            #response = subprocess.Popen(['gnome-screensaver'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            #stdout, stderr = response.communicate()
+            #if stderr != None:
+            #    logging.error("Error during check for Gnome screensaver: ", stderr)                                        
+            #stdoutConverted = stdout.decode(self.encoding)
+            #logging.info(f"stdout is {stdoutConverted}")
+            #logging.info(f"stderr is {stderr}")
+            #if 'not found' in stdoutConverted:                     
+            #    screenSaverPresent = False
+            #if 'screensaver already running' in stdoutConverted: 
+            #    screenSaverPresent = True
+            #    logging.info("Gnome screensaver detected. Lock-screen detection will work fine.")
         except FileNotFoundError as e:
             screenSaverPresent = False
+            logging.error(f"Error encountered: {e}")
         if not screenSaverPresent:
             logging.info("--------- INSTALLATION REQUIRED ---------")                      
             errorMessage = "Gnome screensaver is missing (needed for lock-screen detection). Please install it using 'sudo apt install -y gnome-screensaver'"
@@ -79,7 +97,7 @@ class LinuxFunctionality(OperatingSystemFunctionality):#For functions that are s
             #response = subprocess.Popen(screensaverInstallCommands, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)   
             #response.wait()  
             #logging.info("Installing...")           
-
+        logging.info(f"Screensaver present: {screenSaverPresent}")
         return screenSaverPresent
 
 # class OperatingSystemID:#This might eventually need more elaborate ID codes based on flavours of Linux or versions of Windows etc.

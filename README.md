@@ -32,7 +32,16 @@ These could have been mentioned in a `requirements.txt` file, but is mentioned a
     
 ## On Linux (Ubuntu 16.04)  
 * `sudo apt install -y gnome-screensaver`: Gnome screensaver (to detect when the screen is locked).  
-* `sudo apt-get install speech-dispatcher`: Speech Dispatcher engine (for spoken audio notifications. This would be pre-installed on Ubuntu).   If it isn't already installed, you can install it using (https://command-not-found.com/spd-say).  
+* `sudo apt-get install speech-dispatcher`: Speech Dispatcher engine (for spoken audio notifications. This would be pre-installed on Ubuntu).   If it isn't already installed, you can install it using (https://command-not-found.com/spd-say). 
+
+### Some helpful aliases for iRest
+You can place these aliases in ~/.bash_aliases:
+* alias killirest="kill -9 $(pgrep -f 'iRest')"
+* alias pauseirest="kill -STOP $(pgrep -f 'iRest')"
+* alias resumeirest="kill -CONT $(pgrep -f 'iRest')"
+* alias ireststatus="ps -aef | grep iRest"
+* alias irest="cd ~;cd /path/to/iRest/folder/;python -B /path/to/iRest/folder/main.py >> iRestErrors.log"
+* alias restartirest="killirest; irest"
   
 ## On Windows (8.1)   
 * Install Python 3.6+ and add Python to the PATH variable during installation itself (you'll be shown a checkbox).  

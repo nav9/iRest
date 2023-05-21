@@ -69,9 +69,13 @@ class FileOperations:
     def getLastLinesOfThisFile(self, fileNameWithPath, numberOfLinesToGet):
         """ Gets the last n number of lines from a file. Caution: use only with small files, since this iterates the entire file. Better solutions exist for large files: https://stackoverflow.com/questions/136168/get-last-n-lines-of-a-file-similar-to-tail"""
         lastLines = deque(maxlen = numberOfLinesToGet) #FIFO deque that stores a fixed number of items
-        with open(fileNameWithPath) as fileHandler:
+        with open(fileNameWithPath) as fileHandler:            
             for line in fileHandler:
-                lastLines.append(ast.literal_eval(line)) #to convert string representation of the lists to actual lists
+                try:
+                    lastLines.append(ast.literal_eval(line)) #to convert string representation of the lists to actual lists
+                except ValueError:
+                    logging.warning(f"Encountered a malformed string or some invalid data in {fileNameWithPath} while loading old data.")    
+                    pass #Sometimes, the file may contain strange characters like this "\00\00\00\00" which are invalid. Such lines can be avoided. Perhaps inserted at the exact moment a system restart happened or due to some other file error.
         return lastLines
 
     # def getNamesOfFilesInDirectory(self, fullFolderPath):

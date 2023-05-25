@@ -59,6 +59,8 @@ Use `pytest` at the commandline to run the test cases. Do this in the root progr
 * I created the icon files myself (not yet used). I'm making them available under the Creative Commons Attribution 4.0 International Public License: https://creativecommons.org/licenses/by/4.0/legalcode  
   
 # TODO
+* Track and show how much time the program has been under pause.
+* Have a config file that stores program settings.
 * Reduce the strain rate value when watching a video. Program needs to detect the active window (https://stackoverflow.com/questions/52545937/how-can-i-list-all-open-x11-windows-on-gnu-linux-from-a-python-script, https://stackoverflow.com/questions/55547940/how-to-get-a-list-of-the-name-of-every-open-window, https://stackoverflow.com/questions/5262413/does-xlib-have-an-active-window-event). This could also be programmed with a computer vision algorithm, to check if the video is being played on YouTube.
-* Start iRest as a GUI using PySimpleGUI. This would make it easier to pause the program and to view metrics.
+* View metrics of time strained.
 * Adding test cases.

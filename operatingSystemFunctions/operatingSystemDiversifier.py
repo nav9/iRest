@@ -6,6 +6,7 @@ from sys import platform #to check which OS the program is running on
 from abc import ABC, abstractmethod
 from operatingSystemFunctions import audioNotifiers
 from operatingSystemFunctions import graphicalNotifiers
+from operatingSystemFunctions import screenLockCheckers
 
 class Constants:
     FIRST_ELEMENT_OF_ARRAY = 0
@@ -24,6 +25,7 @@ class OperatingSystemFunctionality(ABC):#Abstract parent class
         pass    
 
 class LinuxFunctionality(OperatingSystemFunctionality):#For functions that are specific to Linux. The program uses this class only if it detects it is running on Linux. These same functions should also be available in a "Windows" class and that class would be instantiatiated and used if the program is run on Windows
+    #cat /etc/os-release prints the Linux flavour
     def __init__(self):  
         self.encoding = 'utf-8'
         self.gnomeScreensaverPresent = self.__isGnomeScreensaverPresent()
@@ -41,7 +43,9 @@ class LinuxFunctionality(OperatingSystemFunctionality):#For functions that are s
         return self.graphicalNotifier
     
     def __isScreenLocked(self):
-        theProcess = subprocess.Popen('gnome-screensaver-command -q', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        #To check in Ubuntu, use: gnome-screensaver-command -q
+        #To check in Mint, use: cinnamon-screensaver-command -q
+        theProcess = subprocess.Popen('cinnamon-screensaver-command -q', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         locked = False
         screenLocked = "is active"
         screenNotLocked = "is inactive"
@@ -136,3 +140,31 @@ class OperatingSystemIdentifier:
     def getOperatingSystemAdapterInstance(self):#A class instance which provides OS-specific functions
         """ Will return None if OS was not identified, and that's ok because this program's functions check for this None. The program is designed to work even without OS-specific functionality """
         return self.operatingSystemAdapter 
+
+class LinuxDesktops:
+    GNOME = "gnome"
+    CINNAMON = "cinnamon"
+
+#This class is meant for Linux OS Desktops like Gnome desktop, Cinnamon, Xfce, KDE or Mate
+class LinuxDesktopAdapter:
+    def __init__(self):
+        self.screenLockChecker = None
+        desktopName = self.__getDesktopName()
+        desktopName = desktopName.lower()
+        if LinuxDesktops.GNOME in desktopName:            
+            self.screenLockChecker = screenLockCheckers.GnomeScreenLockCheck()            
+        if LinuxDesktops.CINNAMON in desktopName:
+            self.screenLockChecker = screenLockCheckers.CinnamonScreenLockCheck()
+        if self.screenLockChecker == None:
+            logging.warn("\n\n\nDesktop could not be identified. Functionality like lock screen detection may not work. Please find out what Desktop you currently have, and program it's lock screen detection into iRest.\n\n\n")
+        else:
+            logging.info(f"{desktopName} desktop detected")
+
+    def isScreenLocked(self):
+        screenLocked = False
+        if self.screenLockChecker != None:
+            screenLocked = self.screenLockChecker.execute()
+        return screenLocked
+    
+    def __getDesktopName(self):
+        pass

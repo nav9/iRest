@@ -14,15 +14,20 @@ class WidgetConstants:
     MUTE_BUTTON = 'Mute'
     UNMUTE_BUTTON = 'Un-mute'
     WINDOW_TITLE = 'iRest'
+    SCT_MIN_VALUE = 1000 #The sct program's minimum possible value for colour temperature
+    SCT_MAX_VALUE = 10000 #The sct program's maximum possible value for colour temperature
+    SCT_DEFAULT_VALUE = 4000
+    SCT_SLIDER = '-sct slider-'
     
 
 class DefaultTimerLayout:#The layouts will be initialized in the timer classes and then be passed to the main interface
     def __init__(self, backendRef) -> None:
         self.timer = backendRef
         self.layout = [
+                        [simpleGUI.Text("Warmth:"), simpleGUI.Slider(size=(1,10), tick_interval=3000, range=(WidgetConstants.SCT_MIN_VALUE, WidgetConstants.SCT_MAX_VALUE), default_value=WidgetConstants.SCT_DEFAULT_VALUE, expand_x=True, enable_events=True, orientation='horizontal', key=WidgetConstants.SCT_SLIDER)],            
                         [simpleGUI.Text("Strained time: "), simpleGUI.Text(size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.STRAINED_TIME_TEXT), simpleGUI.Text("Allowed strain: "), simpleGUI.Text(size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.ALLOWED_STRAIN_TEXT)],
                         [simpleGUI.Text(f"Program Status: "), simpleGUI.Text(WidgetConstants.DEFAULT_TIMER_RUNNING_MESSAGE, size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.DEFAULT_TIMER_STATUS_TEXT), simpleGUI.Text(f"Audio Status: "), simpleGUI.Text(WidgetConstants.AUDIO_ACTIVE_MESSAGE, size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.AUDIO_STATUS_TEXT)],
-                        [simpleGUI.Button(WidgetConstants.PAUSE_RUN_TOGGLE_BUTTON), simpleGUI.Button(WidgetConstants.MUTE_UNMUTE_TOGGLE_BUTTON)]
+                        [simpleGUI.Button(WidgetConstants.PAUSE_RUN_TOGGLE_BUTTON), simpleGUI.Button(WidgetConstants.MUTE_UNMUTE_TOGGLE_BUTTON)],
                     ]
         
     def getLayout(self):

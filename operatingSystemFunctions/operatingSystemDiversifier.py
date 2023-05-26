@@ -141,7 +141,7 @@ class OperatingSystemIdentifier:
         """ Will return None if OS was not identified, and that's ok because this program's functions check for this None. The program is designed to work even without OS-specific functionality """
         return self.operatingSystemAdapter 
 
-class LinuxDesktops:
+class LinuxDesktops:#Note: all strings should be in lower case, since the desktop name received from the OS is converted to lower case
     GNOME = "gnome"
     CINNAMON = "cinnamon"
 
@@ -149,8 +149,7 @@ class LinuxDesktops:
 class LinuxDesktopAdapter:
     def __init__(self):
         self.screenLockChecker = None
-        desktopName = self.__getDesktopName()
-        desktopName = desktopName.lower()
+        desktopName = self.__getDesktopName()        
         if LinuxDesktops.GNOME in desktopName:            
             self.screenLockChecker = screenLockCheckers.GnomeScreenLockCheck()            
         if LinuxDesktops.CINNAMON in desktopName:
@@ -167,4 +166,9 @@ class LinuxDesktopAdapter:
         return screenLocked
     
     def __getDesktopName(self):
-        pass
+        command = "echo $XDG_CURRENT_DESKTOP" #command that queries for the desktop name
+        theProcess = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        receivedOutput = " ".join(str(x) for x in theProcess.stdout.readlines()) #readlines() returns a list. This line converts the list to a string
+        logging.debug(f"{receivedOutput} desktop name received from OS")
+        receivedOutput = receivedOutput.lower()
+        return receivedOutput

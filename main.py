@@ -48,7 +48,8 @@ if __name__ == '__main__':
     allTimers.append(defaultTimer)
     #---Initialize the main GUI interface
     gui = simpleGUI.MainInterface()
-    gui.addThisBackend(defaultTimer) #backends can be timers or other classes too which need a GUI representation
+    gui.addThisBackend(operatingSystemAdapter.getWarmthAppAdapterReference())
+    gui.addThisBackend(defaultTimer) #backends can be timers or other classes too which need a GUI representation    
     gui.createLayout()
     logging.info("Monitoring time ...")
 

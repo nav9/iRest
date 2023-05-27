@@ -25,7 +25,7 @@ class OperatingSystemFunctionality(ABC):#Abstract parent class
         pass 
 
     @abstractmethod
-    def getWarmthApp(self):
+    def getWarmthAppAdapterReference(self):
         """ Returns a reference to the instance that handles the colour temperature / warmth / night light in the backend """
         pass     
 
@@ -48,7 +48,7 @@ class LinuxFunctionality(OperatingSystemFunctionality):#For functions that are s
     def getGraphicalNotifier(self):
         return self.graphicalNotifier
     
-    def getWarmthApp(self):
+    def getWarmthAppAdapterReference(self):
         return self.warmthApp
     
 class OperatingSystemIdentifier:    

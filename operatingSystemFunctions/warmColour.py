@@ -1,5 +1,6 @@
 import logging
 from operatingSystemFunctions import commonFunctions
+from gui import simpleGUI
 
 #Since Ubuntu has a default night light app, it is not necessary to force a user
 #to ensure that iRest also has nightlight enabled. So if sct is installed, the
@@ -13,10 +14,16 @@ class WarmColour_Linux:#Also called NightLight
         self.SCT_DEFAULT_VALUE = 4000        
         self.commonFunctions = commonFunctions.CommonFunctions_Linux()        
         self.appName = 'sct'          
-        self.appPresent = self.__isSimpleColorTemperatureAppPresent()
+        self.appInstalled = self.__isSimpleColorTemperatureAppInstalled()
+        self.GUI_Layout = None
+        if self.appInstalled:
+            self.GUI_Layout = simpleGUI.WarmthLayout(self)
 
-    def isAppPresent(self):
-        return self.appPresent
+    def getGUIRef(self):
+        return self.GUI_Layout
+    
+    def isAppInstalled(self):
+        return self.appInstalled
 
     def setCustomWarmth(self, warmthValue):
         sctCommand = f"{self.appName} {warmthValue}"
@@ -38,7 +45,7 @@ class WarmColour_Linux:#Also called NightLight
     # def setNoWarmth(self):
     #     pass
 
-    def __isSimpleColorTemperatureAppPresent(self):
+    def __isSimpleColorTemperatureAppInstalled(self):
         sctPresent = False        
         try:              
             sctPresent = self.commonFunctions.isThisAppInstalled(self.appName)

@@ -39,6 +39,11 @@ class RestTimers(ABC): #Abstract parent class
         """ The function where the program checks to see if the user needs rest or needs to be reminded that the rest period is over """
         pass
 
+    @abstractmethod
+    def getGUIRef(self):
+        """ This function needs to be implemented but can be left empty if there's no GUI for the backend. Returns a reference to the GUI instance """
+        pass
+
     # @abstractmethod
     # def addThisNotifierToListOfNotifiers(self, notifier):
     #     """ To add notifiers like an audio notifier or a text-based notifier or a popup notifier etc. Every notifier should have a notifier id"""

@@ -65,13 +65,13 @@ class RestTimers(ABC): #Abstract parent class
 #Each such class is designed to have its own way of evaluating if the User is strained
 class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies the User
     def __init__(self, operatingSystemAdapter, fileOperationsHandler):#TODO: Load the values from a config file
-        self.REST_MINUTES = 5
-        self.WORK_MINUTES = 20
+        self.REST_MINUTES = 5 #TODO: shift to config file
+        self.WORK_MINUTES = 20 #TODO: shift to config file
         self.allowedStrainDuration = TimeConstants.SECONDS_IN_MINUTE * self.WORK_MINUTES #how long to work (in seconds). How many seconds the eyes can be permitted to be strained
         self.restRatio = self.WORK_MINUTES / self.REST_MINUTES #Five minutes of rest for every 20 minutes of work
         logging.debug(f"RestRatio={self.restRatio} = work minutes {self.WORK_MINUTES} * rest minutes {self.REST_MINUTES}")
         #CAUTION/BUG If the SLEEP_SECONDS value is changed, all old archive files and the time file needs to be deleted, since calculations of strain are based on the assumption that this value is constant across all those files. This can be mitigated by storing the sleep time value when writing timestamps to the file each time
-        self.CHECKING_INTERVAL = 10 #how long to sleep before checking system state (in seconds). 
+        self.CHECKING_INTERVAL = 10 #how long to sleep before checking system state (in seconds).  #TODO: shift to config file
         self.strainedDuration = OtherConstants.PROGRAM_JUST_STARTED
         self.lastCheckedTime = time.time()
         self.timeFileManager = timeFileManager.TimeFileManager(Names.ARCHIVE_FOLDER, Names.TIME_FILE, fileOperationsHandler) #parameters passed: folderName, fileName
@@ -82,6 +82,9 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         self.userPausedTimerViaGUI = False
         self.__checkIfUserIsStrained(0)  #the zero is the elapsed strain time     
         
+    def getWarmthAppReference(self):
+        return self.operatingSystemAdapter.getWarmthApp()
+    
     def getGUIRef(self):
         return self.GUI_Layout
     
@@ -207,7 +210,7 @@ class VideoAndRSI_AwareTimer(RestTimers):#Does not increase strain duration too 
     def __init__():
         pass
 
-class NeuralNetworkTimer(RestTimers):#Asks the user and learns patterns of when the User is tired, so that strain is customized to the User
+class NeuralNetworkTimer(RestTimers):#Asks the User and learns patterns of when the User is tired, so that strain is customized to the User
     def __init__():
         pass    
 

@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 from operatingSystemFunctions import audioNotifiers
 from operatingSystemFunctions import graphicalNotifiers
 from operatingSystemFunctions import screenLockCheckers
+from operatingSystemFunctions import warmColour
 
 class OperatingSystemFunctionality(ABC):#Abstract parent class
     #Note: Abstract methods have to be implemented by child classes because they would be invoked by other classes
@@ -23,6 +24,11 @@ class OperatingSystemFunctionality(ABC):#Abstract parent class
         """ Returns a reference to the graphical notification instance created for a particular operating system """
         pass 
 
+    @abstractmethod
+    def getWarmthApp(self):
+        """ Returns a reference to the instance that handles the colour temperature / warmth / night light in the backend """
+        pass     
+
 class LinuxFunctionality(OperatingSystemFunctionality):#For functions that are specific to Linux. The program uses this class only if it detects it is running on Linux. These same functions should also be available in a "Windows" class and that class would be instantiatiated and used if the program is run on Windows
     #cat /etc/os-release prints the Linux flavour
     def __init__(self):  
@@ -31,6 +37,7 @@ class LinuxFunctionality(OperatingSystemFunctionality):#For functions that are s
         self.audioNotifier = audioNotifiers.SpeedSaySpeechNotifier_Linux()
         self.graphicalNotifier = graphicalNotifiers.PlyerGraphicalNotifier()
         self.desktopAdapter = LinuxDesktopAdapter()
+        self.warmthApp = warmColour.WarmColour_Linux()
     
     def isScreenLocked(self):
         return self.desktopAdapter.isScreenLocked()
@@ -41,6 +48,8 @@ class LinuxFunctionality(OperatingSystemFunctionality):#For functions that are s
     def getGraphicalNotifier(self):
         return self.graphicalNotifier
     
+    def getWarmthApp(self):
+        return self.warmthApp
     
 class OperatingSystemIdentifier:    
     def __init__(self):
@@ -106,3 +115,4 @@ class LinuxDesktopAdapter:
         logging.debug(f"{receivedOutput} desktop name received from OS")
         receivedOutput = receivedOutput.lower()
         return receivedOutput
+

@@ -1,6 +1,9 @@
 import os
 import PySimpleGUI as simpleGUI
 
+class MoreConstants:#TODO: consolidate these into one place
+    FIRST_ELEMENT_OF_ARRAY = 0
+
 class WidgetConstants:
     TEXT_SIZE = (12, 1)
     STRAINED_TIME_TEXT = '-statusTextfield-'
@@ -14,21 +17,23 @@ class WidgetConstants:
     MUTE_BUTTON = 'Mute'
     UNMUTE_BUTTON = 'Un-mute'
     WINDOW_TITLE = 'iRest'
-    SCT_MIN_VALUE = 1000 #The sct program's minimum possible value for colour temperature
-    SCT_MAX_VALUE = 10000 #The sct program's maximum possible value for colour temperature
-    SCT_DEFAULT_VALUE = 4000
     SCT_SLIDER = '-sct slider-'
+    SCT_SLIDER_SIZE = (1, 10)
     
 
 class DefaultTimerLayout:#The layouts will be initialized in the timer classes and then be passed to the main interface
     def __init__(self, backendRef) -> None:
         self.timer = backendRef
-        self.layout = [
-                        [simpleGUI.Text("Warmth:"), simpleGUI.Slider(size=(1,10), tick_interval=3000, range=(WidgetConstants.SCT_MIN_VALUE, WidgetConstants.SCT_MAX_VALUE), default_value=WidgetConstants.SCT_DEFAULT_VALUE, expand_x=True, enable_events=True, orientation='horizontal', key=WidgetConstants.SCT_SLIDER)],            
+        self.warmthApp = backendRef.getWarmthAppReference()
+        if not self.warmthApp.isAppPresent():
+            self.warmthApp = None        
+        self.layout = [                        
                         [simpleGUI.Text("Strained time: "), simpleGUI.Text(size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.STRAINED_TIME_TEXT), simpleGUI.Text("Allowed strain: "), simpleGUI.Text(size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.ALLOWED_STRAIN_TEXT)],
                         [simpleGUI.Text(f"Program Status: "), simpleGUI.Text(WidgetConstants.DEFAULT_TIMER_RUNNING_MESSAGE, size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.DEFAULT_TIMER_STATUS_TEXT), simpleGUI.Text(f"Audio Status: "), simpleGUI.Text(WidgetConstants.AUDIO_ACTIVE_MESSAGE, size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.AUDIO_STATUS_TEXT)],
                         [simpleGUI.Button(WidgetConstants.PAUSE_RUN_TOGGLE_BUTTON), simpleGUI.Button(WidgetConstants.MUTE_UNMUTE_TOGGLE_BUTTON)],
                     ]
+        if self.warmthApp:
+            self.__addWarmthToLayoutUI()
         
     def getLayout(self):
         return self.layout
@@ -51,6 +56,16 @@ class DefaultTimerLayout:#The layouts will be initialized in the timer classes a
                 if toggleState: message = WidgetConstants.AUDIO_ACTIVE_MESSAGE
                 else: message = "Audio muted"
             window[WidgetConstants.AUDIO_STATUS_TEXT].update(message)
+        if self.warmthApp:
+            if event == WidgetConstants.SCT_SLIDER:
+                warmthValue = values[WidgetConstants.SCT_SLIDER]
+                self.warmthApp.setCustomWarmth(warmthValue)  
+    
+    def __addWarmthToLayoutUI(self):
+        minVal, maxVal, defaultVal = self.warmthApp.getMinMaxDefaultValues()
+        warmthLayout = [simpleGUI.Text("Warmth:"), simpleGUI.Slider(size=WidgetConstants.SCT_SLIDER_SIZE, tick_interval=3000, range=(minVal, maxVal), default_value=defaultVal, expand_x=True, enable_events=True, orientation='horizontal', key=WidgetConstants.SCT_SLIDER)]
+        self.layout.insert(MoreConstants.FIRST_ELEMENT_OF_ARRAY, warmthLayout) #add to the beginning of the list
+        self.warmthApp.setCustomWarmth(defaultVal) 
 
 class MainInterface:
     def __init__(self):

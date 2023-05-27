@@ -30,24 +30,33 @@ These could have been mentioned in a `requirements.txt` file, but is mentioned a
 * `pip install PySimpleGUI=4.60.3`: For a GUI control panel (supposed to be crossplatform).   
 * `pip install dynaconf==3.1.9` (not yet used in the program): For configurations.  
     
-## On Linux (Ubuntu 16.04)  
+## On Linux 
+Based on which desktop the Linux OS uses, the screensaver or lock screen function may vary, so the appropriate program needs to be installed and the necessary changes need to be made in the code.
+  
+Also install:  
+* `sudo apt-get install speech-dispatcher`: Speech Dispatcher engine (for spoken audio notifications. This would be pre-installed on Ubuntu). If it isn't already installed, you can install it using https://command-not-found.com/spd-say. 
+
+### Ubuntu 20.04 onward  
 * `sudo apt install -y gnome-screensaver`: Gnome screensaver (to detect when the screen is locked).  
-* `sudo apt-get install speech-dispatcher`: Speech Dispatcher engine (for spoken audio notifications. This would be pre-installed on Ubuntu).   If it isn't already installed, you can install it using (https://command-not-found.com/spd-say). 
+* Ubuntu has a native colour temperature app. If you don't want to use that, install `sudo apt install -y sct`, and colour temperature adjustment will automatically show up on iRest's GUI.
+
+### Mint OS 21 onward (Cinnamon desktop)  
+* `sudo apt install -y sct`: Set screen colour temperature (to set the screen to warmer colours).  
 
 ### Some helpful aliases for iRest
-You can place these aliases in ~/.bash_aliases:
-* alias killirest="kill -9 $(pgrep -f 'iRest')"
-* alias pauseirest="kill -STOP $(pgrep -f 'iRest')"
-* alias resumeirest="kill -CONT $(pgrep -f 'iRest')"
-* alias ireststatus="ps -aef | grep iRest"
-* alias irest="cd ~;cd /path/to/iRest/folder/;python -B /path/to/iRest/folder/main.py >> iRestErrors.log"
-* alias restartirest="killirest; irest"
+You can place these aliases in `~/.bash_aliases`:
+* `alias killirest="kill -9 $(pgrep -f 'iRest')"`
+* `alias pauseirest="kill -STOP $(pgrep -f 'iRest')"`
+* `alias resumeirest="kill -CONT $(pgrep -f 'iRest')"`
+* `alias ireststatus="ps -aef | grep iRest"`
+* `alias irest="cd ~;cd /path/to/iRest/folder/;python -B /path/to/iRest/folder/main.py >> iRestErrors.log"`
+* `alias restartirest="killirest; irest"`
   
 ## On Windows (8.1)   
 * Install Python 3.6+ and add Python to the PATH variable during installation itself (you'll be shown a checkbox).  
 * Download `ffmpeg` and add the path to ffmpeg's bin folder to the System PATH variable.  
 * `pip install natsort plyer ffmpeg-python pydub`  
-* Add iRest to Windows startup by pressing `Win+R` and type `shell:startup`. You'll be taken to the `C:\Users\<username>\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup` folder. Here, create an `irest.bat` file containing the lines `cd C:\Users\Navin\Desktop\iRest-main\` and `python main.py` in the next line.  
+* Add iRest to Windows startup by pressing `Win+R` and type `shell:startup`. You'll be taken to the `C:\Users\<username>\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup` folder. Here, create an `irest.bat` file containing the lines `cd C:\Users\<username>\Desktop\iRest-main\` and `python main.py` in the next line.  
   
 # To run the tests  
 `pip3 install pytest=7.1.2`  

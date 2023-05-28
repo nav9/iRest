@@ -59,7 +59,8 @@ You can place these aliases in `~/.bash_aliases`:
 * Add iRest to Windows startup by pressing `Win+R` and type `shell:startup`. You'll be taken to the `C:\Users\<username>\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup` folder. Here, create an `irest.bat` file containing the lines `cd C:\Users\<username>\Desktop\iRest-main\` and `python main.py` in the next line.  
   
 # To run the tests  
-`pip3 install pytest=7.1.2`  
+It's not necessary to use the exact version of pytest mentioned below. The version is mentioned only to indicate which version was used at the time.  
+`pip3 install pytest=7.1.2`    
 Use `pytest` at the commandline to run the test cases. Do this in the root program directory.  
    
   

@@ -2,6 +2,7 @@ import os
 import ast #to convert string representation of list to actual list
 import shutil
 import logging
+from glob import glob
 from collections import deque
 
 #TODO: Try catch is needed for most of these functions
@@ -69,13 +70,14 @@ class FileOperations:
     def getLastLinesOfThisFile(self, fileNameWithPath, numberOfLinesToGet):
         """ Gets the last n number of lines from a file. Caution: use only with small files, since this iterates the entire file. Better solutions exist for large files: https://stackoverflow.com/questions/136168/get-last-n-lines-of-a-file-similar-to-tail"""
         lastLines = deque(maxlen = numberOfLinesToGet) #FIFO deque that stores a fixed number of items
-        with open(fileNameWithPath) as fileHandler:            
-            for line in fileHandler:
-                try:
-                    lastLines.append(ast.literal_eval(line)) #to convert string representation of the lists to actual lists
-                except ValueError:
-                    logging.warning(f"Encountered a malformed string or some invalid data in {fileNameWithPath} while loading old data.")    
-                    pass #Sometimes, the file may contain strange characters like this "\00\00\00\00" which are invalid. Such lines can be avoided. Perhaps inserted at the exact moment a system restart happened or due to some other file error.
+        if self.isValidFile(fileNameWithPath):
+            with open(fileNameWithPath) as fileHandler:            
+                for line in fileHandler:
+                    try:
+                        lastLines.append(ast.literal_eval(line)) #to convert string representation of the lists to actual lists
+                    except ValueError:
+                        logging.warning(f"Encountered a malformed string or some invalid data in {fileNameWithPath} while loading old data.")    
+                        pass #Sometimes, the file may contain strange characters like this "\00\00\00\00" which are invalid. Such lines can be avoided. Perhaps inserted at the exact moment a system restart happened or due to some other file error.
         return lastLines
 
     # def getNamesOfFilesInDirectory(self, fullFolderPath):
@@ -96,6 +98,9 @@ class FileOperations:
     
     def getListOfFilesInThisFolder(self, folderNameWithPath):
         return next(os.walk(folderNameWithPath))[self.FILES_IN_FOLDER]
+    
+    def getListOfFilesInThisFolderWithThisPrefix(self, folderNameWithPath, filePrefix):
+        return glob(os.path.join(folderNameWithPath, filePrefix) + "*") #returns a list of filenames that begin with filePrefix. Eg: [Archive1.txt, Archive2.txt]
     
     def getListOfSubfoldersInThisFolder(self, folderNameWithPath):
         return next(os.walk(folderNameWithPath))[self.SUBDIRECTORIES]    

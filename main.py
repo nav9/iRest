@@ -41,7 +41,7 @@ if __name__ == '__main__':
     operatingSystemAdapter = operatingSystemCheck.getOperatingSystemAdapterInstance() #If OS could not be identified, it will return None    
     #---Create the timer(s)
     allTimers = []
-    defaultTimer = timers.DefaultTimer(operatingSystemAdapter, fileOps)
+    defaultTimer = timers.DefaultTimer(operatingSystemAdapter, fileOps, configHandler.Names.ARCHIVE_FOLDER, configHandler.Names.TIME_FILE)
     if operatingSystemAdapter:#if OS was identified, get the audio notifier specific to that OS
         defaultTimer.addThisNotifierToListOfNotifiers(operatingSystemAdapter.getAudioNotifier()) #TODO: take notifiers from the config file
         defaultTimer.addThisNotifierToListOfNotifiers(operatingSystemAdapter.getGraphicalNotifier()) #TODO: take notifiers from the config file

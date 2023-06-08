@@ -7,6 +7,7 @@ from gui import simpleGUI
 #feature can be displayed. Else, the option can be provided in settings, to enable
 #it by having it installed. But if sct isn't available, nothing regarding nightlight
 #should be displayed on the main GUI.
+#TODO: consider using xsct
 class WarmColour_Linux:#Also called NightLight
     def __init__(self) -> None:
         self.SCT_MIN_VALUE = 1000 #The sct program's minimum possible value for colour temperature

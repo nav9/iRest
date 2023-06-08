@@ -1,7 +1,6 @@
 import os 
 import sys #for exit()
 from collections import deque
-from glob import glob
 from configuration import configHandler
 import logging
 import natsort
@@ -31,30 +30,36 @@ from the older files if they exist.
 class TimeFileManager:
     def __init__(self, folderNameWithoutFolderSlash, fileNameWithoutFileExtension, fileOperationsHandler):
         self.FILENAME_SEPARATOR = "_" #TODO: declare these constants in a separate class
-        self.STRAIN_DATA_HISTORY_LENGTH = 360 #TODO: calculate this based on the size of the interval during which file writes happen
+        self.STRAIN_DATA_HISTORY_LENGTH = 0 #TODO: calculate this based on the size of the interval during which file writes happen
         self.__doNotAllowUnderscore(folderNameWithoutFolderSlash)
         self.__doNotAllowUnderscore(fileNameWithoutFileExtension)
-        self.historicalStrainData = deque(maxlen = self.STRAIN_DATA_HISTORY_LENGTH) #maxlen ensures a FIFO behaviour when using append. Items are added from the right and removed from the left     
+        self.historicalStrainData = deque()
+        self.clearAndResetHistoricalStrainDataSizeTo(360)
         self.folderName = folderNameWithoutFolderSlash
         self.fileNameWithoutExtension = fileNameWithoutFileExtension
         self.archiveFileNamePrefix = "Archive"
         self.fileExtension = ".txt"
         self.timerFileNameWithPath = os.path.join(self.folderName, self.fileNameWithoutExtension + self.fileExtension)
         self.numberOfWritesSinceProgramStart = 0 #to not let file size increase too much if program is run non-stop for many days
-        self.TIMER_FILE_MAX_SIZE = 100000 #bytes
+        self.TIMER_FILE_MAX_SIZE = 1000000 #bytes
         self.FREQUENCY_TO_CHECK_FILE_SIZE = 500 
         self.fileOps = fileOperationsHandler
         self.fileOps.createDirectoryIfNotExisting(self.folderName) #The folder to store time files                 
         self.__checkIfSomeValuesAssignedAreAppropriate()
         self.__archiveTheTimerFileIfItIsTooLarge()
-        self.__extractHistoricalTimeDataFromFiles()
+        self.extractHistoricalTimeDataFromFiles()
+
+    def clearAndResetHistoricalStrainDataSizeTo(self, newLength):#this function gets called from the test cases
+        self.STRAIN_DATA_HISTORY_LENGTH = newLength
+        self.historicalStrainData.clear()
+        self.historicalStrainData = deque(maxlen = self.STRAIN_DATA_HISTORY_LENGTH) #maxlen ensures a FIFO behaviour when using append. Items are added from the right and removed from the left     
 
     def __doNotAllowUnderscore(self, filename):
         if self.FILENAME_SEPARATOR in filename:
             sys.exit(self.FILENAME_SEPARATOR + " is not allowed for time filenames, since one of the functions uses it for extracting substrings from filenames.")
         
     def writeTimeInformationToFile(self, currentTime, natureOfActivity):
-        dataToWrite = self.__packTheTimeDataForWriting(currentTime, natureOfActivity)
+        dataToWrite = self.packTheTimeDataForWriting(currentTime, natureOfActivity)
         self.historicalStrainData.append(dataToWrite) #appending to the right of the deque
         #---appending the same information to the time file
         self.fileOps.writeTimeInformationToFile(self.timerFileNameWithPath, str(dataToWrite))
@@ -64,29 +69,28 @@ class TimeFileManager:
             self.numberOfWritesSinceProgramStart = 0          
             self.__archiveTheTimerFileIfItIsTooLarge()
 
-    def __packTheTimeDataForWriting(self, currentTime, natureOfActivity):
+    def packTheTimeDataForWriting(self, currentTime, natureOfActivity):#Note: This function is called from the test cases, and due to Python name mangling of functions whose names start with double underscores, this cannot be a private function
         return [currentTime, natureOfActivity] #TODO: The better way would be to use a map, for flexibility and to not have future errors about the order of storage, if anything is changed
         
     def unpackTheTimeData(self, data):
         return data[TimeDataStore.CURRENT_TIME], data[TimeDataStore.NATURE_OF_ACTIVITY] #currentTime, natureOfActivity
 
-    def __extractHistoricalTimeDataFromFiles(self):
+    def extractHistoricalTimeDataFromFiles(self):#Note: This function is called from the test cases, and due to Python name mangling of functions whose names start with double underscores, this cannot be a private function
         """ To be called only when this class is instantiated. Obtains historical time data if present """
         self.historicalStrainData.clear()
-        if self.fileOps.isValidFile(self.timerFileNameWithPath):#if timer file exists, get as many lines from the end of the file as possible
-            #---data from timeFile
-            dataFromArchive = self.fileOps.getLastLinesOfThisFile(self.timerFileNameWithPath, self.STRAIN_DATA_HISTORY_LENGTH)
-            for timeData in reversed(dataFromArchive):#iterating backward to the front of the deque
-                self.historicalStrainData.appendleft(timeData)            
-            #---data from archive files
-            if len(self.historicalStrainData) < self.STRAIN_DATA_HISTORY_LENGTH:#if the data in timeFile is less than what we need for assessing if the User's eyes are strained, get more data from the archive files if they exist
-                archiveFiles = self.__getSortedListOfArchiveFiles(listOrderReversalNeeded = True)
-                for oneFile in archiveFiles:#Note: archive file names contain the relative path of the file + archive filename
-                    dataFromArchive = self.fileOps.getLastLinesOfThisFile(oneFile, self.STRAIN_DATA_HISTORY_LENGTH)
-                    for timeData in reversed(dataFromArchive):#iterating backward to the front of the deque
-                        self.historicalStrainData.appendleft(timeData)
-                    if len(self.historicalStrainData) >= self.STRAIN_DATA_HISTORY_LENGTH:
-                        break
+        #---data from timeFile
+        dataFromArchive = self.fileOps.getLastLinesOfThisFile(self.timerFileNameWithPath, self.STRAIN_DATA_HISTORY_LENGTH)
+        for timeData in reversed(dataFromArchive):#iterating backward to the front of the deque
+            self.historicalStrainData.appendleft(timeData)            
+        #---data from archive files
+        if len(self.historicalStrainData) < self.STRAIN_DATA_HISTORY_LENGTH:#if the data in timeFile is less than what we need for assessing if the User's eyes are strained, get more data from the archive files if they exist
+            archiveFiles = self.__getSortedListOfArchiveFiles(listOrderReversalNeeded = True)
+            for oneFile in archiveFiles:#Note: archive file names contain the relative path of the file + archive filename
+                dataFromArchive = self.fileOps.getLastLinesOfThisFile(oneFile, self.STRAIN_DATA_HISTORY_LENGTH)
+                for timeData in reversed(dataFromArchive):#iterating backward to the front of the deque
+                    self.historicalStrainData.appendleft(timeData)
+                if len(self.historicalStrainData) >= self.STRAIN_DATA_HISTORY_LENGTH:
+                    break
 
     def __archiveTheTimerFileIfItIsTooLarge(self):
         """ Check if timer file is larger than a certain value and return True if so """
@@ -121,7 +125,7 @@ class TimeFileManager:
 
     def __getSortedListOfArchiveFiles(self, listOrderReversalNeeded = False):
         """ Returns a list of archive filenames (wth folder path prefixed) natural sorted in the order of 1,2,3,4,5,6,7,8,9,10,... instead of the order 1,10,2,3,... that normally happens during a sort"""
-        archiveFiles = glob(os.path.join(self.folderName, self.archiveFileNamePrefix) + "*") #TODO: shift to fileAndFolderOperations class
+        archiveFiles = self.fileOps.getListOfFilesInThisFolderWithThisPrefix(self.folderName, self.archiveFileNamePrefix)
         return natsort.natsorted(archiveFiles, reverse = listOrderReversalNeeded) #To sort files with numbers in them, in the right order. An ordinary sort would sort the files as ["Archive_1.txt", "Archive_10.txt", "Archive_2.txt"]
 
     def __createArchiveFileNameUsingOrdinal(self, ordinal):

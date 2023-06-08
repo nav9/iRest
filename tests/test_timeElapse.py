@@ -1,6 +1,7 @@
 import os
 import time
 from timer import timers
+from collections import deque
 from configuration import configHandler
 from diskOperations import timeFileManager
 from diskOperations import fileAndFolderOperations
@@ -34,12 +35,15 @@ class TestTimeFileManager:
         fileFolderOps = fileAndFolderOperations.FileOperations()
         archiveFolder = os.path.join(TestConstants.TESTS_FOLDER, configHandler.Names.ARCHIVE_FOLDER, "")
         fileFolderOps.deleteFolderIfItExists(archiveFolder)        
-        tm = timeFileManager.TimeFileManager(archiveFolder, configHandler.Names.TIME_FILE, fileFolderOps) #parameters passed: folderName, fileName        
-        tm.TIMER_FILE_MAX_SIZE = 40 #bytes        
+        tm = timeFileManager.TimeFileManager(archiveFolder, configHandler.Names.TIME_FILE, fileFolderOps) #parameters passed: folderName, fileName                
+        tm.TIMER_FILE_MAX_SIZE = 200 #bytes        
+        tm.FREQUENCY_TO_CHECK_FILE_SIZE = 5
+        STRAIN_DATA_HISTORY_LENGTH = 34
+        tm.clearAndResetHistoricalStrainDataSizeTo(STRAIN_DATA_HISTORY_LENGTH)
         assert len(tm.historicalStrainData) == 0 #because the folder is deleted. So there shouldn't be any past time data
         #---write some time information
-        STRAIN_DATA_HISTORY_LENGTH = tm.STRAIN_DATA_HISTORY_LENGTH * 3
-        dataWritten = [] #for comparing when the data is re-loaded from timefile and archive files
+        STRAIN_DATA_HISTORY_LENGTH = tm.STRAIN_DATA_HISTORY_LENGTH
+        dataWritten = deque() #for comparing when the data is re-loaded from timefile and archive files
         for _ in range(STRAIN_DATA_HISTORY_LENGTH):
             tm.writeTimeInformationToFile(currentTime, timers.NatureOfActivity.EYES_BEING_STRAINED) #writing to file
             packedData = tm.packTheTimeDataForWriting(currentTime, timers.NatureOfActivity.EYES_BEING_STRAINED)

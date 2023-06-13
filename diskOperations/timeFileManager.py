@@ -6,8 +6,9 @@ import logging
 import natsort
 
 class TimeDataStore:
-    CURRENT_TIME = 0
-    NATURE_OF_ACTIVITY = 1
+    TIMESTAMP = 'timestamp'
+    ELAPSED_TIME = 'elapsed_time'
+    ACTIVITY = 'activity'
     
 """ 
 Keeping track of the amount of time the eyes were strained, requires tracking the total
@@ -49,17 +50,23 @@ class TimeFileManager:
         self.__archiveTheTimerFileIfItIsTooLarge()
         self.extractHistoricalTimeDataFromFiles()
 
+    def getTimeFilesFolderString(self):
+        return self.folderName
+    
     def clearAndResetHistoricalStrainDataSizeTo(self, newLength):#this function gets called from the test cases
         self.STRAIN_DATA_HISTORY_LENGTH = newLength
         self.historicalStrainData.clear()
         self.historicalStrainData = deque(maxlen = self.STRAIN_DATA_HISTORY_LENGTH) #maxlen ensures a FIFO behaviour when using append. Items are added from the right and removed from the left     
 
+    def clearHistoricalData(self):
+        self.historicalStrainData.clear()
+        
     def __doNotAllowUnderscore(self, filename):
         if self.FILENAME_SEPARATOR in filename:
             sys.exit(self.FILENAME_SEPARATOR + " is not allowed for time filenames, since one of the functions uses it for extracting substrings from filenames.")
         
-    def writeTimeInformationToFile(self, currentTime, natureOfActivity):
-        dataToWrite = self.packTheTimeDataForWriting(currentTime, natureOfActivity)
+    def writeToFileAndHistoricalDataQueue(self, currentTime, elapsedTime, natureOfActivity):
+        dataToWrite = self.packTheTimeDataForWriting(currentTime, elapsedTime, natureOfActivity)
         self.historicalStrainData.append(dataToWrite) #appending to the right of the deque
         #---appending the same information to the time file
         self.fileOps.writeTimeInformationToFile(self.timerFileNameWithPath, str(dataToWrite))
@@ -68,13 +75,19 @@ class TimeFileManager:
         if self.numberOfWritesSinceProgramStart >= self.FREQUENCY_TO_CHECK_FILE_SIZE:
             self.numberOfWritesSinceProgramStart = 0          
             self.__archiveTheTimerFileIfItIsTooLarge()
-
-    def packTheTimeDataForWriting(self, currentTime, natureOfActivity):#Note: This function is called from the test cases, and due to Python name mangling of functions whose names start with double underscores, this cannot be a private function
-        return [currentTime, natureOfActivity] #TODO: The better way would be to use a map, for flexibility and to not have future errors about the order of storage, if anything is changed
+    
+    def packTheTimeDataForWriting(self, currentTime, elapsedTime, natureOfActivity):#Note: This function is called from the test cases, and due to Python name mangling of functions whose names start with double underscores, this cannot be a private function
+        return {TimeDataStore.TIMESTAMP: currentTime, TimeDataStore.ELAPSED_TIME: elapsedTime, TimeDataStore.ACTIVITY: natureOfActivity}
         
-    def unpackTheTimeData(self, data):
-        return data[TimeDataStore.CURRENT_TIME], data[TimeDataStore.NATURE_OF_ACTIVITY] #currentTime, natureOfActivity
+    def getTimestampFromData(self, data):
+        return data[TimeDataStore.TIMESTAMP]
 
+    def getElapsedTimeFromData(self, data):
+        return data[TimeDataStore.ELAPSED_TIME]
+    
+    def getNatureOfActivityFromData(self, data):
+        return data[TimeDataStore.ACTIVITY]
+        
     def extractHistoricalTimeDataFromFiles(self):#Note: This function is called from the test cases, and due to Python name mangling of functions whose names start with double underscores, this cannot be a private function
         """ To be called only when this class is instantiated. Obtains historical time data if present """
         self.historicalStrainData.clear()

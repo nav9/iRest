@@ -13,6 +13,7 @@ from configuration import configHandler
 from logging.handlers import RotatingFileHandler
 from operatingSystemFunctions import operatingSystemDiversifier
 from diskOperations import fileAndFolderOperations
+from diskOperations import timeFileManager
 from gui import simpleGUI
 
 #TODO: shift log file config to file
@@ -41,7 +42,8 @@ if __name__ == '__main__':
     operatingSystemAdapter = operatingSystemCheck.getOperatingSystemAdapterInstance() #If OS could not be identified, it will return None    
     #---Create the timer(s)
     allTimers = []
-    defaultTimer = timers.DefaultTimer(operatingSystemAdapter, fileOps, configHandler.Names.ARCHIVE_FOLDER, configHandler.Names.TIME_FILE)
+    timeFileManager = timeFileManager.TimeFileManager(configHandler.Names.ARCHIVE_FOLDER, configHandler.Names.TIME_FILE, fileOps) #parameters passed: folderName, fileName
+    defaultTimer = timers.DefaultTimer(operatingSystemAdapter, timeFileManager)
     if operatingSystemAdapter:#if OS was identified, get the audio notifier specific to that OS
         defaultTimer.addThisNotifierToListOfNotifiers(operatingSystemAdapter.getAudioNotifier()) #TODO: take notifiers from the config file
         defaultTimer.addThisNotifierToListOfNotifiers(operatingSystemAdapter.getGraphicalNotifier()) #TODO: take notifiers from the config file

@@ -1,15 +1,15 @@
 import time
 import logging
 from abc import ABC, abstractmethod
-from diskOperations import timeFileManager
 from gui import simpleGUI
 from configuration import configHandler
 
 class OtherConstants:
-    PROGRAM_JUST_STARTED = -999
+    #PROGRAM_JUST_STARTED = -999
     LAST_INDEX_OF_LIST = -1
     PENULTIMATE_INDEX_OF_LIST = -2
-    FIRST_INDEX_OF_LIST = 0    
+    FIRST_INDEX_OF_LIST = 0  
+    MAX_SECONDS_REQUIRED_TO_CHECK_STATE = 2  
     
 class TimeConstants:
     SECONDS_IN_MINUTE = 60
@@ -17,16 +17,16 @@ class TimeConstants:
     HOURS_IN_DAY = 24
     ONE_SECOND = 1
     
-
 class NatureOfActivity:
-    EYES_BEING_STRAINED = "eyes_strained"
-    SCREEN_LOCKED = "screen_locked"
-    TYPING = "typing"
-    MOUSE_MOVEMENT = "mouse_movement"
-    WATCHING_VIDEO = "watching_video"
+    EYES_STRAINED = "strained"
+    SCREEN_LOCKED = "screen_locked" #Note: For now, only NatureOfActivity.EYES_BEING_STRAINED is being written to file. Things like NatureOfActivity.SCREEN_LOCKED are not considered, since the strain duration can be determined even without them
+    PAUSED_VIA_GUI = "paused"
+    PROGRAM_NOT_RUNNING = "program_not_running" #iRest was not running during this phase. Such data gets stored in the timefile when the program is started, and the program checks earlier timestamps and realizes that it was started after a time lapse. This happens during system restarts or when iRest has crashed and started again or been manually restarted
+    SUSPENDED = "suspended" #this could either be the computer in sleep/suspend state or the iRest process being suspended by the User
+    # TYPING = "typing"
+    # MOUSE_MOVEMENT = "mouse_movement"
+    # WATCHING_VIDEO = "watching_video"
     
-
-
 #Note: The program is designed such that multiple timers can be created and run simultaneously. This helps in simultaneously running a Neural Network or any such Machine Learning algorithm which learns from the User's preferences of how much rest they actually need, instead of sticking to pre-defined time intervals
 #Note: This abstract class specifies what functions all timers should implement
 class RestTimers(ABC): #Abstract parent class
@@ -66,23 +66,131 @@ class RestTimers(ABC): #Abstract parent class
 #Note: This class checks how much time the user worked, whether to notify the User to take rest and whether to notify the User that the rest period has completed. This is just one of the engines which does such processing. You could create a different engine and allow it to work with a different logic.
 #Each such class is designed to have its own way of evaluating if the User is strained
 class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies the User
-    def __init__(self, operatingSystemAdapter, fileOperationsHandler, archiveFolderName, timeFileName):#TODO: Load the values from a config file
+    def __init__(self, operatingSystemAdapter, timeFileManager):#TODO: Load the values from a config file
         self.REST_MINUTES = 5 #TODO: shift to config file
         self.WORK_MINUTES = 20 #TODO: shift to config file
         self.allowedStrainDuration = TimeConstants.SECONDS_IN_MINUTE * self.WORK_MINUTES #how long to work (in seconds). How many seconds the eyes can be permitted to be strained
         self.restRatio = self.WORK_MINUTES / self.REST_MINUTES #Five minutes of rest for every 20 minutes of work
         logging.debug(f"RestRatio={self.restRatio} = work minutes {self.WORK_MINUTES} * rest minutes {self.REST_MINUTES}")
-        #CAUTION/BUG If the SLEEP_SECONDS value is changed, all old archive files and the time file needs to be deleted, since calculations of strain are based on the assumption that this value is constant across all those files. This can be mitigated by storing the sleep time value when writing timestamps to the file each time
-        self.CHECKING_INTERVAL = 10 #how long to sleep before checking system state (in seconds).  #TODO: shift to config file
-        self.strainedDuration = OtherConstants.PROGRAM_JUST_STARTED
-        self.lastCheckedTime = time.time()
-        self.timeFileManager = timeFileManager.TimeFileManager(archiveFolderName, timeFileName, fileOperationsHandler) #parameters passed: folderName, fileName
+        self.DATA_SAVE_INTERVAL = TimeConstants.SECONDS_IN_MINUTE #(in seconds) If state changes, data can get saved before this interval elapses too.  #TODO: shift to config file
+        self.strainedDuration = 0 
+        self.currentState = NatureOfActivity.EYES_STRAINED       
+        self.timeFileManager = timeFileManager
         #self.timeFileManager.registerFileOperationsHandler(fileOperationsHandler)       
         self.notifiers = {} #references to various objects that can be used to notify the user
         self.operatingSystemAdapter = operatingSystemAdapter #value will be None if no OS was identified
         self.GUI_Layout = simpleGUI.DefaultTimerLayout(self)
         self.userPausedTimerViaGUI = False
-        self.__checkIfUserIsStrained(OtherConstants.PROGRAM_JUST_STARTED)  #the zero is the elapsed strain time     
+        self.checkLoadedDataToSeeIfUserIsStrained()
+        self.currentTime = 0
+        self.elapsedTimeAccumulation = 0
+        self.pastActivity = NatureOfActivity.EYES_STRAINED
+        
+    def noteTimeElapsedSinceProgramWasLastRunning(self):#this function is invoked only if historicalStrainData has at least one data stored
+        """ program just started, so we check what the last recorded timestamp was, to know after how long this program was started """
+        lastKnownTimestamp = self.__getLastKnownTimestamp() #this will be the last known loaded data timestamp
+        currentTime = time.time()
+        elapsedTime = currentTime - lastKnownTimestamp #time elapsed since the program was last known to be running
+        if elapsedTime < 0:
+            errorMessage = f"current time {currentTime} is lesser than the last time the program was running {lastKnownTimestamp}. Your system time appears to be messed up. Please delete the {self.timeFileManager.getTimeFilesFolderString()} folder"
+            logging.error(errorMessage)
+            raise ValueError(errorMessage)
+        else:#store elapsed time as rested time. This will get written to file and appended to historicalStrainData
+            self.recordTimeElapsedWhenThisProgramWasNotRunning(self, time.time(), elapsedTime)
+        return currentTime
+    
+    def __getLastKnownTimestamp(self):
+        lastWrittenData = self.timeFileManager.historicalStrainData[OtherConstants.LAST_INDEX_OF_LIST]
+        return self.timeFileManager.getTimestampFromData(lastWrittenData)        
+
+    def checkLoadedDataToSeeIfUserIsStrained(self): 
+        self.strainedDuration = 0
+        if len(self.timeFileManager.historicalStrainData) > 0:
+            self.noteTimeElapsedSinceProgramWasLastRunning()   
+            examinedDuration = 0
+            for timeData in reversed(self.timeFileManager.historicalStrainData):#iterates backward, to consider the latest data that was written, first
+                #timestamp = self.timeFileManager.getTimestampFromData(timeData)
+                duration = self.timeFileManager.getElapsedTimeFromData(timeData)
+                activity = self.timeFileManager.getNatureOfActivityFromData(timeData)
+                examinedDuration = examinedDuration + duration
+                if activity == NatureOfActivity.EYES_STRAINED:
+                    self.__addStrain(duration)
+                else:
+                    self.__subtractStrain(duration)
+                if examinedDuration >= self.WORK_MINUTES:#if sufficient time is analyzed, stop analyzing
+                    break
+        #---create a dummy value that simplifies obtaining a "previous" strained time and also creates a marker to indicate when the program began
+        duration = 0 #a dummy value
+        self.saveActivityAndUpdateStrain(time.time(), duration, NatureOfActivity.EYES_STRAINED) #saves this into the timeFile and also into historicalStrainData
+
+
+    def execute(self):
+        self.currentTime = time.time() #epoch time is simply the time elapsed since a specific year (around 1970)
+        #---check if state changed, update strained duration and whether it's time to write to file
+        self.checkStateChangeUpdateStrainDurationAndSave()
+        #---notify the user based on the strained time
+        self.__notifyUserIfTheyNeedToTakeRest_afterCheckingForSuspend()  
+
+    def checkStateChangeUpdateStrainDurationAndSave(self):
+        """ Checks for change of state, updates strain duration and writes to file if necessary """
+        #---get current activity state
+        currentActivity = NatureOfActivity.EYES_STRAINED        
+        if self.userPausedTimerViaGUI:#if the user paused the timer via the GUI
+            currentActivity = NatureOfActivity.PAUSED_VIA_GUI
+        else:        
+            if self.operatingSystemAdapter != None: #because the program should be capable of working even if the OS could not be identified            
+                if self.operatingSystemAdapter.isScreenLocked(): #screen lock situation is currently being considered the equivalent of suspend or shutdown, so no need to write to file
+                    currentActivity = NatureOfActivity.SCREEN_LOCKED
+        #---add or subtract strain based on the elapsed activity
+        elapsedTime = time.time() - self.currentTime #time elapsed while the previous activity was being performed
+        if elapsedTime < 0:#negative elapsed time (means something is wrong)
+            errorMessage = f"Elapsed time {elapsedTime} should not be negative." 
+            logging.error(errorMessage)
+            raise ValueError(errorMessage)
+        else:#check for suspend state
+            if elapsedTime > OtherConstants.MAX_SECONDS_REQUIRED_TO_CHECK_STATE:#means that the computer got suspended or iRest process got suspended while operations were being done, so this time can be considered as rest time
+                #---save any accumulated activity of the state before suspension
+                currentActivity = NatureOfActivity.SUSPENDED
+                self.checkAndUpdateStrainAndFile(currentActivity)
+                #---prime it to save the suspend time when it exits this if condition (the elapsed time during suspension will be a slight bit (less than a second) innacurate) 
+                currentActivity = NatureOfActivity.EYES_STRAINED #making the current activity different from the past activity (which is now SUSPEND) so that it'll save and consider the suspended time 
+                self.currentTime = time.time() #this will be the timestamp of the suspend time
+        self.elapsedTimeAccumulation += elapsedTime        
+        self.checkAndUpdateStrainAndFile(currentActivity)
+
+    def checkAndUpdateStrainAndFile(self, currentActivity):        
+        #---if state changed or time interval elapsed, update state and write to file
+        if self.pastActivity != currentActivity or self.elapsedTimeAccumulation >= self.DATA_SAVE_INTERVAL:#state changed or writing interval reached (the program writes to file at fixed intervals, regardless of state change)
+            self.saveActivityAndUpdateStrain(self.currentTime, self.elapsedTimeAccumulation, self.pastActivity)            
+            self.pastActivity = currentActivity #whether state changed or not, current has to be assigned to past anyway
+            self.elapsedTimeAccumulation = 0 #clear the written elapsed time 
+
+    def saveActivityAndUpdateStrain(self, timestamp, duration, activity):
+        self.timeFileManager.writeToFileAndHistoricalDataQueue(timestamp, duration, activity)     
+        self.updateUserStrain(duration, activity)       
+
+    def updateUserStrain(self, elapsedTime, activity):
+        if NatureOfActivity.EYES_STRAINED == activity:
+            self.__addStrain(elapsedTime)
+        else:
+            self.__subtractStrain(elapsedTime)
+
+    def recordTimeElapsedWhenThisProgramWasNotRunning(self, currentTime, elapsedTime):
+        self.timeFileManager.writeToFileAndHistoricalDataQueue(currentTime, elapsedTime, NatureOfActivity.PROGRAM_NOT_RUNNING) #More data can be added to this list when writing, if necessary                    
+        self.currentState = NatureOfActivity.PROGRAM_NOT_RUNNING
+
+    def __addStrain(self, elapsedTime_seconds):
+        logging.debug(f"+++ Adding strain of {elapsedTime_seconds}s to strained duration {self.strainedDuration}")
+        self.strainedDuration = self.strainedDuration + elapsedTime_seconds      
+
+    def __subtractStrain(self, restDuration_seconds):
+        logging.debug(f"--- Rested duration: {restDuration_seconds}s. Subtracting {restDuration_seconds * self.restRatio} from strained duration {self.strainedDuration}")
+        self.strainedDuration = self.strainedDuration - self.__calculateStrainReductionBasedOnRestDuration(restDuration_seconds) #(20*60)-((20/5)*(5*60))
+        if self.strainedDuration < 0: 
+            self.strainedDuration = 0
+
+    def __calculateStrainReductionBasedOnRestDuration(self, restDuration_seconds):
+        return restDuration_seconds * self.restRatio
         
     def getWarmthAppReference(self):
         return self.operatingSystemAdapter.getWarmthApp()
@@ -115,113 +223,15 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
                 toggleState = notifier.toggleNotifierActiveState()
         return toggleState
         
-    def execute(self):
-        currentTime = time.time() #epoch time is simply the time elapsed since a specific year (around 1970)
-        if self.userPausedTimerViaGUI:#if the user paused the timer via the GUI
-            self.lastCheckedTime = currentTime
-            return
-        elapsedTime = abs(self.lastCheckedTime - currentTime)
-        if elapsedTime < self.CHECKING_INTERVAL:            
-            return #not yet time to do any checks, so let other modules get their share of processing time            
-        else:#the necessary time has elapsed, so now check if the user needs to rest
-            self.lastCheckedTime = currentTime 
-        screenLocked = False
-        logging.debug(f"OS adapter: {self.operatingSystemAdapter}")
-        if self.operatingSystemAdapter != None: #because the program should be capable of working even if the OS could not be identified
-            screenLocked = self.operatingSystemAdapter.isScreenLocked()            
-        if screenLocked: #screen lock situation is currently being considered the equivalent of suspend or shutdown, so no need to write to file
-            logging.info(f"Screen locked: {currentTime}")
-            #self.timeFileManager.writeTimeInformationToFile(currentTime, NatureOfActivity.SCREEN_LOCKED) 
-        else:
-            #Note: For now, only NatureOfActivity.EYES_BEING_STRAINED is being written to file. Things like NatureOfActivity.SCREEN_LOCKED are not considered, since the strain duration can be determined even without them
-            logging.debug(f"Strained currentTime: {currentTime}, nature: {NatureOfActivity.EYES_BEING_STRAINED}")
-            self.timeFileManager.writeTimeInformationToFile(currentTime, NatureOfActivity.EYES_BEING_STRAINED) #More data can be added to this list when writing, if necessary                    
-            self.__checkIfUserIsStrained(elapsedTime)
-
-    def __checkIfUserIsStrained(self, elapsedTime):
-        """ Go through historical data and find out how much time the user was strained and how much time user was not strained"""
-        #TODO: The examination of past time data needs to be more intelligent
-        if len(self.timeFileManager.historicalStrainData) == 0:
-            self.strainedDuration = 0
-            return
-        if self.strainedDuration == OtherConstants.PROGRAM_JUST_STARTED or len(self.timeFileManager.historicalStrainData) == 1:#need to examine past history of stored data since computer may have been restarted
-            self.strainedDuration = 0
-            logging.debug(f"Program just started. Examining all data in deque. historicalStrainData length: {len(self.timeFileManager.historicalStrainData)}")          
-            print(f'len of historical strain data: {len(self.timeFileManager.historicalStrainData)}')
-            self.__calculateStrainedDurationFromDataLoadedFromFiles()
-        else: #program is already running, so simply examine the latest time slice
-            logging.debug(f"Examining only the latest time slice. historicalStrainData length: {len(self.timeFileManager.historicalStrainData)}")  
-            currentTimestamp, natureOfActivity = self.timeFileManager.unpackTheTimeData(self.timeFileManager.historicalStrainData[OtherConstants.LAST_INDEX_OF_LIST])
-            if natureOfActivity == NatureOfActivity.EYES_BEING_STRAINED:
-                self.__addStrain(elapsedTime)
-            if len(self.timeFileManager.historicalStrainData) > 1:#there are at least two elements in the queue
-                previousTimestamp, previousActivity = self.timeFileManager.unpackTheTimeData(self.timeFileManager.historicalStrainData[OtherConstants.PENULTIMATE_INDEX_OF_LIST])
-                #logging.debug(f"Historical data: " + str(self.timeFileManager.historicalStrainData))
-                #logging.debug(f"curr" + str(currentTimestamp))
-                #logging.debug(f"prev" + str(previousTimestamp))
-                timeDifference = abs(currentTimestamp - previousTimestamp) #value in seconds
-                logging.debug(f"checking if prev time {previousTimestamp} - current time: {currentTimestamp} = {timeDifference} > sleep seconds: {self.CHECKING_INTERVAL}+1={self.CHECKING_INTERVAL+TimeConstants.ONE_SECOND}")
-                if previousActivity == NatureOfActivity.EYES_BEING_STRAINED and timeDifference > elapsedTime + TimeConstants.ONE_SECOND:
-                    self.__subtractStrain(timeDifference - elapsedTime)  
-        self.__notifyUserIfTheyNeedToTakeRest()  
-
-    def __calculateStrainedDurationFromDataLoadedFromFiles(self):
-        previousTimestamp = None
-        previousActivity = None 
-        elapsedTime = 0
-        totalTimeExamined = 0       
-        logging.debug(f"len: {len(self.timeFileManager.historicalStrainData)}"); print(f"len: {len(self.timeFileManager.historicalStrainData)}")
-        for timeData in reversed(self.timeFileManager.historicalStrainData):#iterates backward, to consider the latest data that was written, first
-            logging.debug(f"Examining time data: {str(timeData)}"); print(f"Examining time data: {str(timeData)}")
-            currentTimestamp, natureOfActivity = self.timeFileManager.unpackTheTimeData(timeData)
-            if previousTimestamp == None: #first timestamp being considered
-                logging.debug(f"Considering initial (last) timestamp in deque. currentTimestamp {currentTimestamp}, natureOfActivity {natureOfActivity}")
-                print(f"Considering initial (last) timestamp in deque. currentTimestamp {currentTimestamp}, natureOfActivity {natureOfActivity}")
-                if natureOfActivity == NatureOfActivity.EYES_BEING_STRAINED:
-                    self.__addStrain(self.CHECKING_INTERVAL)
-                else:
-                    if natureOfActivity == NatureOfActivity.SCREEN_LOCKED:
-                        self.__subtractStrain(self.CHECKING_INTERVAL)
-                previousTimestamp = currentTimestamp
-                previousActivity = natureOfActivity
-                elapsedTime = self.CHECKING_INTERVAL
-            else:#the remaining timestamps
-                elapsedTime = abs(currentTimestamp - previousTimestamp)
-                logging.debug(f"currentTimestamp {currentTimestamp}, natureOfActivity {natureOfActivity}, elapsedTime {elapsedTime}")
-                print(f"currentTimestamp {currentTimestamp}, natureOfActivity {natureOfActivity}, elapsedTime {elapsedTime}")                
-                if natureOfActivity == NatureOfActivity.EYES_BEING_STRAINED:#add strained time
-                    self.__addStrain(elapsedTime)
-                    #---check if user had rested between current time and previous time. If yes, take into account the rested time by reducing the strained value
-                    timeDifference = abs(currentTimestamp-previousTimestamp) #value in seconds
-                    logging.debug(f"Checking if prev time {previousTimestamp} - current time: {currentTimestamp} = {timeDifference} > sleep seconds: {self.CHECKING_INTERVAL}+1={self.CHECKING_INTERVAL+TimeConstants.ONE_SECOND}")
-                else:
-                    if previousActivity == NatureOfActivity.SCREEN_LOCKED:
-                        self.__subtractStrain(elapsedTime) 
-                previousTimestamp = currentTimestamp
-                previousActivity = natureOfActivity
-            totalTimeExamined += elapsedTime
-            logging.debug(f"Strained time {self.strainedDuration}, timeExamined {totalTimeExamined}"); print(f"Strained time {self.strainedDuration}, timeExamined {totalTimeExamined}")
-            #---stop examining the past if a sufficient amount of time has been analyzed (for example, if the difference of the first and second timestamps are one hour, there's no need to examine more time slices, since it's obvious the User got an hour's rest already)
-            #TODO: write some code after determining how much time is sufficient time that's analyzed        
-
-    def __addStrain(self, elapsedTime):
-        logging.debug(f"+++ Adding strain of {elapsedTime}s to strained duration {self.strainedDuration}")
-        self.strainedDuration = self.strainedDuration + elapsedTime      
-
-    def __subtractStrain(self, restDuration):
-        logging.debug(f"--- Rested duration: {restDuration}s. Subtracting {restDuration * self.restRatio} from strained duration {self.strainedDuration}")
-        self.strainedDuration = self.strainedDuration - (restDuration * self.restRatio)
-        if self.strainedDuration < 0: 
-            self.strainedDuration = 0
-
-    def __notifyUserIfTheyNeedToTakeRest(self):
-        logging.debug("-----> Current strained time: " + time.strftime("%H:%M:%S", time.gmtime(self.strainedDuration)))
-        if self.strainedDuration > self.allowedStrainDuration: #notify the User to take rest
-            logging.info(f"* Please take rest. Strained duration: {self.strainedDuration}")
+    def __notifyUserIfTheyNeedToTakeRest_afterCheckingForSuspend(self):
+        #logging.debug("-----> Current strained time: " + time.strftime("%H:%M:%S", time.gmtime(self.strainedDuration)))
+        #---check if strained duration is greater than the allowed strain and also ensure that the program wasn't suspended for as long as a User's rest need (because if the program was suspended that long, there's no need of notifying the user to rest)
+        if self.strainedDuration > self.allowedStrainDuration and (time.time() - self.currentTime) < self.REST_MINUTES * TimeConstants.SECONDS_IN_MINUTE:#means that the computer got suspended or iRest process got suspended while operations were being done, so this time can be considered as rest time: #notify the User to take rest
+            #logging.info(f"* Please take rest. Strained duration: {self.strainedDuration}")
             for notifierID, notifier in self.notifiers.items(): #If operating system was not recognized, the operating system adapter will be None, and no notifier will be registered. It will be an empty dict
                 notifier.execute() #within each notifier's execute(), there will be a cooldown timer, which will ensure that the notification is not repeated until some time has passed, even if execute() is invoked frequently        
 
-    def getStrainDetails(self):
+    def getStrainDetails(self):#returns strainedDuration, allowedStrainDuration, formattedStrainedTime. Used by the GUI and test cases
         return self.strainedDuration, time.strftime("%Hh %Mm %Ss", time.gmtime(self.allowedStrainDuration)), time.strftime("%Hh %Mm %Ss", time.gmtime(self.strainedDuration))
 
 #----------------------------------------------------

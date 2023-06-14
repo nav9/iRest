@@ -2,6 +2,8 @@ import os
 import PySimpleGUI as simpleGUI
 from abc import ABC, abstractmethod
 
+simpleGUI.theme('Dark') 
+
 class MoreConstants:#TODO: consolidate these into one place
     FIRST_ELEMENT_OF_ARRAY = 0
 
@@ -36,7 +38,7 @@ class RestTimers(ABC): #Abstract parent class
 
 class DefaultTimerLayout:#The layouts will be initialized in the timer classes and then be passed to the main interface
     def __init__(self, backendRef) -> None:
-        self.timer = backendRef        
+        self.timer = backendRef      
         self.layout = [                        
                         [simpleGUI.Text("Strained time: "), simpleGUI.Text(size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.STRAINED_TIME_TEXT), simpleGUI.Text("Allowed strain: "), simpleGUI.Text(size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.ALLOWED_STRAIN_TEXT)],
                         [simpleGUI.Text(f"Program Status: "), simpleGUI.Text(WidgetConstants.DEFAULT_TIMER_RUNNING_MESSAGE, size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.DEFAULT_TIMER_STATUS_TEXT), simpleGUI.Text(f"Audio Status: "), simpleGUI.Text(WidgetConstants.AUDIO_ACTIVE_MESSAGE, size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.AUDIO_STATUS_TEXT)],
@@ -68,7 +70,7 @@ class DefaultTimerLayout:#The layouts will be initialized in the timer classes a
     
 
 class WarmthLayout:#This is an optional layout that gets created only if the specified colour temperature app is installed
-    def __init__(self, appRef) -> None:
+    def __init__(self, appRef) -> None:        
         self.warmthApp = appRef
         if not self.warmthApp.isAppInstalled():
             self.warmthApp = None 

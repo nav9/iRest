@@ -75,7 +75,6 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         self.strainedDuration = 0 
         self.currentState = NatureOfActivity.EYES_STRAINED         
         self.timeFileManager = timeFileManager
-        #self.timeFileManager.registerFileOperationsHandler(fileOperationsHandler)       
         self.notifiers = {} #references to various objects that can be used to notify the user
         self.operatingSystemAdapter = operatingSystemAdapter #value will be None if no OS was identified
         self.timeFunctions = self.operatingSystemAdapter.getTimeFunctionsApp()
@@ -96,7 +95,7 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
             logging.error(errorMessage)
             raise ValueError(errorMessage)
         else:#store elapsed time as rested time. This will get written to file and appended to historicalStrainData
-            self.recordTimeElapsedWhenThisProgramWasNotRunning(self, self.timeFunctions.getCurrentTime(), elapsedTime)
+            self.recordTimeElapsedWhenThisProgramWasNotRunning(self.timeFunctions.getCurrentTime(), elapsedTime)
         return currentTime
     
     def __getLastKnownTimestamp(self):
@@ -232,7 +231,7 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
                 notifier.execute() #within each notifier's execute(), there will be a cooldown timer, which will ensure that the notification is not repeated until some time has passed, even if execute() is invoked frequently        
 
     def getStrainDetails(self):#returns strainedDuration, allowedStrainDuration, formattedStrainedTime. Used by the GUI and test cases
-        return self.strainedDuration, self.getTimeFormattedAsHMS(self.allowedStrainDuration), self.getTimeFormattedAsHMS(self.strainedDuration)
+        return self.strainedDuration, self.timeFunctions.getTimeFormattedAsHMS(self.allowedStrainDuration), self.timeFunctions.getTimeFormattedAsHMS(self.strainedDuration)
 
     def setTestTimeFunctionsInstance(self, testTimeFunctions):#used by test cases to be able to emulate a supply of time values more conveniently
         self.timeFunctions = testTimeFunctions

@@ -6,6 +6,14 @@ from diskOperations import fileAndFolderOperations
 from tests import commonFunctions
 
 class TestTimeFileManager:            
+    def test_loadingWhenNoSavedFilesPresent(self):
+        fileFolderOps = fileAndFolderOperations.FileOperations()
+        comFunc = commonFunctions.CommonTestFunctions()
+        archiveFolder = comFunc.createNewTestFolder(fileFolderOps)       
+        tm = timeFileManager.TimeFileManager(archiveFolder, configHandler.Names.TIME_FILE, fileFolderOps) #parameters passed: folderName, fileName        
+        #---ensure that if no files were present, the historicalStrainData should be zero sized
+        assert len(tm.historicalStrainData) == 0 #because the folder is deleted. So there shouldn't be any past time data
+
     def test_loadingWrittenDataFromTimeFile(self):
         currentTime = 1667673922.2530432
         elapsedTime = 0
@@ -14,8 +22,6 @@ class TestTimeFileManager:
         dummyTime = commonFunctions.DummyTimeFunctions()
         archiveFolder = comFunc.createNewTestFolder(fileFolderOps)       
         tm = timeFileManager.TimeFileManager(archiveFolder, configHandler.Names.TIME_FILE, fileFolderOps) #parameters passed: folderName, fileName        
-        #---ensure that if no files were present, the historicalStrainData should be zero sized
-        assert len(tm.historicalStrainData) == 0 #because the folder is deleted. So there shouldn't be any past time data
         #---write some time information
         STRAIN_DATA_HISTORY_LENGTH = tm.STRAIN_DATA_HISTORY_LENGTH
         numberOfWrites = STRAIN_DATA_HISTORY_LENGTH - 1 #keeping it within the immediate time file limit (so as to not dig into archived files)

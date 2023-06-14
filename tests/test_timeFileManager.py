@@ -1,18 +1,18 @@
-import os
 from timer import timers
 from collections import deque
 from configuration import configHandler
 from diskOperations import timeFileManager
 from diskOperations import fileAndFolderOperations
-from common import ConstantsForTesting, DummyTimeFunctions
+from tests import commonFunctions
 
 class TestTimeFileManager:            
     def test_loadingWrittenDataFromTimeFile(self):
         currentTime = 1667673922.2530432
         elapsedTime = 0
         fileFolderOps = fileAndFolderOperations.FileOperations()
-        archiveFolder = os.path.join(ConstantsForTesting.TESTS_FOLDER, configHandler.Names.ARCHIVE_FOLDER, "")
-        fileFolderOps.deleteFolderIfItExists(archiveFolder)        
+        comFunc = commonFunctions.CommonTestFunctions()
+        dummyTime = commonFunctions.DummyTimeFunctions()
+        archiveFolder = comFunc.createNewTestFolder(fileFolderOps)       
         tm = timeFileManager.TimeFileManager(archiveFolder, configHandler.Names.TIME_FILE, fileFolderOps) #parameters passed: folderName, fileName        
         #---ensure that if no files were present, the historicalStrainData should be zero sized
         assert len(tm.historicalStrainData) == 0 #because the folder is deleted. So there shouldn't be any past time data
@@ -21,7 +21,7 @@ class TestTimeFileManager:
         numberOfWrites = STRAIN_DATA_HISTORY_LENGTH - 1 #keeping it within the immediate time file limit (so as to not dig into archived files)
         for _ in range(numberOfWrites):
             tm.writeToFileAndHistoricalDataQueue(currentTime, elapsedTime, timers.NatureOfActivity.EYES_STRAINED) 
-            elapsedTime = DummyTimeFunctions.generateElapsedTime()
+            elapsedTime = dummyTime.generateElapsedTime()
             currentTime += elapsedTime #seconds
         assert len(tm.historicalStrainData) == numberOfWrites
         #---program is assumed to have stopped now and started again
@@ -33,8 +33,9 @@ class TestTimeFileManager:
         currentTime = 1667673922.2530432
         elapsedTime = 0
         fileFolderOps = fileAndFolderOperations.FileOperations()
-        archiveFolder = os.path.join(ConstantsForTesting.TESTS_FOLDER, configHandler.Names.ARCHIVE_FOLDER, "")
-        fileFolderOps.deleteFolderIfItExists(archiveFolder)        
+        comFunc = commonFunctions.CommonTestFunctions()
+        dummyTime = commonFunctions.DummyTimeFunctions()        
+        archiveFolder = comFunc.createNewTestFolder(fileFolderOps)         
         tm = timeFileManager.TimeFileManager(archiveFolder, configHandler.Names.TIME_FILE, fileFolderOps) #parameters passed: folderName, fileName                
         tm.TIMER_FILE_MAX_SIZE = 200 #bytes        
         tm.FREQUENCY_TO_CHECK_FILE_SIZE = 5
@@ -47,7 +48,7 @@ class TestTimeFileManager:
             tm.writeToFileAndHistoricalDataQueue(currentTime, elapsedTime, timers.NatureOfActivity.EYES_STRAINED) #writing to file
             packedData = tm.packTheTimeDataForWriting(currentTime, elapsedTime, timers.NatureOfActivity.EYES_STRAINED)
             dataWritten.append(packedData) #storing a copy of what was written to file, to be able to compare later if all data was read back properly in the right order
-            elapsedTime = DummyTimeFunctions.generateElapsedTime()
+            elapsedTime = dummyTime.generateElapsedTime()
             currentTime += elapsedTime #seconds        
         #---program is assumed to have stopped now and started again
         del tm
@@ -57,18 +58,6 @@ class TestTimeFileManager:
         assert STRAIN_DATA_HISTORY_LENGTH == len(tm.historicalStrainData)
         assert dataWritten == tm.historicalStrainData #checks if data loaded in exactly the same order as it was written
 
-
-# class TestDefaultTimer:        
-#     def createNewTestFolder(self, fileFolderOps):
-#         archiveFolder = os.path.join(ConstantsForTesting.TESTS_FOLDER, configHandler.Names.ARCHIVE_FOLDER, "")
-#         fileFolderOps.deleteFolderIfItExists(archiveFolder) 
-#         return archiveFolder        
-    
-#     def test_processingSingleLineOfDataInTimefile(self):#error happened once when the program didn't have a condition to handle a single line of data
-#         fileFolderOps = fileAndFolderOperations.FileOperations()
-#         archiveFolder = self.createNewTestFolder(fileFolderOps)
-#         #---prime the timeFileManager with whatever parameters you want
-#         tm = timeFileManager.TimeFileManager(archiveFolder, configHandler.Names.TIME_FILE, fileFolderOps)
 
 
         

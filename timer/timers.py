@@ -74,7 +74,7 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         self.DATA_SAVE_INTERVAL = TimeConstants.SECONDS_IN_MINUTE #(in seconds) If state changes, data can get saved before this interval elapses too.  #TODO: shift to config file
         self.strainedDuration = 0 
         self.currentState = NatureOfActivity.EYES_STRAINED         
-        #self.timeFileManager = timeFileManager
+        self.timeFileManager = timeFileManager
         #self.timeFileManager.registerFileOperationsHandler(fileOperationsHandler)       
         self.notifiers = {} #references to various objects that can be used to notify the user
         self.operatingSystemAdapter = operatingSystemAdapter #value will be None if no OS was identified

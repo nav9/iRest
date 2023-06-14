@@ -1,23 +1,12 @@
 import os
-import time
-import random
 from timer import timers
 from collections import deque
 from configuration import configHandler
 from diskOperations import timeFileManager
 from diskOperations import fileAndFolderOperations
+from common import ConstantsForTesting, DummyTimeFunctions
 
-class ConstantsForTesting:
-    TESTS_FOLDER = "tests"
-    DIGITS_AFTER_DECIMAL = 7
-    INTERVAL_BETWEEN_WRITES = 30 #seconds
-
-class TestTimeFileManager:        
-    
-    def generateElapsedTime(self):
-        """ Returns a random float ranging between a to b, and with N digits after the decimal """
-        return round(random.uniform(ConstantsForTesting.INTERVAL_BETWEEN_WRITES, ConstantsForTesting.INTERVAL_BETWEEN_WRITES + 1), ConstantsForTesting.DIGITS_AFTER_DECIMAL)
-    
+class TestTimeFileManager:            
     def test_loadingWrittenDataFromTimeFile(self):
         currentTime = 1667673922.2530432
         elapsedTime = 0
@@ -32,7 +21,7 @@ class TestTimeFileManager:
         numberOfWrites = STRAIN_DATA_HISTORY_LENGTH - 1 #keeping it within the immediate time file limit (so as to not dig into archived files)
         for _ in range(numberOfWrites):
             tm.writeToFileAndHistoricalDataQueue(currentTime, elapsedTime, timers.NatureOfActivity.EYES_STRAINED) 
-            elapsedTime = self.generateElapsedTime()
+            elapsedTime = DummyTimeFunctions.generateElapsedTime()
             currentTime += elapsedTime #seconds
         assert len(tm.historicalStrainData) == numberOfWrites
         #---program is assumed to have stopped now and started again
@@ -58,7 +47,7 @@ class TestTimeFileManager:
             tm.writeToFileAndHistoricalDataQueue(currentTime, elapsedTime, timers.NatureOfActivity.EYES_STRAINED) #writing to file
             packedData = tm.packTheTimeDataForWriting(currentTime, elapsedTime, timers.NatureOfActivity.EYES_STRAINED)
             dataWritten.append(packedData) #storing a copy of what was written to file, to be able to compare later if all data was read back properly in the right order
-            elapsedTime = self.generateElapsedTime()
+            elapsedTime = DummyTimeFunctions.generateElapsedTime()
             currentTime += elapsedTime #seconds        
         #---program is assumed to have stopped now and started again
         del tm

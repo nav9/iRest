@@ -74,7 +74,7 @@ class CinnamonScreenLockCheck(ScreenLockChecker):
                 locked = False
             else:
                 logging.error(f"SCREENSAVER OUTPUT UNKNOWN. CHECK AND REPROGRAM: {receivedOutput}")                            
-        logging.debug(f"SCREEN LOCKED status: {locked}")        
+        #logging.debug(f"SCREEN LOCKED status: {locked}")        
         return locked
     
 #Note: Screen lock checks for various versions of Windows and MacOS can be programmed here

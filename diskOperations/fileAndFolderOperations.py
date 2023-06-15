@@ -1,5 +1,6 @@
 import os
 import ast #to convert string representation of list to actual list
+import base64 #to convert image data into base64 encoded strings
 import shutil
 import logging
 from glob import glob
@@ -104,3 +105,11 @@ class FileOperations:
     
     def getListOfSubfoldersInThisFolder(self, folderNameWithPath):
         return next(os.walk(folderNameWithPath))[self.SUBDIRECTORIES]    
+    
+    def getFileAsBase64EncodedString(self, path, imageFilename):
+        """ Used in PySimpleGUI. It requires images to be encoded as base64 strings in order to be used as buttons etc. """  
+        contents = open(os.path.join(path, imageFilename), 'rb').read()
+        return base64.b64encode(contents)  
+
+    def joinPathAndFilename(self, path, filename):
+        return os.path.join(path, filename)     

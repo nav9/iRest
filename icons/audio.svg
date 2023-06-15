@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="35"
+   height="35"
+   viewBox="0 0 9.2604168 9.2604168"
+   version="1.1"
+   id="svg568"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
+   sodipodi:docname="audio.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview570"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="false"
+     inkscape:document-units="px"
+     showgrid="false"
+     width="35mm"
+     units="px"
+     inkscape:zoom="18.586756"
+     inkscape:cx="19.825945"
+     inkscape:cy="19.234126"
+     inkscape:window-width="1600"
+     inkscape:window-height="823"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs565">
+    <inkscape:path-effect
+       effect="powerstroke"
+       id="path-effect2651"
+       is_visible="true"
+       lpeversion="1"
+       offset_points="0,4.99214"
+       not_jump="false"
+       sort_points="true"
+       interpolator_type="CubicBezierJohan"
+       interpolator_beta="0.2"
+       start_linecap_type="zerowidth"
+       linejoin_type="extrp_arc"
+       miter_limit="4"
+       scale_width="1"
+       end_linecap_type="zerowidth" />
+    <inkscape:path-effect
+       effect="powerstroke"
+       id="path-effect2647"
+       is_visible="true"
+       lpeversion="1"
+       offset_points="0,4.99214"
+       not_jump="false"
+       sort_points="true"
+       interpolator_type="CubicBezierJohan"
+       interpolator_beta="0.2"
+       start_linecap_type="zerowidth"
+       linejoin_type="extrp_arc"
+       miter_limit="4"
+       scale_width="1"
+       end_linecap_type="zerowidth" />
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       style="fill:#000000"
+       id="path446"
+       sodipodi:type="arc"
+       sodipodi:cx="4.6290865"
+       sodipodi:cy="4.6463037"
+       sodipodi:rx="4.5299315"
+       sodipodi:ry="4.5312161"
+       sodipodi:start="0.13992593"
+       sodipodi:end="6.2831853"
+       sodipodi:open="true"
+       sodipodi:arc-type="arc"
+       d="M 9.114744,5.2782713 A 4.5299315,4.5312161 0 0 1 4.1545675,9.1525908 4.5299315,4.5312161 0 0 1 0.11023702,4.3295449 4.5299315,4.5312161 0 0 1 4.7875179,0.11785966 4.5299315,4.5312161 0 0 1 9.159018,4.6463037"
+       inkscape:export-filename="/home/navin/code/iRest/icons/audio.png"
+       inkscape:export-xdpi="98.126007"
+       inkscape:export-ydpi="98.126007" />
+    <path
+       id="path218"
+       style="fill:#ffffff;stroke-width:0.294497"
+       inkscape:transform-center-x="-2.2616081"
+       d="M 4.45427,6.4197893 2.8875096,5.3917461 1.8894012,5.3501983 c 0,0 -0.096074,-0.2319905 -0.1152202,-0.3548799 C 1.7389854,4.7694167 1.7462092,4.5359226 1.7774876,4.3094453 1.7965073,4.1717287 1.8885965,3.9074461 1.8885965,3.9074461 L 2.7949683,3.8498055 4.4525526,2.875908 Z"
+       sodipodi:nodetypes="cccsscccc"
+       inkscape:export-filename="/home/navin/code/iRest/icons/audio.png"
+       inkscape:export-xdpi="98.126007"
+       inkscape:export-ydpi="98.126007" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 5.5203994,3.3524945 c -0.00307,2.4869659 -0.00307,2.4869659 -0.00307,2.4869659 l -5.556e-4,-0.00936"
+       id="path1758"
+       inkscape:export-filename="/home/navin/code/iRest/icons/audio.png"
+       inkscape:export-xdpi="98.126007"
+       inkscape:export-ydpi="98.126007" />
+    <path
+       style="fill:#ffffff;fill-opacity:0;stroke:#ffffff;stroke-width:0.55033334;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path6248"
+       sodipodi:type="arc"
+       sodipodi:cx="4.7973676"
+       sodipodi:cy="4.6995034"
+       sodipodi:rx="0.69617951"
+       sodipodi:ry="0.80720395"
+       sodipodi:start="4.6927587"
+       sodipodi:end="1.5859672"
+       sodipodi:arc-type="arc"
+       d="M 4.7837023,3.892455 A 0.69617951,0.80720395 0 0 1 5.3974622,4.2903011 0.69617951,0.80720395 0 0 1 5.39903,5.1055988 0.69617951,0.80720395 0 0 1 4.7868063,5.5066145"
+       sodipodi:open="true"
+       inkscape:export-filename="/home/navin/code/iRest/icons/audio.png"
+       inkscape:export-xdpi="98.126007"
+       inkscape:export-ydpi="98.126007" />
+    <path
+       style="fill:#ffffff;fill-opacity:0;stroke:#ffffff;stroke-width:0.550333;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path6248-3"
+       sodipodi:type="arc"
+       sodipodi:cx="5.3549323"
+       sodipodi:cy="4.6405544"
+       sodipodi:rx="1.2641562"
+       sodipodi:ry="1.4447401"
+       sodipodi:start="4.6804481"
+       sodipodi:end="1.5970334"
+       sodipodi:arc-type="arc"
+       sodipodi:open="true"
+       d="m 5.3145609,3.1965513 a 1.2641562,1.4447401 0 0 1 1.1271454,0.7059903 1.2641562,1.4447401 0 0 1 0.00367,1.4689295 1.2641562,1.4447401 0 0 1 -1.1236035,0.7133261"
+       inkscape:export-filename="/home/navin/code/iRest/icons/audio.png"
+       inkscape:export-xdpi="98.126007"
+       inkscape:export-ydpi="98.126007" />
+    <path
+       style="fill:#ffffff;fill-opacity:0;stroke:#ffffff;stroke-width:0.550333;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path6248-3-6"
+       sodipodi:type="arc"
+       sodipodi:cx="5.985992"
+       sodipodi:cy="4.5771904"
+       sodipodi:rx="1.7616017"
+       sodipodi:ry="2.0820975"
+       sodipodi:start="4.6927587"
+       sodipodi:end="1.5859672"
+       sodipodi:arc-type="arc"
+       sodipodi:open="true"
+       d="m 5.9514134,2.495494 a 1.7616017,2.0820975 0 0 1 1.5530485,1.0262023 1.7616017,2.0820975 0 0 1 0.00397,2.1029743 1.7616017,2.0820975 0 0 1 -1.5491613,1.0343777"
+       inkscape:export-filename="/home/navin/code/iRest/icons/audio.png"
+       inkscape:export-xdpi="98.126007"
+       inkscape:export-ydpi="98.126007" />
+  </g>
+</svg>

@@ -18,7 +18,7 @@ from gui import simpleGUI
 
 #TODO: shift log file config to file
 logFileName = 'logs_iRest.log'
-loggingLevel = logging.INFO
+loggingLevel = logging.DEBUG
 logging.basicConfig(level=loggingLevel, format='%(levelname)s %(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S') #outputs to console
 #log = logging.getLogger(__name__)
 handler = RotatingFileHandler(logFileName, maxBytes=2000000, backupCount=2)#TODO: Shift to config file

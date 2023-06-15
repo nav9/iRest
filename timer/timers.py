@@ -68,6 +68,7 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
     def __init__(self, operatingSystemAdapter, timeFileManager):#TODO: Load the values from a config file
         self.REST_MINUTES = 5 #TODO: shift to config file
         self.WORK_MINUTES = 20 #TODO: shift to config file
+        self.elapsedTimeAccumulation = 0
         self.allowedStrainDuration = TimeConstants.SECONDS_IN_MINUTE * self.WORK_MINUTES #how long to work (in seconds). How many seconds the eyes can be permitted to be strained
         self.restRatio = self.WORK_MINUTES / self.REST_MINUTES #Five minutes of rest for every 20 minutes of work
         logging.debug(f"RestRatio={self.restRatio} = work minutes {self.WORK_MINUTES} * rest minutes {self.REST_MINUTES}")
@@ -81,8 +82,7 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         self.GUI_Layout = simpleGUI.DefaultTimerLayout(self)
         self.userPausedTimerViaGUI = False
         self.checkLoadedDataToSeeIfUserIsStrained()
-        self.currentTime = 0
-        self.elapsedTimeAccumulation = 0
+        self.currentTime = 0        
         self.pastActivity = NatureOfActivity.EYES_STRAINED
         
     def noteTimeElapsedSinceProgramWasLastRunning(self):#this function is invoked only if historicalStrainData has at least one data stored
@@ -140,6 +140,7 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
             if self.operatingSystemAdapter != None: #because the program should be capable of working even if the OS could not be identified            
                 if self.operatingSystemAdapter.isScreenLocked(): #screen lock situation is currently being considered the equivalent of suspend or shutdown, so no need to write to file
                     currentActivity = NatureOfActivity.SCREEN_LOCKED
+        logging.debug(f"Current activity: {currentActivity}")
         #---add or subtract strain based on the elapsed activity
         elapsedTime = self.timeFunctions.getCurrentTime() - self.currentTime #time elapsed while the previous activity was being performed
         if elapsedTime < 0:#negative elapsed time (means something is wrong)
@@ -155,17 +156,21 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
                 currentActivity = NatureOfActivity.EYES_STRAINED #making the current activity different from the past activity (which is now SUSPEND) so that it'll save and consider the suspended time 
                 self.currentTime = self.timeFunctions.getCurrentTime() #this will be the timestamp of the suspend time
         self.elapsedTimeAccumulation += elapsedTime        
-        self.checkAndUpdateStrainAndFile(currentActivity)
+        logging.debug(f"Elapsed time accumulated: {self.elapsedTimeAccumulation}, elapsedTime: {elapsedTime}")
+        self.checkAndUpdateStrainAndFile(currentActivity, elapsedTime)
 
-    def checkAndUpdateStrainAndFile(self, currentActivity):        
+    def checkAndUpdateStrainAndFile(self, currentActivity, elapsedTime):        
         #---if state changed or time interval elapsed, update state and write to file
+        logging.debug(f"past: {self.pastActivity}, current: {currentActivity}")
         if self.pastActivity != currentActivity or self.elapsedTimeAccumulation >= self.DATA_SAVE_INTERVAL:#state changed or writing interval reached (the program writes to file at fixed intervals, regardless of state change)
-            self.saveActivityAndUpdateStrain(self.currentTime, self.elapsedTimeAccumulation, self.pastActivity)            
+            self.saveActivityAndUpdateStrain(self.currentTime, elapsedTime, self.pastActivity)            
             self.pastActivity = currentActivity #whether state changed or not, current has to be assigned to past anyway
             self.elapsedTimeAccumulation = 0 #clear the written elapsed time 
+        else:#do a routine strain variable update without saving to file
+            self.updateUserStrain(elapsedTime, self.pastActivity)
 
     def saveActivityAndUpdateStrain(self, timestamp, duration, activity):
-        self.timeFileManager.writeToFileAndHistoricalDataQueue(timestamp, duration, activity)     
+        self.timeFileManager.writeToFileAndHistoricalDataQueue(timestamp, self.elapsedTimeAccumulation, activity)     
         self.updateUserStrain(duration, activity)       
 
     def updateUserStrain(self, elapsedTime, activity):

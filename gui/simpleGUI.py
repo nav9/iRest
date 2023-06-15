@@ -17,7 +17,7 @@ class WidgetConstants:
     PAUSE_RUN_TOGGLE_BUTTON = '-Pause/Run-'
     MUTE_UNMUTE_TOGGLE_BUTTON = '-Mute/Unmute-'
     WINDOW_TITLE = 'iRest'
-    SCT_SLIDER = '-sct slider-'
+    SCT_SLIDER = '-sct slider-' #SCT is the app that controls screen warmth (Screen Color Temperature)
     SCT_SLIDER_SIZE = (1, 10)
     #TODO: shift these filenames to config file
     MAIN_PROGRAM_ICON = 'iRest_icon.png'
@@ -70,6 +70,7 @@ class DefaultTimerLayout:#The layouts will be initialized in the timer classes a
 
     def runEventLoop(self, event, values):#this gets invoked from the main GUI interface class
         strainedDuration, allowedStrainDuration, formattedStrainedTime = self.timer.getStrainDetails()
+        print(f"called {allowedStrainDuration} {formattedStrainedTime}")
         self.mainWindow[WidgetConstants.STRAINED_TIME_TEXT].update(formattedStrainedTime) #update the info shown about strained time
         self.mainWindow[WidgetConstants.ALLOWED_STRAIN_TEXT].update(allowedStrainDuration)
         if event == WidgetConstants.PAUSE_RUN_TOGGLE_BUTTON:

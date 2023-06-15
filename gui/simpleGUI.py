@@ -2,10 +2,11 @@ import PySimpleGUI as simpleGUI
 from abc import ABC, abstractmethod
 from diskOperations import fileAndFolderOperations
 
-simpleGUI.theme('Dark') 
-backgroundColorOfGUI = simpleGUI.LOOK_AND_FEEL_TABLE['Dark']['BACKGROUND']
+themeName = 'Dark'
+simpleGUI.theme(themeName) 
+backgroundColorOfGUI = simpleGUI.LOOK_AND_FEEL_TABLE[themeName]['BACKGROUND']
 
-class MoreConstants:#TODO: consolidate these into one place
+class MoreConstants:#TODO: consolidate these into one place where all constants are found
     FIRST_ELEMENT_OF_ARRAY = 0
     ICON_PATH = "icons"
 
@@ -13,19 +14,14 @@ class WidgetConstants:
     TEXT_SIZE = (12, 1)
     STRAINED_TIME_TEXT = '-statusTextfield-'
     ALLOWED_STRAIN_TEXT = '-allowedStrain-'
-    DEFAULT_TIMER_STATUS_TEXT = '-DefaultTimerStatus-'
-    AUDIO_STATUS_TEXT = '-AudioStatus-'
-    DEFAULT_TIMER_RUNNING_MESSAGE = "Running"
-    AUDIO_ACTIVE_MESSAGE = "Audio active"
-    PAUSE_RUN_TOGGLE_BUTTON = 'Pause/Run'
-    MUTE_UNMUTE_TOGGLE_BUTTON = 'Mute/Unmute'
-    MUTE_BUTTON = 'Mute'
-    UNMUTE_BUTTON = 'Un-mute'
+    PAUSE_RUN_TOGGLE_BUTTON = '-Pause/Run-'
+    MUTE_UNMUTE_TOGGLE_BUTTON = '-Mute/Unmute-'
     WINDOW_TITLE = 'iRest'
     SCT_SLIDER = '-sct slider-'
     SCT_SLIDER_SIZE = (1, 10)
+    #TODO: shift these filenames to config file
     MAIN_PROGRAM_ICON = 'iRest_icon.png'
-    PLAY_ICON = 'play.png' #TODO: shift these paths to config file
+    PLAY_ICON = 'play.png' 
     PAUSE_ICON = 'pause.png'
     AUDIO_ICON = 'audio.png'
     MUTE_ICON = 'mute.png'
@@ -52,14 +48,13 @@ class DefaultTimerLayout:#The layouts will be initialized in the timer classes a
     def __init__(self, backendRef) -> None:
         self.timer = backendRef  
         self.mainWindow = None #a reference to the main GUI window which will get set via a registerMainWindowReference function
-        self.playButton = b'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'
         self.buttonStrings = dict()
         self.__loadButtonImages()
         self.buttonHoverBackgroundColor = 'grey'
         self.borderWidth = 0
+        #TODO: if there's no audio notifier available, the audio/mute button shouldn't be shown at all
         self.layout = [                        
                         [simpleGUI.Text("Strained time: "), simpleGUI.Text(size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.STRAINED_TIME_TEXT), simpleGUI.Text("Allowed strain: "), simpleGUI.Text(size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.ALLOWED_STRAIN_TEXT)],
-                        [simpleGUI.Text(f"Program Status: "), simpleGUI.Text(WidgetConstants.DEFAULT_TIMER_RUNNING_MESSAGE, size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.DEFAULT_TIMER_STATUS_TEXT), simpleGUI.Text(f"Audio Status: "), simpleGUI.Text(WidgetConstants.AUDIO_ACTIVE_MESSAGE, size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.AUDIO_STATUS_TEXT)],
                         [simpleGUI.Button('', key=WidgetConstants.PAUSE_RUN_TOGGLE_BUTTON, image_data=self.buttonStrings[WidgetConstants.PAUSE_ICON], button_color=(self.buttonHoverBackgroundColor, backgroundColorOfGUI), border_width=self.borderWidth, metadata=False), 
                          simpleGUI.Button('', key=WidgetConstants.MUTE_UNMUTE_TOGGLE_BUTTON, image_data=self.buttonStrings[WidgetConstants.AUDIO_ICON], button_color=(self.buttonHoverBackgroundColor, backgroundColorOfGUI), border_width=self.borderWidth, metadata=False)], 
                     ]
@@ -79,21 +74,10 @@ class DefaultTimerLayout:#The layouts will be initialized in the timer classes a
         self.mainWindow[WidgetConstants.ALLOWED_STRAIN_TEXT].update(allowedStrainDuration)
         if event == WidgetConstants.PAUSE_RUN_TOGGLE_BUTTON:
             self.__togglePlayPause(event)
-            paused = self.timer.togglePauseStrainedTimeMeasurement()
-            message = "Unknown"
-            if paused: message = "Paused"
-            else: message = WidgetConstants.DEFAULT_TIMER_RUNNING_MESSAGE    
-            self.mainWindow[WidgetConstants.DEFAULT_TIMER_STATUS_TEXT].update(message)
+            self.timer.togglePauseStrainedTimeMeasurement()
         if event == WidgetConstants.MUTE_UNMUTE_TOGGLE_BUTTON:
             self.__toggleAudioMute(event)
-            toggleState = self.timer.toggleAllAudioNotifiers()
-            message = "No audio notifiers"
-            if toggleState == None: 
-                pass
-            else:
-                if toggleState: message = WidgetConstants.AUDIO_ACTIVE_MESSAGE
-                else: message = "Audio muted"
-            self.mainWindow[WidgetConstants.AUDIO_STATUS_TEXT].update(message)
+            self.timer.toggleAllAudioNotifiers() 
     
     def __togglePlayPause(self, event):
         element = self.mainWindow[event]

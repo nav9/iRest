@@ -165,11 +165,12 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         if self.pastActivity != currentActivity or self.elapsedTimeAccumulation >= self.DATA_SAVE_INTERVAL:#state changed or writing interval reached (the program writes to file at fixed intervals, regardless of state change)
             self.saveActivityAndUpdateStrain(self.currentTime, elapsedTime, self.pastActivity)            
             self.pastActivity = currentActivity #whether state changed or not, current has to be assigned to past anyway
-            self.elapsedTimeAccumulation = 0 #clear the written elapsed time 
+            self.elapsedTimeAccumulation = 0 #clear the written elapsed time             
         else:#do a routine strain variable update without saving to file
             self.updateUserStrain(elapsedTime, self.pastActivity)
 
     def saveActivityAndUpdateStrain(self, timestamp, duration, activity):
+        logging.info(f"Saving to file: timestamp {timestamp}, elapsedTime {self.elapsedTimeAccumulation}, pastActivity {activity}")
         self.timeFileManager.writeToFileAndHistoricalDataQueue(timestamp, self.elapsedTimeAccumulation, activity)     
         self.updateUserStrain(duration, activity)       
 

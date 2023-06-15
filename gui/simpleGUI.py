@@ -60,8 +60,8 @@ class DefaultTimerLayout:#The layouts will be initialized in the timer classes a
         self.layout = [                        
                         [simpleGUI.Text("Strained time: "), simpleGUI.Text(size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.STRAINED_TIME_TEXT), simpleGUI.Text("Allowed strain: "), simpleGUI.Text(size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.ALLOWED_STRAIN_TEXT)],
                         [simpleGUI.Text(f"Program Status: "), simpleGUI.Text(WidgetConstants.DEFAULT_TIMER_RUNNING_MESSAGE, size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.DEFAULT_TIMER_STATUS_TEXT), simpleGUI.Text(f"Audio Status: "), simpleGUI.Text(WidgetConstants.AUDIO_ACTIVE_MESSAGE, size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.AUDIO_STATUS_TEXT)],
-                        [simpleGUI.Button('', key=WidgetConstants.PAUSE_RUN_TOGGLE_BUTTON, image_data=self.buttonStrings[WidgetConstants.PAUSE_ICON], button_color=(self.buttonHoverBackgroundColor, backgroundColorOfGUI), border_width=self.borderWidth), 
-                         simpleGUI.Button('', key=WidgetConstants.MUTE_UNMUTE_TOGGLE_BUTTON, image_data=self.buttonStrings[WidgetConstants.AUDIO_ICON], button_color=(self.buttonHoverBackgroundColor, backgroundColorOfGUI), border_width=self.borderWidth)], 
+                        [simpleGUI.Button('', key=WidgetConstants.PAUSE_RUN_TOGGLE_BUTTON, image_data=self.buttonStrings[WidgetConstants.PAUSE_ICON], button_color=(self.buttonHoverBackgroundColor, backgroundColorOfGUI), border_width=self.borderWidth, metadata=False), 
+                         simpleGUI.Button('', key=WidgetConstants.MUTE_UNMUTE_TOGGLE_BUTTON, image_data=self.buttonStrings[WidgetConstants.AUDIO_ICON], button_color=(self.buttonHoverBackgroundColor, backgroundColorOfGUI), border_width=self.borderWidth, metadata=False)], 
                     ]
         
     def getLayout(self):
@@ -78,12 +78,14 @@ class DefaultTimerLayout:#The layouts will be initialized in the timer classes a
         self.mainWindow[WidgetConstants.STRAINED_TIME_TEXT].update(formattedStrainedTime) #update the info shown about strained time
         self.mainWindow[WidgetConstants.ALLOWED_STRAIN_TEXT].update(allowedStrainDuration)
         if event == WidgetConstants.PAUSE_RUN_TOGGLE_BUTTON:
+            self.__togglePlayPause(event)
             paused = self.timer.togglePauseStrainedTimeMeasurement()
             message = "Unknown"
             if paused: message = "Paused"
             else: message = WidgetConstants.DEFAULT_TIMER_RUNNING_MESSAGE    
             self.mainWindow[WidgetConstants.DEFAULT_TIMER_STATUS_TEXT].update(message)
         if event == WidgetConstants.MUTE_UNMUTE_TOGGLE_BUTTON:
+            self.__toggleAudioMute(event)
             toggleState = self.timer.toggleAllAudioNotifiers()
             message = "No audio notifiers"
             if toggleState == None: 
@@ -93,16 +95,21 @@ class DefaultTimerLayout:#The layouts will be initialized in the timer classes a
                 else: message = "Audio muted"
             self.mainWindow[WidgetConstants.AUDIO_STATUS_TEXT].update(message)
     
-    # def playPauseClicked(self):
-    #     print("called")
-    #     paused = self.timer.togglePauseStrainedTimeMeasurement()
-    #     message = "Unknown"
-    #     if paused: message = "Paused"
-    #     else: message = WidgetConstants.DEFAULT_TIMER_RUNNING_MESSAGE    
-    #     self.mainWindow[WidgetConstants.DEFAULT_TIMER_STATUS_TEXT].update(message)
+    def __togglePlayPause(self, event):
+        element = self.mainWindow[event]
+        if element.metadata:#toggle the button image
+            element.update(image_data=self.buttonStrings[WidgetConstants.PAUSE_ICON])                
+        else:
+            element.update(image_data=self.buttonStrings[WidgetConstants.PLAY_ICON])                
+        element.metadata = not element.metadata
 
-    def loadPlayButton(self):
-        pass
+    def __toggleAudioMute(self, event):
+        element = self.mainWindow[event]
+        if element.metadata:#toggle the button image
+            element.update(image_data=self.buttonStrings[WidgetConstants.AUDIO_ICON])                
+        else:
+            element.update(image_data=self.buttonStrings[WidgetConstants.MUTE_ICON])                
+        element.metadata = not element.metadata
 
     def registerMainWindowReference(self, window):    
         self.mainWindow = window

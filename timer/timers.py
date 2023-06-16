@@ -126,9 +126,10 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
     def execute(self):
         self.currentTime = self.timeFunctions.getCurrentTime() #epoch time is simply the time elapsed since a specific year (around 1970)
         #---check if state changed, update strained duration and whether it's time to write to file
-        self.checkStateChangeUpdateStrainDurationAndSave()
+        currentActivity = self.checkStateChangeUpdateStrainDurationAndSave()
         #---notify the user based on the strained time
-        self.__notifyUserIfTheyNeedToTakeRest_afterCheckingForSuspend()  
+        if currentActivity == NatureOfActivity.EYES_STRAINED:
+            self.__notifyUserIfTheyNeedToTakeRest_afterCheckingForSuspend()  #no need of notifying User if the program is paused or screen is locked
 
     def checkStateChangeUpdateStrainDurationAndSave(self):
         """ Checks for change of state, updates strain duration and writes to file if necessary """
@@ -151,13 +152,15 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
             if elapsedTime > OtherConstants.MAX_SECONDS_REQUIRED_TO_CHECK_STATE:#means that the computer got suspended or iRest process got suspended while operations were being done, so this time can be considered as rest time
                 #---save any accumulated activity of the state before suspension
                 currentActivity = NatureOfActivity.SUSPENDED
-                self.checkAndUpdateStrainAndFile(currentActivity)
+                self.checkAndUpdateStrainAndFile(currentActivity, self.elapsedTimeAccumulation)
+                logging.debug(f"detected that the computer was suspended earlier for approx {elapsedTime}s")
                 #---prime it to save the suspend time when it exits this if condition (the elapsed time during suspension will be a slight bit (less than a second) innacurate) 
                 currentActivity = NatureOfActivity.EYES_STRAINED #making the current activity different from the past activity (which is now SUSPEND) so that it'll save and consider the suspended time 
                 self.currentTime = self.timeFunctions.getCurrentTime() #this will be the timestamp of the suspend time
         self.elapsedTimeAccumulation += elapsedTime        
         logging.debug(f"Elapsed time accumulated: {self.elapsedTimeAccumulation}, elapsedTime: {elapsedTime}")
         self.checkAndUpdateStrainAndFile(currentActivity, elapsedTime)
+        return currentActivity
 
     def checkAndUpdateStrainAndFile(self, currentActivity, elapsedTime):        
         #---if state changed or time interval elapsed, update state and write to file
@@ -229,10 +232,10 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         return toggleState
         
     def __notifyUserIfTheyNeedToTakeRest_afterCheckingForSuspend(self):
-        #logging.debug("-----> Current strained time: " + time.strftime("%H:%M:%S", time.gmtime(self.strainedDuration)))
+        logging.debug(f"-----> Current strained time: {self.timeFunctions.getTimeFormattedAsHMS(self.strainedDuration)}")
         #---check if strained duration is greater than the allowed strain and also ensure that the program wasn't suspended for as long as a User's rest need (because if the program was suspended that long, there's no need of notifying the user to rest)
         if self.strainedDuration > self.allowedStrainDuration and (self.timeFunctions.getCurrentTime() - self.currentTime) < self.REST_MINUTES * TimeConstants.SECONDS_IN_MINUTE:#means that the computer got suspended or iRest process got suspended while operations were being done, so this time can be considered as rest time: #notify the User to take rest
-            #logging.info(f"* Please take rest. Strained duration: {self.strainedDuration}")
+            logging.info(f"* Please take rest. Strained duration: {self.strainedDuration}")
             for notifierID, notifier in self.notifiers.items(): #If operating system was not recognized, the operating system adapter will be None, and no notifier will be registered. It will be an empty dict
                 notifier.execute() #within each notifier's execute(), there will be a cooldown timer, which will ensure that the notification is not repeated until some time has passed, even if execute() is invoked frequently        
 

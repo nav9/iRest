@@ -26,7 +26,7 @@ class GnomeScreenLockCheck(ScreenLockChecker):
         self.screensaverCommand = "gnome-screensaver-command -q" 
         self.commonFunctions = commonFunctions.CommonFunctions_Linux()
         self.screensaverPresent = self.__isGnomeScreensaverPresent()
-        self.lockChecker = timeFunctions.TimeElapseChecker(ScreenLockConstants.LOCK_CHECK_INTERVAL_SECONDS) #checking only periodically since it's an expensive operation
+        self.lockChecker = timeFunctions.TimeElapseChecker_Linux(ScreenLockConstants.LOCK_CHECK_INTERVAL_SECONDS) #checking only periodically since it's an expensive operation
         self.locked = False
 
     def execute(self):
@@ -66,7 +66,7 @@ class CinnamonScreenLockCheck(ScreenLockChecker):#The Cinnamon desktop used in M
         self.id = "Cinnamon Desktop screen lock checker"
         self.screensaverCommand = "cinnamon-screensaver-command -q" 
         self.commonFunctions = commonFunctions.CommonFunctions_Linux()
-        self.lockChecker = timeFunctions.TimeElapseChecker(ScreenLockConstants.LOCK_CHECK_INTERVAL_SECONDS) #checking only periodically since it's an expensive operation
+        self.lockChecker = timeFunctions.TimeElapseChecker_Linux(ScreenLockConstants.LOCK_CHECK_INTERVAL_SECONDS) #checking only periodically since it's an expensive operation
         self.locked = False
 
     def execute(self):

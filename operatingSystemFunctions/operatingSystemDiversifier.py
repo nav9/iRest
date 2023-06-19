@@ -35,6 +35,11 @@ class OperatingSystemFunctionality(ABC):#Abstract parent class
         """ Returns a reference to the instance that handles time functions that may or may not be operating system specific """
         pass 
 
+    @abstractmethod
+    def getTimeElapseCheckerInstanceForThisDuration(self, duration):
+        """ Returns an operating system specific instance which allows checking if a certain duration of time has elapsed """
+        pass 
+
 class LinuxFunctionality(OperatingSystemFunctionality):#For functions that are specific to Linux. The program uses this class only if it detects it is running on Linux. These same functions should also be available in a "Windows" class and that class would be instantiatiated and used if the program is run on Windows
     #cat /etc/os-release prints the Linux flavour
     def __init__(self):  
@@ -44,7 +49,7 @@ class LinuxFunctionality(OperatingSystemFunctionality):#For functions that are s
         self.graphicalNotifier = graphicalNotifiers.PlyerGraphicalNotifier()
         self.desktopAdapter = LinuxDesktopAdapter()
         self.warmthApp = warmColour.WarmColour_Linux()
-        self.timeFunctions = timeFunctions.TimeFunctions()
+        self.timeFunctions = timeFunctions.TimeFunctions_Linux()
     
     def isScreenLocked(self):
         return self.desktopAdapter.isScreenLocked()
@@ -60,6 +65,9 @@ class LinuxFunctionality(OperatingSystemFunctionality):#For functions that are s
     
     def getTimeFunctionsApp(self):
         return self.timeFunctions
+    
+    def getTimeElapseCheckerInstanceForThisDuration(self, duration):
+        return timeFunctions.TimeElapseChecker_Linux(duration)
     
 class OperatingSystemIdentifier:    
     def __init__(self):

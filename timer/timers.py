@@ -141,7 +141,7 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         if self.userPausedTimerViaGUI:#if the user paused the timer via the GUI
             currentActivity = NatureOfActivity.PAUSED_VIA_GUI            
         else:        
-            if self.screenLockLastCheckedTime >= OtherConstants.MAX_SECONDS_COOLDOWN_TO_CHECK_SCREEN_LOCK and self.operatingSystemAdapter != None: #because the program should be capable of working even if the OS could not be identified            
+            if self.currentTime - self.screenLockLastCheckedTime >= OtherConstants.MAX_SECONDS_COOLDOWN_TO_CHECK_SCREEN_LOCK and self.operatingSystemAdapter != None: #because the program should be capable of working even if the OS could not be identified            
                 self.screenLockLastCheckedTime = self.currentTime
                 if self.operatingSystemAdapter.isScreenLocked(): #screen lock situation is currently being considered the equivalent of suspend or shutdown, so no need to write to file
                     currentActivity = NatureOfActivity.SCREEN_LOCKED

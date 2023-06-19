@@ -1,5 +1,16 @@
 This program is under construction, but can still be used.  
   
+  ███  ███████████                     █████   
+ ░░░  ░░███░░░░░███                   ░░███    
+ ████  ░███    ░███   ██████   █████  ███████  
+░░███  ░██████████   ███░░███ ███░░  ░░░███░   
+ ░███  ░███░░░░░███ ░███████ ░░█████   ░███    
+ ░███  ░███    ░███ ░███░░░   ░░░░███  ░███ ███
+ █████ █████   █████░░██████  ██████   ░░█████ 
+░░░░░ ░░░░░   ░░░░░  ░░░░░░  ░░░░░░     ░░░░░  
+
+ASCII banner attribution: https://manytools.org/hacker-tools/ascii-banner/  
+
 # About iRest  
 A program that reminds you to rest your eyes. This program is being created after more than a decade of my experience with chronic eye strain and my eventual recovery. The "i" at the beginning of "iRest" has nothing to do with the Apple company. The "i" refers to you, when you use the program.
   
@@ -12,11 +23,11 @@ Use this line in the "command" field: `python -B /path/to/iRest/main.py >> iRest
 If the application to run startup apps is missing in your newer version of Ubuntu, simply install it: `sudo apt-get install gnome-startup-applications`.  
   
 ## To run it from Mint Cinnamon     
-I had to create a file named `startupScript.sh` in the home folder, then run `chmod +x startupScript.sh` to make the script executable. Contents of the file would typically be like:  
+I had to create a file named `startupScript.sh` in the home folder, then run `chmod +x startupScript.sh` to make the script executable. Contents of the file would typically be like (you'll need to set the correct python bin folder for you):  
 ```
 #!/usr/bin/env bash
-cd /home/nav/iRest/
-/home/nav/.pyenv/versions/3.9.0/bin/python3.9 -B /home/nav/iRest/main.py >> iRestErrors.log &
+cd /home/<username>/iRest/
+/home/<username>/.pyenv/versions/3.9.0/bin/python3.9 -B /home/nav/iRest/main.py >> iRestErrors.log &
 ```
   
 ## iRest was created because...

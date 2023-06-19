@@ -2,7 +2,6 @@ import logging
 from abc import ABC, abstractmethod
 from gui import simpleGUI
 from configuration import configHandler
-#from operatingSystemFunctions import timeFunctions
 
 class OtherConstants:
     LAST_INDEX_OF_LIST = -1
@@ -72,7 +71,7 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         self.allowedStrainDuration = TimeConstants.SECONDS_IN_MINUTE * self.WORK_MINUTES #how long to work (in seconds). How many seconds the eyes can be permitted to be strained
         self.restRatio = self.WORK_MINUTES / self.REST_MINUTES #Five minutes of rest for every 20 minutes of work
         logging.debug(f"RestRatio={self.restRatio} = work minutes {self.WORK_MINUTES} * rest minutes {self.REST_MINUTES}")
-        self.DATA_SAVE_INTERVAL = TimeConstants.SECONDS_IN_MINUTE #(in seconds) If state changes, data can get saved before this interval elapses too.  #TODO: shift to config file
+        self.DATA_SAVE_INTERVAL = TimeConstants.SECONDS_IN_MINUTE #(in seconds) If state changes, data can get saved before this interval elapses too.  
         self.strainedDuration = 0 
         self.currentState = NatureOfActivity.EYES_STRAINED         
         self.timeFileManager = timeFileManager
@@ -81,23 +80,24 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         self.timeFunctions = self.operatingSystemAdapter.getTimeFunctionsApp()
         self.GUI_Layout = simpleGUI.DefaultTimerLayout(self)
         self.userPausedTimerViaGUI = False
-        self.currentTime = None
-        self.screenIsLocked = False      
+        self.dataSaveInterval = self.operatingSystemAdapter.getTimeElapseCheckerInstanceForThisDuration(self.DATA_SAVE_INTERVAL) #for periodically writing accumulated elapsed time to file
+        #self.currentTime = None   
         self.checkLoadedDataToSeeIfUserIsStrained()      
         self.pastActivity = NatureOfActivity.EYES_STRAINED
         
     def noteTimeElapsedSinceProgramWasLastRunning(self):#this function is invoked only if historicalStrainData has at least one data stored
         """ program just started, so we check what the last recorded timestamp was, to know after how long this program was started """
         lastKnownTimestamp = self.__getLastKnownTimestamp() #this will be the last known loaded data timestamp
-        currentTime = self.timeFunctions.getCurrentTime()
-        self.screenLockLastCheckedTime = currentTime
-        elapsedTime = currentTime - lastKnownTimestamp #time elapsed since the program was last known to be running
+        elapsedDuration, currentTime = self.timerFunctions.getElapsedDurationSinceThisTime(lastKnownTimestamp)
+        #currentTime = self.timeFunctions.getCurrentTime()
+        #self.screenLockLastCheckedTime = currentTime
+        elapsedDuration = currentTime - lastKnownTimestamp #time elapsed since the program was last known to be running
         if elapsedTime < 0:
             errorMessage = f"current time {currentTime} is lesser than the last time the program was running {lastKnownTimestamp}. Your system time appears to be messed up. Please delete the {self.timeFileManager.getTimeFilesFolderString()} folder"
             logging.error(errorMessage)
             raise ValueError(errorMessage)
         else:#store elapsed time as rested time. This will get written to file and appended to historicalStrainData
-            self.recordTimeElapsedWhenThisProgramWasNotRunning(self.timeFunctions.getCurrentTime(), elapsedTime)
+            self.recordTimeElapsedWhenThisProgramWasNotRunning(self.timeFunctions.getCurrentTime(), elapsedDuration)
         return currentTime
     
     def __getLastKnownTimestamp(self):
@@ -140,7 +140,7 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         if self.userPausedTimerViaGUI:#if the user paused the timer via the GUI
             currentActivity = NatureOfActivity.PAUSED_VIA_GUI            
         else:#check for screen lock only periodically since it's an expensive operation    
-            if self.screenIsLocked:
+            if self.operatingSystemAdapter.isScreenLocked(): #check will be done only at a defined time interval. screen lock situation is currently being considered the equivalent of suspend or shutdown, so no need to write to file
                 currentActivity = NatureOfActivity.SCREEN_LOCKED                
         logging.debug(f"Current activity: {currentActivity}")
         #---add or subtract strain based on the elapsed activity
@@ -152,8 +152,6 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
             raise ValueError(errorMessage)
         else:#check for whether the computer or iRest had been suspended 
             if elapsedTime > OtherConstants.MAX_SECONDS_REQUIRED_TO_CHECK_STATE:#means that the computer got suspended or iRest process got suspended while operations were being done, so this time can be considered as rest time
-                #---check for screen lock state
-                self.screenIsLocked = self.operatingSystemAdapter.isScreenLocked() #screen lock situation is currently being considered the equivalent of suspend or shutdown, so no need to write to file
                 #---save any accumulated activity of the state before suspension
                 currentActivity = NatureOfActivity.SUSPENDED
                 self.checkAndUpdateStrainAndFile(currentActivity, self.elapsedTimeAccumulation)

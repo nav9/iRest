@@ -3,7 +3,10 @@ import logging
 import subprocess
 from abc import ABC, abstractmethod
 from configuration import configHandler
-from operatingSystemFunctions import commonFunctions
+from operatingSystemFunctions import commonFunctions, timeFunctions
+
+class ScreenLockConstants:
+    LOCK_CHECK_INTERVAL_SECONDS = 5 #checking only periodically since it's an expensive operation
 
 class ScreenLockChecker(ABC):#Abstract parent class
     #Note: Abstract methods have to be implemented by child classes because they would be invoked by other classes
@@ -23,21 +26,23 @@ class GnomeScreenLockCheck(ScreenLockChecker):
         self.screensaverCommand = "gnome-screensaver-command -q" 
         self.commonFunctions = commonFunctions.CommonFunctions_Linux()
         self.screensaverPresent = self.__isGnomeScreensaverPresent()
+        self.lockChecker = timeFunctions.TimeElapseChecker(ScreenLockConstants.LOCK_CHECK_INTERVAL_SECONDS) #checking only periodically since it's an expensive operation
+        self.locked = False
 
     def execute(self):
-        locked = False
-        screenLocked = "is active"
-        screenNotLocked = "is inactive"
-        receivedOutput = self.commonFunctions.executeBashCommand(self.screensaverCommand)
-        if screenLocked in receivedOutput:
-            locked = True
-        else: 
-            if screenNotLocked in receivedOutput:
-                locked = False
-            else:
-                logging.error(f"SCREENSAVER OUTPUT UNKNOWN. CHECK AND REPROGRAM: {receivedOutput}")                            
-        logging.debug(f"SCREEN LOCKED status: {locked}")        
-        return locked
+        if self.lockChecker.didTimeElapse():
+            screenLocked = "is active"
+            screenNotLocked = "is inactive"
+            receivedOutput = self.commonFunctions.executeBashCommand(self.screensaverCommand)
+            if screenLocked in receivedOutput:
+                self.locked = True
+            else: 
+                if screenNotLocked in receivedOutput:
+                    self.locked = False
+                else:
+                    logging.error(f"SCREENSAVER OUTPUT UNKNOWN. CHECK AND REPROGRAM: {receivedOutput}")                            
+            logging.debug(f"SCREEN LOCKED status: {self.locked}")        
+        return self.locked
 
     def __isGnomeScreensaverPresent(self):#Ubuntu does not have the screensaver installed by default
         screenSaverPresent = False
@@ -56,25 +61,27 @@ class GnomeScreenLockCheck(ScreenLockChecker):
         return screenSaverPresent
 
 
-class CinnamonScreenLockCheck(ScreenLockChecker):
+class CinnamonScreenLockCheck(ScreenLockChecker):#The Cinnamon desktop used in Mint OS
     def __init__(self):
         self.id = "Cinnamon Desktop screen lock checker"
         self.screensaverCommand = "cinnamon-screensaver-command -q" 
         self.commonFunctions = commonFunctions.CommonFunctions_Linux()
+        self.lockChecker = timeFunctions.TimeElapseChecker(ScreenLockConstants.LOCK_CHECK_INTERVAL_SECONDS) #checking only periodically since it's an expensive operation
+        self.locked = False
 
     def execute(self):
-        locked = False
-        screenLocked = "is active"
-        screenNotLocked = "is inactive"
-        receivedOutput = self.commonFunctions.executeBashCommand(self.screensaverCommand)
-        if screenLocked in receivedOutput:
-            locked = True
-        else: 
-            if screenNotLocked in receivedOutput:
-                locked = False
-            else:
-                logging.error(f"SCREENSAVER OUTPUT UNKNOWN. CHECK AND REPROGRAM: {receivedOutput}")                            
-        #logging.debug(f"SCREEN LOCKED status: {locked}")        
-        return locked
+        if self.lockChecker.didTimeElapse():
+            screenLocked = "is active"
+            screenNotLocked = "is inactive"
+            receivedOutput = self.commonFunctions.executeBashCommand(self.screensaverCommand)
+            if screenLocked in receivedOutput:
+                self.locked = True
+            else: 
+                if screenNotLocked in receivedOutput:
+                    self.locked = False
+                else:
+                    logging.error(f"SCREENSAVER OUTPUT UNKNOWN. CHECK AND REPROGRAM: {receivedOutput}")                            
+            logging.debug(f"SCREEN LOCKED status: {self.locked}")        
+        return self.locked
     
 #Note: Screen lock checks for various versions of Windows and MacOS can be programmed here

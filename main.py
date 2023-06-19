@@ -31,7 +31,7 @@ logging.getLogger().setLevel(loggingLevel)
 #------------------ PROGRAM STARTS HERE ----------------------
 #-------------------------------------------------------------
 #-------------------------------------------------------------
-if __name__ == '__main__':
+def main():#Reason for a main function https://stackoverflow.com/questions/60276536/why-do-we-put-a-main-function-in-python-instead-of-just-putting-the-code-direc
     SLEEP_SECONDS = 0.01
     logging.info("\n\n---------------------------------")
     logging.info("iRest program started")
@@ -42,8 +42,8 @@ if __name__ == '__main__':
     operatingSystemAdapter = operatingSystemCheck.getOperatingSystemAdapterInstance() #If OS could not be identified, it will return None    
     #---Create the timer(s)
     allTimers = []
-    timeFileManager = timeFileManager.TimeFileManager(configHandler.Names.ARCHIVE_FOLDER, configHandler.Names.TIME_FILE, fileOps) #parameters passed: folderName, fileName
-    defaultTimer = timers.DefaultTimer(operatingSystemAdapter, timeFileManager)
+    timeFileMgr = timeFileManager.TimeFileManager(configHandler.Names.ARCHIVE_FOLDER, configHandler.Names.TIME_FILE, fileOps) #parameters passed: folderName, fileName
+    defaultTimer = timers.DefaultTimer(operatingSystemAdapter, timeFileMgr)
     if operatingSystemAdapter:#if OS was identified, get the audio notifier specific to that OS
         defaultTimer.addThisNotifierToListOfNotifiers(operatingSystemAdapter.getAudioNotifier()) #TODO: take notifiers from the config file
         defaultTimer.addThisNotifierToListOfNotifiers(operatingSystemAdapter.getGraphicalNotifier()) #TODO: take notifiers from the config file
@@ -60,7 +60,8 @@ if __name__ == '__main__':
             timer.execute()
         if gui.checkIfNotClosedGUI(): gui.runEventLoop()
         else: break
-        sleep(SLEEP_SECONDS) #relinquish program control to the operating system, for a while
+        sleep(SLEEP_SECONDS) #relinquish program control to the operating system, for a while. Another (probably non-blocking) wait is located in simpleGUI.py, with the self.WINDOW_WAIT_TIMEOUT_MILLISECOND
     logging.info("iRest has been stopped")
     
-    
+if __name__ == '__main__':
+    main()

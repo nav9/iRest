@@ -114,7 +114,7 @@ class TimeFileManager:
                 newFilename = self.__createArchiveFileNameUsingOrdinal(highestOrdinal + 1)
                 self.fileOps.renameFile(self.timerFileNameWithPath, os.path.join(self.folderName, newFilename)) #The so-called "archiving" happens here
                 #Note: The new timer file will automatically get created when the program needs to write to disk                
-            
+    
     def __findHighestArchiveFileOrdinal(self):
         """ The ordinal is the numbering given to the file. This function finds the highest number that has been reached. If 24 files have been archived, the highest ordinal will be 24, and the calling function will use 24+1 = 25 as the next file ordinal."""
         highestOrdinal = 0 #the default value it starts with is 1, so this value is 0, since the calling function will eventually increment the ordinal to 1 if there's no existing file

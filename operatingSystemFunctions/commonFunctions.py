@@ -1,5 +1,6 @@
 import subprocess
 import logging
+import time
 
 class Constants:
     FIRST_ELEMENT_OF_ARRAY = 0
@@ -22,3 +23,4 @@ class CommonFunctions_Linux:
         theProcess = subprocess.Popen(theCommand, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         receivedOutput = " ".join(str(x) for x in theProcess.stdout.readlines()) #readlines() returns a list. This line converts the list to a string
         return receivedOutput
+    

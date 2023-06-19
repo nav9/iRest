@@ -52,13 +52,15 @@ class DefaultTimerLayout:#The layouts will be initialized in the timer classes a
         self.__loadButtonImages()
         self.buttonHoverBackgroundColor = 'grey'
         self.borderWidth = 0
+        self.lastKnownTime = 0
+        self.TEXT_UPDATE_INTERVAL_MILLISECOND = 1000
         #TODO: if there's no audio notifier available, the audio/mute button shouldn't be shown at all
         self.layout = [                        
                         [simpleGUI.Text("Strained time: "), simpleGUI.Text(size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.STRAINED_TIME_TEXT), simpleGUI.Text("Allowed strain: "), simpleGUI.Text(size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.ALLOWED_STRAIN_TEXT)],
                         [simpleGUI.Button('', key=WidgetConstants.PAUSE_RUN_TOGGLE_BUTTON, image_data=self.buttonStrings[WidgetConstants.PAUSE_ICON], button_color=(self.buttonHoverBackgroundColor, backgroundColorOfGUI), border_width=self.borderWidth, metadata=False), 
                          simpleGUI.Button('', key=WidgetConstants.MUTE_UNMUTE_TOGGLE_BUTTON, image_data=self.buttonStrings[WidgetConstants.AUDIO_ICON], button_color=(self.buttonHoverBackgroundColor, backgroundColorOfGUI), border_width=self.borderWidth, metadata=False)], 
                     ]
-        
+    
     def getLayout(self):
         return self.layout
     
@@ -69,9 +71,14 @@ class DefaultTimerLayout:#The layouts will be initialized in the timer classes a
             self.buttonStrings[image] = fileOps.getFileAsBase64EncodedString(MoreConstants.ICON_PATH, image)
 
     def runEventLoop(self, event, values):#this gets invoked from the main GUI interface class
-        strainedDuration, allowedStrainDuration, formattedStrainedTime = self.timer.getStrainDetails()
-        self.mainWindow[WidgetConstants.STRAINED_TIME_TEXT].update(formattedStrainedTime) #update the info shown about strained time
-        self.mainWindow[WidgetConstants.ALLOWED_STRAIN_TEXT].update(allowedStrainDuration)
+        currentTime = self.timer.getCurrentTime()
+        if currentTime - self.lastKnownTime > self.TEXT_UPDATE_INTERVAL_MILLISECOND:
+            self.lastKnownTime = currentTime
+            strainedDuration, allowedStrainDuration, formattedStrainedTime = self.timer.getStrainDetails()
+            self.mainWindow[WidgetConstants.STRAINED_TIME_TEXT].update(formattedStrainedTime) #update the info shown about strained time
+            self.mainWindow[WidgetConstants.ALLOWED_STRAIN_TEXT].update(allowedStrainDuration)
+        if event == None and values == None:
+            return        
         if event == WidgetConstants.PAUSE_RUN_TOGGLE_BUTTON:
             self.__togglePlayPause(event)
             self.timer.togglePauseStrainedTimeMeasurement()
@@ -156,8 +163,8 @@ class MainInterface:
     
     def runEventLoop(self):#this function should get called repeatedly from an external while loop
         event, values = self.window.read(timeout = self.WINDOW_WAIT_TIMEOUT_MILLISECOND) 
-        if event == simpleGUI.WIN_CLOSED or event == simpleGUI.Exit:
-            self.closeWindow()
+        if event == simpleGUI.WIN_CLOSED or event == simpleGUI.Exit:#somehow, this line works only if placed above the check for event and values being None
+            self.closeWindow()        
         for guiRef in self.backendGUIRefs:
             if guiRef:#this value can be None if the backend has no GUI
                 guiRef.runEventLoop(event, values)       

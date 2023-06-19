@@ -44,7 +44,7 @@ class LinuxFunctionality(OperatingSystemFunctionality):#For functions that are s
         self.graphicalNotifier = graphicalNotifiers.PlyerGraphicalNotifier()
         self.desktopAdapter = LinuxDesktopAdapter()
         self.warmthApp = warmColour.WarmColour_Linux()
-        self.timeFunctions = timeFunctions.TimeFunctions_Linux()
+        self.timeFunctions = timeFunctions.TimeFunctions()
     
     def isScreenLocked(self):
         return self.desktopAdapter.isScreenLocked()

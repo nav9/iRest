@@ -9,6 +9,7 @@ class OtherConstants:
     PENULTIMATE_INDEX_OF_LIST = -2
     FIRST_INDEX_OF_LIST = 0  
     MAX_SECONDS_REQUIRED_TO_CHECK_STATE = 2  
+    MAX_SECONDS_COOLDOWN_TO_CHECK_SCREEN_LOCK = 10
     
 class TimeConstants:
     SECONDS_IN_MINUTE = 60
@@ -81,14 +82,16 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         self.timeFunctions = self.operatingSystemAdapter.getTimeFunctionsApp()
         self.GUI_Layout = simpleGUI.DefaultTimerLayout(self)
         self.userPausedTimerViaGUI = False
-        self.checkLoadedDataToSeeIfUserIsStrained()
-        self.currentTime = 0        
+        self.currentTime = None
+        self.screenLockLastCheckedTime = None        
+        self.checkLoadedDataToSeeIfUserIsStrained()      
         self.pastActivity = NatureOfActivity.EYES_STRAINED
         
     def noteTimeElapsedSinceProgramWasLastRunning(self):#this function is invoked only if historicalStrainData has at least one data stored
         """ program just started, so we check what the last recorded timestamp was, to know after how long this program was started """
         lastKnownTimestamp = self.__getLastKnownTimestamp() #this will be the last known loaded data timestamp
         currentTime = self.timeFunctions.getCurrentTime()
+        self.screenLockLastCheckedTime = currentTime
         elapsedTime = currentTime - lastKnownTimestamp #time elapsed since the program was last known to be running
         if elapsedTime < 0:
             errorMessage = f"current time {currentTime} is lesser than the last time the program was running {lastKnownTimestamp}. Your system time appears to be messed up. Please delete the {self.timeFileManager.getTimeFilesFolderString()} folder"
@@ -136,9 +139,10 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         #---get current activity state
         currentActivity = NatureOfActivity.EYES_STRAINED        
         if self.userPausedTimerViaGUI:#if the user paused the timer via the GUI
-            currentActivity = NatureOfActivity.PAUSED_VIA_GUI
+            currentActivity = NatureOfActivity.PAUSED_VIA_GUI            
         else:        
-            if self.operatingSystemAdapter != None: #because the program should be capable of working even if the OS could not be identified            
+            if self.screenLockLastCheckedTime >= OtherConstants.MAX_SECONDS_COOLDOWN_TO_CHECK_SCREEN_LOCK and self.operatingSystemAdapter != None: #because the program should be capable of working even if the OS could not be identified            
+                self.screenLockLastCheckedTime = self.currentTime
                 if self.operatingSystemAdapter.isScreenLocked(): #screen lock situation is currently being considered the equivalent of suspend or shutdown, so no need to write to file
                     currentActivity = NatureOfActivity.SCREEN_LOCKED
         logging.debug(f"Current activity: {currentActivity}")
@@ -153,7 +157,7 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
                 #---save any accumulated activity of the state before suspension
                 currentActivity = NatureOfActivity.SUSPENDED
                 self.checkAndUpdateStrainAndFile(currentActivity, self.elapsedTimeAccumulation)
-                logging.debug(f"detected that the computer was suspended earlier for approx {elapsedTime}s")
+                logging.debug(f"detected that the computer was suspended earlier for approx {elapsedTime}s. Saving accumulated time {self.elapsedTimeAccumulation}s")
                 #---prime it to save the suspend time when it exits this if condition (the elapsed time during suspension will be a slight bit (less than a second) innacurate) 
                 currentActivity = NatureOfActivity.EYES_STRAINED #making the current activity different from the past activity (which is now SUSPEND) so that it'll save and consider the suspended time 
                 self.currentTime = self.timeFunctions.getCurrentTime() #this will be the timestamp of the suspend time
@@ -166,10 +170,12 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         #---if state changed or time interval elapsed, update state and write to file
         logging.debug(f"past: {self.pastActivity}, current: {currentActivity}")
         if self.pastActivity != currentActivity or self.elapsedTimeAccumulation >= self.DATA_SAVE_INTERVAL:#state changed or writing interval reached (the program writes to file at fixed intervals, regardless of state change)
+            logging.debug(f"State changed or time interval elapsed. Saving to file: elapsed:{elapsedTime}s, accumulated:{self.elapsedTimeAccumulation}s current:{self.currentTime}s currentActivity:{currentActivity} pastActivity: {self.pastActivity}")
             self.saveActivityAndUpdateStrain(self.currentTime, elapsedTime, self.pastActivity)            
             self.pastActivity = currentActivity #whether state changed or not, current has to be assigned to past anyway
             self.elapsedTimeAccumulation = 0 #clear the written elapsed time             
         else:#do a routine strain variable update without saving to file
+            logging.debug(f"Routine strain variable update without saving to file. Using elapsed: {elapsedTime}s and pastActivity: {self.pastActivity}")
             self.updateUserStrain(elapsedTime, self.pastActivity)
 
     def saveActivityAndUpdateStrain(self, timestamp, duration, activity):

@@ -1,5 +1,6 @@
-natsort
-pysimplegui
-pydub
-plyer
+#Note: it's not necessary to install these versions of the packages. The versions merely indicate what version worked without errors at the time of testing.
+natsort==8.3.1
+pysimplegui==4.60.4
+pydub==0.25.1
+plyer==2.1.0
 

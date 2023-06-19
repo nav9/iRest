@@ -30,7 +30,7 @@ class GnomeScreenLockCheck(ScreenLockChecker):
         self.locked = False
 
     def execute(self):
-        if self.lockChecker.didTimeElapse():
+        if self.lockChecker.didDurationElapse():
             screenLocked = "is active"
             screenNotLocked = "is inactive"
             receivedOutput = self.commonFunctions.executeBashCommand(self.screensaverCommand)
@@ -70,7 +70,7 @@ class CinnamonScreenLockCheck(ScreenLockChecker):#The Cinnamon desktop used in M
         self.locked = False
 
     def execute(self):
-        if self.lockChecker.didTimeElapse():
+        if self.lockChecker.didDurationElapse():
             screenLocked = "is active"
             screenNotLocked = "is inactive"
             receivedOutput = self.commonFunctions.executeBashCommand(self.screensaverCommand)

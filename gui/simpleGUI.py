@@ -1,6 +1,7 @@
 import PySimpleGUI as simpleGUI
 from abc import ABC, abstractmethod
 from diskOperations import fileAndFolderOperations
+from operatingSystemFunctions import timeFunctions
 
 themeName = 'Dark'
 simpleGUI.theme(themeName) 
@@ -52,8 +53,9 @@ class DefaultTimerLayout:#The layouts will be initialized in the timer classes a
         self.__loadButtonImages()
         self.buttonHoverBackgroundColor = 'grey'
         self.borderWidth = 0
+        TEXT_UPDATE_INTERVAL_SECOND = 1 #to update the text each second
+        self.textUpdateInterval = timeFunctions.TimeElapseChecker_Linux(TEXT_UPDATE_INTERVAL_SECOND)
         self.lastKnownTime = 0
-        self.TEXT_UPDATE_INTERVAL_MILLISECOND = 1000
         #TODO: if there's no audio notifier available, the audio/mute button shouldn't be shown at all
         self.layout = [                        
                         [simpleGUI.Text("Strained time: "), simpleGUI.Text(size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.STRAINED_TIME_TEXT), simpleGUI.Text("Allowed strain: "), simpleGUI.Text(size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.ALLOWED_STRAIN_TEXT)],
@@ -71,9 +73,8 @@ class DefaultTimerLayout:#The layouts will be initialized in the timer classes a
             self.buttonStrings[image] = fileOps.getFileAsBase64EncodedString(MoreConstants.ICON_PATH, image)
 
     def runEventLoop(self, event, values):#this gets invoked from the main GUI interface class
-        currentTime = self.timer.getCurrentTime()
-        if currentTime - self.lastKnownTime > self.TEXT_UPDATE_INTERVAL_MILLISECOND:
-            self.lastKnownTime = currentTime
+        durationElapsed, elapsedDuration, currentTime = self.textUpdateInterval.didDurationElapse()
+        if durationElapsed:
             strainedDuration, allowedStrainDuration, formattedStrainedTime = self.timer.getStrainDetails()
             self.mainWindow[WidgetConstants.STRAINED_TIME_TEXT].update(formattedStrainedTime) #update the info shown about strained time
             self.mainWindow[WidgetConstants.ALLOWED_STRAIN_TEXT].update(allowedStrainDuration)

@@ -1,6 +1,7 @@
 import PySimpleGUI
 import logging
 import subprocess
+import traceback
 from abc import ABC, abstractmethod
 from configuration import configHandler
 from operatingSystemFunctions import commonFunctions, timeFunctions
@@ -39,8 +40,8 @@ class GnomeScreenLockCheck(ScreenLockChecker):
             else: 
                 if screenNotLocked in receivedOutput:
                     self.locked = False
-                else:
-                    logging.error(f"SCREENSAVER OUTPUT UNKNOWN. CHECK AND REPROGRAM: {receivedOutput}")                            
+                else:                    
+                    logging.error(f"SCREENSAVER OUTPUT UNKNOWN. CHECK AND REPROGRAM: {receivedOutput}, Stacktrace {traceback.print_stack()}")                            
             logging.debug(f"SCREEN LOCKED status: {self.locked}")        
         return self.locked
 
@@ -54,7 +55,7 @@ class GnomeScreenLockCheck(ScreenLockChecker):
             logging.error(f"Error encountered: {e}")
         if not screenSaverPresent:
             logging.error("--------- INSTALLATION REQUIRED ---------")                      
-            errorMessage = f"{appName} is missing (needed for lock-screen detection). Please install it using 'sudo apt install -y gnome-screensaver' and restart iRest."
+            errorMessage = f"{appName} is missing (needed for lock-screen detection). Please install it using 'sudo apt install -y gnome-screensaver' and restart iRest. Stacktrace {traceback.print_stack()}"
             logging.error(errorMessage)
             PySimpleGUI.popup(errorMessage, title="iRest") #TODO: this should result as a message shown in the GUI rather than as a popup here. This line does not help with decopuling the UI
         logging.info(f"{appName} present: {screenSaverPresent}")
@@ -80,7 +81,7 @@ class CinnamonScreenLockCheck(ScreenLockChecker):#The Cinnamon desktop used in M
                 if screenNotLocked in receivedOutput:
                     self.locked = False
                 else:
-                    logging.error(f"SCREENSAVER OUTPUT UNKNOWN. CHECK AND REPROGRAM: {receivedOutput}")                            
+                    logging.error(f"SCREENSAVER OUTPUT UNKNOWN. CHECK AND REPROGRAM: {receivedOutput}. Stacktrace {traceback.print_stack()}")                            
             logging.debug(f"SCREEN LOCKED status: {self.locked}")        
         return self.locked
     

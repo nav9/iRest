@@ -1,6 +1,7 @@
 import logging
 from operatingSystemFunctions import commonFunctions
 from gui import simpleGUI
+import traceback
 
 #Since Ubuntu has a default night light app, it is not necessary to force a user
 #to ensure that iRest also has nightlight enabled. So if sct is installed, the
@@ -52,7 +53,7 @@ class WarmColour_Linux:#Also called NightLight
             sctPresent = self.commonFunctions.isThisAppInstalled(self.appName)
         except FileNotFoundError as e:
             sctPresent = False
-            logging.error(f"Error encountered: {e}")
+            logging.error(f"Error encountered: {e}. Stacktrace {traceback.print_stack()}")
         if not sctPresent:
             logging.warn("--------- OPTIONAL INSTALL ---------")                      
             logging.warn(f"{self.appName} is missing. Please install it using 'sudo apt install -y sct' and restart iRest if you want night light (warm colour temperature) features.")

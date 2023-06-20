@@ -4,6 +4,7 @@ from collections import deque
 from configuration import configHandler
 import logging
 import natsort
+import traceback
 
 class TimeDataStore:
     TIMESTAMP = 'timestamp'
@@ -130,8 +131,9 @@ class TimeFileManager:
             try: 
                 highestOrdinal = int(''.join(filter(str.isdigit, fileNameWithHighestOrdinal))) 
             except ValueError:
-                logging.error(f"Filename needs to have a digit indicating the archive file ordinal {fileNameWithHighestOrdinal}")
-                sys.exit("Archive filename error. Please see log file.")
+                errorMessage = f"Archive filename needs to have a digit indicating the archive file ordinal {fileNameWithHighestOrdinal}. Stack trace {traceback.print_stack()}"
+                logging.error(errorMessage)
+                sys.exit(errorMessage)
         else:
             logging.info("No archive files found")
         return highestOrdinal

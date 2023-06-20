@@ -48,6 +48,14 @@ class TimeFunctions_Linux:
         errorMessage = f"Elapsed duration {duration} is negative. Past time {pastTime} cannot be higher than current time {currentTime}. Call Stack {traceback.print_stack()}."
         logging.error(errorMessage)
         raise ValueError(errorMessage)  
+    
+    def isNight(self):
+        night = False
+        currentTime = time.time()
+        hour = int(time.strftime("%H", time.localtime(currentTime)))
+        if hour >= 20 or hour <= 6:#time between 8pm and 6am
+            night = True
+        return night
             
 """ Used to periodically check whether a certain amount of time has elapsed"""
 class TimeElapseChecker_Linux:

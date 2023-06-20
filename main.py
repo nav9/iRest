@@ -53,7 +53,7 @@ def main():#Reason for a main function https://stackoverflow.com/questions/60276
     gui.addThisBackend(defaultTimer) #backends can be timers or other classes too which need a GUI representation    
     gui.createLayout()
     logging.info("Monitoring time ...")
-    SLEEP_SECONDS = 0.01
+    SLEEP_SECONDS = 0.03
     while True:
         for timer in allTimers:
             timer.execute()

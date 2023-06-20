@@ -39,27 +39,6 @@ class RestTimers(ABC): #Abstract parent class
         """ This function needs to be implemented but can be left empty if there's no GUI for the backend. Returns a reference to the GUI instance """
         pass
 
-    # @abstractmethod
-    # def addThisNotifierToListOfNotifiers(self, notifier):
-    #     """ To add notifiers like an audio notifier or a text-based notifier or a popup notifier etc. Every notifier should have a notifier id"""
-    #     pass
-
-    # @abstractmethod
-    # def unregisterNotifier(self, notifier):
-    #     """ Remove a notifier from the list of notifiers, based on a notifier id """
-    #     pass
-
-    # @abstractmethod
-    # def registerOperatingSystemAdapter(self, operatingSystemAdapter): 
-    #     """ Register an adapter class that provides functions specific to the operating system that the program is run in """   
-    #     pass
-    
-    # @abstractmethod
-    # def registerFileOperationsHandler(self, fileOperationsHandler): 
-    #     """ Register a class that provides functions for file and folder operations """   
-    #     pass
-
-
 
 #Note: This class checks how much time the user worked, whether to notify the User to take rest and whether to notify the User that the rest period has completed. This is just one of the engines which does such processing. You could create a different engine and allow it to work with a different logic.
 #Each such class is designed to have its own way of evaluating if the User is strained
@@ -164,7 +143,7 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
             self.updateUserStrain(elapsedTime, self.pastActivity)
 
     def saveActivityAndUpdateStrain(self, timestamp, duration, activity):
-        logging.info(f"Saving to file: timestamp {timestamp}, elapsedTime {self.elapsedTimeAccumulation}, pastActivity {activity}")
+        logging.debug(f"Saving to file: timestamp {timestamp}, elapsedTime {self.elapsedTimeAccumulation}, pastActivity {activity}")
         self.timeFileManager.writeToFileAndHistoricalDataQueue(timestamp, self.elapsedTimeAccumulation, activity)     
         self.updateUserStrain(duration, activity)       
 

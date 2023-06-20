@@ -1,5 +1,5 @@
 import logging
-from operatingSystemFunctions import commonFunctions
+from operatingSystemFunctions import commonFunctions, timeFunctions
 from gui import simpleGUI
 import traceback
 
@@ -13,12 +13,14 @@ class WarmColour_Linux:#Also called NightLight
     def __init__(self) -> None:
         self.SCT_MIN_VALUE = 1000 #The sct program's minimum possible value for colour temperature
         self.SCT_MAX_VALUE = 10000 #The sct program's maximum possible value for colour temperature
-        self.SCT_DEFAULT_VALUE = 4000        
-        self.commonFunctions = commonFunctions.CommonFunctions_Linux()        
+        self.SCT_DEFAULT_VALUE = 4000 #daytime warmth
+        self.commonFunctions = commonFunctions.CommonFunctions_Linux()                        
         self.appName = 'sct'          
         self.appInstalled = self.__isSimpleColorTemperatureAppInstalled()
         self.GUI_Layout = None
         if self.appInstalled:
+            if self.__checkIfNight():
+                self.SCT_DEFAULT_VALUE = 2300 #make it warmer than default. Night warmth
             self.GUI_Layout = simpleGUI.WarmthLayout(self)
 
     def getGUIRef(self):
@@ -35,17 +37,9 @@ class WarmColour_Linux:#Also called NightLight
     def getMinMaxDefaultValues(self):
         return self.SCT_MIN_VALUE, self.SCT_MAX_VALUE, self.SCT_DEFAULT_VALUE
 
-    # def setAutoWarmthBasedOnSystemTime(self):
-    #     pass        
-    
-    # def setDayWarmth(self):
-    #     pass
-    
-    # def setNightWarmth(self):
-    #     pass
-
-    # def setNoWarmth(self):
-    #     pass
+    def __checkIfNight(self):
+        timeChecker = timeFunctions.TimeFunctions_Linux()
+        return timeChecker.isNight()
 
     def __isSimpleColorTemperatureAppInstalled(self):
         sctPresent = False        

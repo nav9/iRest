@@ -31,8 +31,7 @@ logging.getLogger().setLevel(loggingLevel)
 #------------------ PROGRAM STARTS HERE ----------------------
 #-------------------------------------------------------------
 #-------------------------------------------------------------
-def main():#Reason for a main function https://stackoverflow.com/questions/60276536/why-do-we-put-a-main-function-in-python-instead-of-just-putting-the-code-direc
-    SLEEP_SECONDS = 0.01
+def main():#Reason for a main function https://stackoverflow.com/questions/60276536/why-do-we-put-a-main-function-in-python-instead-of-just-putting-the-code-direc    
     logging.info("\n\n---------------------------------")
     logging.info("iRest program started")
     #---Initialize helper classes
@@ -54,12 +53,14 @@ def main():#Reason for a main function https://stackoverflow.com/questions/60276
     gui.addThisBackend(defaultTimer) #backends can be timers or other classes too which need a GUI representation    
     gui.createLayout()
     logging.info("Monitoring time ...")
-
+    SLEEP_SECONDS = 0.01
     while True:
         for timer in allTimers:
             timer.execute()
-        if gui.checkIfNotClosedGUI(): gui.runEventLoop()
-        else: break
+        if gui.checkIfNotClosedGUI(): 
+            gui.runEventLoop()
+        else: 
+            break
         sleep(SLEEP_SECONDS) #relinquish program control to the operating system, for a while. Another (probably non-blocking) wait is located in simpleGUI.py, with the self.WINDOW_WAIT_TIMEOUT_MILLISECOND
     logging.info("iRest has been stopped")
     

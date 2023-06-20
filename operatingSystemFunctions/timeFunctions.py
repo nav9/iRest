@@ -1,5 +1,6 @@
 import time
 import logging
+import traceback
 
 # time.clock() gives the best timer accuracy on Windows, while the time.time() function gives the best accuracy on Unix/Linux. 
 # So these classes were necessary to build OS-specific time functions.
@@ -44,7 +45,7 @@ class TimeFunctions_Linux:
         return time.strftime("%Hh %Mm %Ss", time.gmtime(timestamp))  
     
     def __raiseAndLogError(self, duration, currentTime, pastTime):        
-        errorMessage = f"Elapsed duration {duration} is negative. Past time {pastTime} cannot be higher than current time {currentTime}."
+        errorMessage = f"Elapsed duration {duration} is negative. Past time {pastTime} cannot be higher than current time {currentTime}. Call Stack {traceback.print_stack()}."
         logging.error(errorMessage)
         raise ValueError(errorMessage)  
             

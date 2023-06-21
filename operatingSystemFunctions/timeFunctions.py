@@ -12,7 +12,7 @@ test cases that need to check for elapses of large units of time """
 class TimeFunctions_Linux:
     def __init__(self) -> None:
         self.pastTime = time.time()
-
+    
     def getElapsedDurationSinceThisTime(self, timestamp):
         """ Is not concerned with pastTime. Returns elapsedDuration, currentTime """
         currentTime = time.time()

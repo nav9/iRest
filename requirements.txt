@@ -3,4 +3,4 @@ natsort==8.3.1
 pysimplegui==4.60.4
 pydub==0.25.1
 plyer==2.1.0
-
+configparser==5.3.0

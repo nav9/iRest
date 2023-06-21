@@ -15,7 +15,7 @@ class TestTimeFileManager:
         assert len(tm.historicalStrainData) == 0 #because the folder is deleted. So there shouldn't be any past time data
 
     def test_loadingWrittenDataFromTimeFile(self):
-        currentTime = 1667673922.2530432
+        currentTime = 1667673922.2530432 #seconds
         elapsedTime = 0
         fileFolderOps = fileAndFolderOperations.FileOperations()
         comFunc = commonFunctions.CommonTestFunctions()
@@ -27,7 +27,7 @@ class TestTimeFileManager:
         numberOfWrites = STRAIN_DATA_HISTORY_LENGTH - 1 #keeping it within the immediate time file limit (so as to not dig into archived files)
         for _ in range(numberOfWrites):
             tm.writeToFileAndHistoricalDataQueue(currentTime, elapsedTime, timers.NatureOfActivity.EYES_STRAINED) 
-            elapsedTime = dummyTime.generateElapsedTime()
+            elapsedTime = dummyTime.generateElapsedTimeOfWriteIntervalDuration()
             currentTime += elapsedTime #seconds
         assert len(tm.historicalStrainData) == numberOfWrites
         #---program is assumed to have stopped now and started again
@@ -54,7 +54,7 @@ class TestTimeFileManager:
             tm.writeToFileAndHistoricalDataQueue(currentTime, elapsedTime, timers.NatureOfActivity.EYES_STRAINED) #writing to file
             packedData = tm.packTheTimeDataForWriting(currentTime, elapsedTime, timers.NatureOfActivity.EYES_STRAINED)
             dataWritten.append(packedData) #storing a copy of what was written to file, to be able to compare later if all data was read back properly in the right order
-            elapsedTime = dummyTime.generateElapsedTime()
+            elapsedTime = dummyTime.generateElapsedTimeOfWriteIntervalDuration()
             currentTime += elapsedTime #seconds        
         #---program is assumed to have stopped now and started again
         del tm

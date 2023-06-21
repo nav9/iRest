@@ -14,6 +14,8 @@ class Names:#Note: These names may have to be made specific to specific timers
     ARCHIVE_FOLDER = "timeFiles-iRest"
     TIME_FILE = "timeFile"    
 
+#https://stackoverflow.com/questions/19078170/python-how-would-you-save-a-simple-settings-config-file
+#https://stackoverflow.com/questions/54915574/python-configparser-use-defaults-if-not-in-configuration-file
 class ConfigurationHandler:
     def __init__(self):
         self.configFilename = "iRestConfig.ini"        

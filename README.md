@@ -47,7 +47,7 @@ These are mentioned in a `requirements.txt` file, but is mentioned as such to no
 * plyer: For graphical notification displays (supposed to be crossplatform).  
 * ffmpeg-python and pydub: For playing sound files (supposed to be crossplatform).  
 * PySimpleGUI: For a GUI control panel (supposed to be crossplatform).   
-* dynaconf or pydantic: For configurations.  
+* ConfigParser: For configuration store.  
     
 ## On Linux 
 Based on which desktop the Linux OS uses, the screensaver or lock screen function may vary, so the appropriate program needs to be installed and the necessary changes need to be made in the code.
@@ -81,7 +81,8 @@ You can place these aliases in `~/.bash_aliases`:
 It's not necessary to use the exact version of pytest mentioned below. The version is mentioned only to indicate which version was used at the time.  
 `pip3 install pytest=7.1.2`    
 Use `pytest` at the commandline to run the test cases. Do this in the root program directory.  
-   
+To run `pytest` for a specific test file only, run it like this: `pytest tests/test_defaultTimer.py`.
+
   
 # Attribution  
 * Sound files are from https://notificationsounds.com (not yet used).  

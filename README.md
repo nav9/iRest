@@ -3,7 +3,8 @@ This program is under construction, but can still be used.
 ![Alt text](gallery/iRest_GUI.png?raw=true "The iRest GUI") 
 
 # About iRest  
-A program that reminds you to rest your eyes. This program is being created after more than a decade of my experience with chronic eye strain and my eventual recovery. The "i" at the beginning of "iRest" has nothing to do with the Apple company. The "i" refers to you, when you use the program.
+A program that reminds you to rest your eyes. This program is being created after more than a decade of my experience with chronic eye strain and my eventual recovery. There are many break reminder software. What sets iRest apart from the others is its ability to keep track of strained time even if the computer is restarted or suspended. Additionally, since program activity is logged, it is easier to perform analytics on the log files (with a small margin of error).  
+The "i" at the beginning of "iRest" has nothing to do with the Apple company. The "i" refers to you, when you use the program.
   
 # To run the program  
 `python main.py`  

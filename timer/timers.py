@@ -89,12 +89,11 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
                     self.__addStrain(duration)
                 else:
                     self.__subtractStrain(duration)
-                if examinedDuration >= self.WORK_MINUTES:#if sufficient time is analyzed, stop analyzing
+                if examinedDuration >= self.WORK_MINUTES * TimeConstants.SECONDS_IN_MINUTE:#if sufficient time is analyzed, stop analyzing
                     break
         #---create a dummy value that simplifies obtaining a "previous" strained time and also creates a marker to indicate when the program began
         duration = 0 #a dummy value
         self.saveActivityAndUpdateStrain(self.timeFunctions.getCurrentTime(), duration, NatureOfActivity.EYES_STRAINED) #saves this into the timeFile and also into historicalStrainData
-
 
     def execute(self):
         #---check if state changed, update strained duration and whether it's time to write to file

@@ -9,7 +9,9 @@ This program is under construction, but can still be used.
  █████ █████   █████░░██████  ██████   ░░█████ 
 ░░░░░ ░░░░░   ░░░░░  ░░░░░░  ░░░░░░     ░░░░░  
 
-ASCII banner attribution: https://manytools.org/hacker-tools/ascii-banner/  
+ASCII banner [attribution](https://manytools.org/hacker-tools/ascii-banner/).   
+  
+![Alt text](gallery/iRest_GUI.png?raw=true "The iRest GUI") 
 
 # About iRest  
 A program that reminds you to rest your eyes. This program is being created after more than a decade of my experience with chronic eye strain and my eventual recovery. The "i" at the beginning of "iRest" has nothing to do with the Apple company. The "i" refers to you, when you use the program.

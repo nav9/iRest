@@ -1,15 +1,4 @@
-This program is under construction, but can still be used.  
-  
-  ███  ███████████                     █████   
- ░░░  ░░███░░░░░███                   ░░███    
- ████  ░███    ░███   ██████   █████  ███████  
-░░███  ░██████████   ███░░███ ███░░  ░░░███░   
- ░███  ░███░░░░░███ ░███████ ░░█████   ░███    
- ░███  ░███    ░███ ░███░░░   ░░░░███  ░███ ███
- █████ █████   █████░░██████  ██████   ░░█████ 
-░░░░░ ░░░░░   ░░░░░  ░░░░░░  ░░░░░░     ░░░░░  
-
-ASCII banner [attribution](https://manytools.org/hacker-tools/ascii-banner/).   
+This program is under construction, but can still be used.    
   
 ![Alt text](gallery/iRest_GUI.png?raw=true "The iRest GUI") 
 

@@ -69,16 +69,17 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
             
     def noteTimeElapsedSinceProgramWasLastRunning(self):#this function is invoked only if historicalStrainData has at least one data stored
         """ program just started, so we check what the last recorded timestamp was, to know after how long this program was started """
+        #get time functions are called in getElapsedDuration function and recordTimeElapsed function
         lastKnownTimestamp = self.__getLastKnownTimestamp() #this will be the last known loaded data timestamp
         elapsedDuration, currentTime = self.timeFunctions.getElapsedDurationSinceThisTime(lastKnownTimestamp)#time elapsed since the program was last known to be running
         #---store elapsed time as rested time. This will get written to file and appended to historicalStrainData
         self.recordTimeElapsedWhenThisProgramWasNotRunning(self.timeFunctions.getCurrentTime(), elapsedDuration)
         return currentTime
-     
-    def checkLoadedDataToSeeIfUserIsStrained(self): 
+    
+    def checkLoadedDataToSeeIfUserIsStrained(self): #get current time is called thrice in this function (saveActivity function and noteTimeElapsed function)
         self.strainedDuration = 0
         if len(self.timeFileManager.historicalStrainData) > 0:
-            self.noteTimeElapsedSinceProgramWasLastRunning()   
+            self.noteTimeElapsedSinceProgramWasLastRunning() #there are two calls to getCurrentTime here
             examinedDuration = 0
             for timeData in reversed(self.timeFileManager.historicalStrainData):#iterates backward, to consider the latest data that was written, first
                 #timestamp = self.timeFileManager.getTimestampFromData(timeData)
@@ -100,7 +101,7 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         currentActivity, currentTime = self.checkStateChangeUpdateStrainDurationAndSave()
         #---notify the user based on the strained time
         if currentActivity == NatureOfActivity.EYES_STRAINED:
-            self.__notifyUserIfTheyNeedToTakeRest_afterCheckingForSuspend(currentTime)  #no need of notifying User if the program is paused or screen is locked
+            self.notifyUserIfTheyNeedToTakeRest_afterCheckingForSuspend(currentTime)  #no need of notifying User if the program is paused or screen is locked
 
     def checkStateChangeUpdateStrainDurationAndSave(self):
         """ Checks for change of state, updates strain duration and writes to file if necessary """
@@ -200,7 +201,7 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
                 toggleState = notifier.toggleNotifierActiveState()
         return toggleState
         
-    def __notifyUserIfTheyNeedToTakeRest_afterCheckingForSuspend(self, currentTime):
+    def notifyUserIfTheyNeedToTakeRest_afterCheckingForSuspend(self, currentTime):
         logging.debug(f"-----> Current strained time: {self.timeFunctions.getTimeFormattedAsHMS(self.strainedDuration)}")
         #---check if strained duration is greater than the allowed strain and also ensure that the program wasn't suspended for as long as a User's rest need (because if the program was suspended that long, there's no need of notifying the user to rest)
         if self.strainedDuration > self.allowedStrainDuration and (self.timeFunctions.getCurrentTime() - currentTime) < self.REST_MINUTES * TimeConstants.SECONDS_IN_MINUTE:#means that the computer got suspended or iRest process got suspended while operations were being done, so this time can be considered as rest time: #notify the User to take rest

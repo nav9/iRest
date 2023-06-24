@@ -18,15 +18,16 @@ class CommonTestFunctions:
 class DummyTimeFunctions:
     def __init__(self) -> None:
         self.dummyTimeValues = deque()
+        self.pastTime = time.time()
 
     def generateElapsedTimeOfWriteIntervalDuration(self):
         """ Returns a random float ranging between a to b, and with N digits after the decimal """
         return round(random.uniform(ConstantsForTesting.INTERVAL_BETWEEN_WRITES, ConstantsForTesting.INTERVAL_BETWEEN_WRITES + 1), ConstantsForTesting.DIGITS_AFTER_DECIMAL)
         
-    def getCurrentTime(self):
+    def actualTimeNow(self):
         return time.time()
     
-    def getDummyCurrentTime(self):
+    def getCurrentTime(self):#emulates the actual timeFunctions function with similar name
         return self.dummyTimeValues.pop() #pops from the left of the deque
     
     def setDummyTimeValues(self, listOfTimeValues):
@@ -35,10 +36,14 @@ class DummyTimeFunctions:
 
     def getElapsedDurationSinceThisTime(self, timestamp):#for calculating elapsed time since program last ran
         currentTime = self.getCurrentTime()
-        elapsedDuration = currentTime - timestamp
-        if elapsedDuration < 0:
-            self.__raiseAndLogError(elapsedDuration, currentTime, timestamp)        
-        return elapsedDuration, currentTime        
+        elapsedDuration = currentTime - timestamp       
+        return elapsedDuration, currentTime  
+
+    def getElapsedDurationSinceTheLastCheck(self):
+        currentTime = self.getCurrentTime()
+        elapsedDuration = currentTime - self.pastTime        
+        self.pastTime = currentTime
+        return elapsedDuration, currentTime
 
 class DummyTimeElapseChecker:
     pass
@@ -49,12 +54,16 @@ class DummyWarmthApp:
 class DummyOperatingSystemAdapter:
     def __init__(self) -> None:
         self.screenLocked = False
+        self.timeFunctions = DummyTimeFunctions()
+
+    def overrideDefaultDummyTimeFunctions(self, timeFunctionsRef):
+        self.timeFunctions = timeFunctionsRef
 
     def getTimeElapseCheckerInstanceForThisDuration(self, duration):
         return DummyTimeElapseChecker()
 
     def getTimeFunctionsApp(self):
-        return DummyTimeFunctions()
+        return self.timeFunctions
 
     def isScreenLocked(self):
         return self.screenLocked
@@ -64,3 +73,11 @@ class DummyOperatingSystemAdapter:
 
     def getWarmthApp(self):
         pass
+
+class DummyNotifier:
+    def __init__(self) -> None:
+        self.notified = False
+        self.id = "id" #this may need to be changed if the test cases for notifications become more involved
+
+    def execute(self):
+        self.notified = True

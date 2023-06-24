@@ -40,7 +40,7 @@ class DummyTimeFunctions:
         return elapsedDuration, currentTime  
 
     def getElapsedDurationSinceTheLastCheck(self):
-        currentTime = self.getCurrentTime()
+        currentTime = self.getCurrentTime()        
         elapsedDuration = currentTime - self.pastTime        
         self.pastTime = currentTime
         return elapsedDuration, currentTime

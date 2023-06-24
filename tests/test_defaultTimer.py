@@ -104,9 +104,10 @@ class TestDefaultTimer:
         #---create some time values that'll be used as the dummy time during DefaultTimer's calls to get current time
         dummyTime = commonFunctions.DummyTimeFunctions()
         timeAt_getElapsedDurationCall = dummyTime.actualTimeNow()
-        timeAt_recordTimeElapsedCall = dummyTime.actualTimeNow()
-        timeAt_saveActivityCall = dummyTime.actualTimeNow()
-        timeSupply = [timeAt_getElapsedDurationCall, timeAt_recordTimeElapsedCall, timeAt_saveActivityCall]#because the checkStateChangeUpdateStrainDurationAndSave() function's internal calls need time values twice
+        #timeAt_recordTimeElapsedCall = dummyTime.actualTimeNow()
+        #timeAt_saveActivityCall = dummyTime.actualTimeNow()
+        #timeSupply = [timeAt_getElapsedDurationCall, timeAt_recordTimeElapsedCall, timeAt_saveActivityCall]#because the checkStateChangeUpdateStrainDurationAndSave() function's internal calls need time values twice
+        timeSupply = [timeAt_getElapsedDurationCall]#because the checkStateChangeUpdateStrainDurationAndSave() function's internal calls need time values twice
         dummyTime.setDummyTimeValues(timeSupply)
         dummyOS.overrideDefaultDummyTimeFunctions(dummyTime)
         #---creating default timer will automatically write to file, a line of strain duration being 0. This happens if no time file was present or no data was present in it
@@ -124,7 +125,6 @@ class TestDefaultTimer:
         timeElapsedByTheTimeExecuteCalled = latestTime + timers.TimeConstants.SECONDS_IN_MINUTE + timers.OtherConstants.SECONDS_ELAPSED_BEFORE_ASSUMING_SUSPEND
         timeCheckedDuringNotificationCheck = timeElapsedByTheTimeExecuteCalled + timers.TimeConstants.SECONDS_IN_MINUTE + timers.OtherConstants.SECONDS_ELAPSED_BEFORE_ASSUMING_SUSPEND
         timeSupply = [timeElapsedByTheTimeExecuteCalled, timeCheckedDuringNotificationCheck]
-        print(f'Time vals: {timeSupply}')
         dummyTime.setDummyTimeValues(timeSupply)
         #---rather than call execute() of DefaultTimer, call the functions inside execute() to simulate the execute() call
         #########################################
@@ -137,6 +137,11 @@ class TestDefaultTimer:
             defaultTimer.notifyUserIfTheyNeedToTakeRest_afterCheckingForSuspend(currentTime)         
         #### execute() ends here
         #########################################
-        assert notifier.notified == False #notifier should not have got called because of the long suspend time
-        assert False
+        #---notifier should not have got called because of the long suspend time
+        assert notifier.notified == False 
+        #---ensure that suspend state was detected
+        latestTimeData = timeManager.historicalStrainData[timers.OtherConstants.LAST_INDEX_OF_LIST]
+        latestTime = timeManager.getNatureOfActivityFromData(latestTimeData)
+        assert latestTime == timers.NatureOfActivity.SUSPENDED
+
 #There should ideally be a few more test cases for conditions of screen lock and pause via GUI

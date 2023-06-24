@@ -44,6 +44,9 @@ class DummyTimeFunctions:
         elapsedDuration = currentTime - self.pastTime        
         self.pastTime = currentTime
         return elapsedDuration, currentTime
+    
+    def getTimeFormattedAsHMS(self, time):
+        return None
 
 class DummyTimeElapseChecker:
     pass

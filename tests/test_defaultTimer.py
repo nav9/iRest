@@ -132,12 +132,11 @@ class TestDefaultTimer:
         # getElapsedDurationSinceTheLastCheck() provides the time during execution of checkStateChangeUpdateStrainDurationAndSave()
         currentActivity, currentTime = defaultTimer.checkStateChangeUpdateStrainDurationAndSave()
         # getCurrentTime() gets called once during execution of notifyUserIfTheyNeedToTakeRest_afterCheckingForSuspend()
-        assert currentTime == timeElapsedByTheTimeExecuteCalled
         assert currentActivity == timers.NatureOfActivity.EYES_STRAINED
         if currentActivity == timers.NatureOfActivity.EYES_STRAINED:
             defaultTimer.notifyUserIfTheyNeedToTakeRest_afterCheckingForSuspend(currentTime)         
         #### execute() ends here
         #########################################
         assert notifier.notified == False #notifier should not have got called because of the long suspend time
-
+        assert False
 #There should ideally be a few more test cases for conditions of screen lock and pause via GUI

@@ -35,7 +35,6 @@ def main():#Reason for a main function https://stackoverflow.com/questions/60276
     logging.info("\n\n---------------------------------")
     logging.info("iRest program started")
     #---Initialize helper classes
-    config = configHandler.ConfigurationHandler()
     fileOps = fileAndFolderOperations.FileOperations()
     operatingSystemCheck = operatingSystemDiversifier.OperatingSystemIdentifier()
     operatingSystemAdapter = operatingSystemCheck.getOperatingSystemAdapterInstance() #If OS could not be identified, it will return None    

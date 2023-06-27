@@ -12,21 +12,18 @@ test cases that need to check for elapses of large units of time """
 class TimeFunctions_Linux:
     def __init__(self) -> None:
         self.pastTime = time.time()
+        self.MAX_TOLERABLE_NEGATIVE_ELAPSED_TIME = 1 #number of seconds considered acceptable if elapsed time is negative
     
     def getElapsedDurationSinceThisTime(self, timestamp):
         """ Is not concerned with pastTime. Returns elapsedDuration, currentTime """
         currentTime = time.time()
-        elapsedDuration = currentTime - timestamp
-        if elapsedDuration < 0:
-            self.__raiseAndLogError(elapsedDuration, currentTime, timestamp)        
+        elapsedDuration = self.__raiseAndLogErrorIfSignificantNegativeDuration(currentTime, timestamp)        
         return elapsedDuration, currentTime
     
     def getElapsedDuration(self):
         """ Does not update pastTime. Returns elapsedDuration, currentTime """
         currentTime = time.time()
-        elapsedDuration = currentTime - self.pastTime
-        if elapsedDuration < 0:
-            self.__raiseAndLogError(elapsedDuration, currentTime, self.pastTime)
+        elapsedDuration = self.__raiseAndLogErrorIfSignificantNegativeDuration(currentTime, self.pastTime)
         return elapsedDuration, currentTime
     
     def getElapsedDurationSinceTheLastCheck(self):
@@ -44,10 +41,17 @@ class TimeFunctions_Linux:
     def getTimeFormattedAsHMS(self, timestamp):
         return time.strftime("%Hh %Mm %Ss", time.gmtime(timestamp))  
     
-    def __raiseAndLogError(self, duration, currentTime, pastTime):        
-        errorMessage = f"Elapsed duration {duration} is negative. Past time {pastTime} cannot be higher than current time {currentTime}. Call Stack {traceback.print_stack()}."
-        logging.error(errorMessage)
-        raise ValueError(errorMessage)  
+    def __raiseAndLogErrorIfSignificantNegativeDuration(self, currentTime, pastTime):  
+        """ returns abs(duration) if the difference in current and past time is very small. Such a negative value can occur due to system delays (like querying for screen lock), but it helps to check if there's a bug """
+        duration = currentTime - pastTime #elapsed duration
+        if duration < 0:#this should be logged even if an error isn't thrown (to be able to investigate the cause)
+            errorMessage = f"Elapsed duration {duration} is negative. Past time {pastTime} cannot be higher than current time {currentTime}. Call Stack {traceback.print_stack()}."
+            logging.error(errorMessage)
+            if abs(duration) > self.MAX_TOLERABLE_NEGATIVE_ELAPSED_TIME:
+                raise ValueError(errorMessage)  
+            else:#the difference in time is too small, so ignore the negative time
+                duration = abs(duration)
+        return duration
     
     def isNight(self):
         night = False

@@ -157,10 +157,12 @@ class MainInterface:
                 self.layout.extend(receivedLayout) 
         #---create the window using all supplied layouts
         iconFile = self.__loadMainProgramIcon() 
-        self.window = simpleGUI.Window(WidgetConstants.WINDOW_TITLE, icon = iconFile, layout = self.layout)
+        self.window = simpleGUI.Window(WidgetConstants.WINDOW_TITLE, icon = iconFile, layout = self.layout)        
         #---register the main window in all GUI layouts
         for guiRef in self.backendGUIRefs:
             guiRef.registerMainWindowReference(self.window)
+        event, values = self.window.read(timeout = 0) #this dummy read has to be there to be able to call minimize. Either this or the window needs to have finalize=True. https://stackoverflow.com/questions/71580321/run-code-after-the-window-has-been-initialized
+        self.window.minimize()
     
     def runEventLoop(self):#this function should get called repeatedly from an external while loop
         event, values = self.window.read(timeout = self.WINDOW_WAIT_TIMEOUT_MILLISECOND) 

@@ -8,7 +8,8 @@ The "i" at the beginning of "iRest" has nothing to do with the Apple company. Th
   
 # To run the program  
 First install the required packages:  
-`pip install -r requirements.txt`
+`pip install -r requirements.txt`  
+Then run the program.  
 `python main.py`  
   
 ## To run it from Ubuntu's startup applications  

@@ -7,6 +7,8 @@ A program that reminds you to rest your eyes. This program is being created afte
 The "i" at the beginning of "iRest" has nothing to do with the Apple company. The "i" refers to you, when you use the program.
   
 # To run the program  
+First install the required packages:  
+`pip install -r requirements.txt`
 `python main.py`  
   
 ## To run it from Ubuntu's startup applications  

@@ -57,7 +57,7 @@ class TimeFunctions_Linux:
         night = False
         currentTime = time.time()
         hour = int(time.strftime("%H", time.localtime(currentTime)))
-        if hour >= 20 or hour <= 6:#time between 8pm and 6am
+        if hour >= 19 or hour <= 6:#time between 7pm and 6am
             night = True
         return night
             

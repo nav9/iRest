@@ -5,8 +5,10 @@ from configuration import configHandler
 import logging
 import natsort
 import traceback
+import datetime
 
 class TimeDataStore:
+    DATE_TIME = 'datetime' #since timestamp does not provide an easily readable date and time
     TIMESTAMP = 'timestamp'
     ELAPSED_TIME = 'elapsed_time'
     ACTIVITY = 'activity'
@@ -77,8 +79,13 @@ class TimeFileManager:
             self.numberOfWritesSinceProgramStart = 0          
             self.__archiveTheTimerFileIfItIsTooLarge()
     
+    def __convertTimestampToFormattedDateTime(self, timestamp):
+        localTime = datetime.datetime.fromtimestamp(timestamp)        
+        return localTime.strftime("%d %b %Y %H:%M:%S")
+    
     def packTheTimeDataForWriting(self, currentTime, elapsedTime, natureOfActivity):#Note: This function is called from the test cases, and due to Python name mangling of functions whose names start with double underscores, this cannot be a private function
-        return {TimeDataStore.TIMESTAMP: currentTime, TimeDataStore.ELAPSED_TIME: elapsedTime, TimeDataStore.ACTIVITY: natureOfActivity}
+        formattedTime = self.__convertTimestampToFormattedDateTime(currentTime)
+        return {TimeDataStore.DATE_TIME: formattedTime, TimeDataStore.TIMESTAMP: currentTime, TimeDataStore.ELAPSED_TIME: elapsedTime, TimeDataStore.ACTIVITY: natureOfActivity}
         
     def getTimestampFromData(self, data):
         return data[TimeDataStore.TIMESTAMP]

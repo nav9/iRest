@@ -12,7 +12,7 @@ test cases that need to check for elapses of large units of time """
 class TimeFunctions_Linux:
     def __init__(self) -> None:
         self.pastTime = time.time()
-        self.MAX_TOLERABLE_NEGATIVE_ELAPSED_TIME = 1 #number of seconds considered acceptable if elapsed time is negative
+        self.MAX_TOLERABLE_NEGATIVE_ELAPSED_TIME = 3 #number of seconds considered acceptable if elapsed time is negative. This should ideally be at least 2 second more than TEXT_UPDATE_INTERVAL_SECOND, since it can take time for functions like the one that determines screenlock, to return
     
     def getElapsedDurationSinceThisTime(self, timestamp):
         """ Is not concerned with pastTime. Returns elapsedDuration, currentTime """

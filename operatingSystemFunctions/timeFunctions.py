@@ -45,7 +45,7 @@ class TimeFunctions_Linux:
         """ returns abs(duration) if the difference in current and past time is very small. Such a negative value can occur due to system delays (like querying for screen lock), but it helps to check if there's a bug """
         duration = currentTime - pastTime #elapsed duration
         if duration < 0:#this should be logged even if an error isn't thrown (to be able to investigate the cause)
-            errorMessage = f"Elapsed duration {duration} is negative. Past time {pastTime} cannot be higher than current time {currentTime}. Call Stack {traceback.print_stack()}."
+            errorMessage = f"Elapsed duration {duration} is negative. Past time {pastTime} cannot be higher than current time {currentTime}. Call Stack {"".join(traceback.format_stack())}."
             logging.error(errorMessage)
             if abs(duration) > self.MAX_TOLERABLE_NEGATIVE_ELAPSED_TIME:
                 raise ValueError(errorMessage)  

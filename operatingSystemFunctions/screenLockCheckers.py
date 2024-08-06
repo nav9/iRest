@@ -41,7 +41,7 @@ class GnomeScreenLockCheck(ScreenLockChecker):
                 if screenNotLocked in receivedOutput:
                     self.locked = False
                 else:                    
-                    logging.error(f"SCREENSAVER OUTPUT UNKNOWN. CHECK AND REPROGRAM: {receivedOutput}, Stacktrace {traceback.print_stack()}")                            
+                    logging.error(f"SCREENSAVER OUTPUT UNKNOWN. CHECK AND REPROGRAM: {receivedOutput}, Stacktrace {"".join(traceback.format_stack())}")                            
             logging.debug(f"SCREEN LOCKED status: {self.locked}")        
         return self.locked
 
@@ -81,7 +81,7 @@ class CinnamonScreenLockCheck(ScreenLockChecker):#The Cinnamon desktop used in M
                 if screenNotLocked in receivedOutput:
                     self.locked = False
                 else:
-                    logging.error(f"SCREENSAVER OUTPUT UNKNOWN. CHECK AND REPROGRAM: {receivedOutput}. Stacktrace {traceback.print_stack()}")                            
+                    logging.error(f"SCREENSAVER OUTPUT UNKNOWN. CHECK AND REPROGRAM: {receivedOutput}. Stacktrace {"".join(traceback.format_stack())}")                            
             logging.debug(f"SCREEN LOCKED status: {self.locked}")        
         return self.locked
     

@@ -48,7 +48,9 @@ class TimeFunctions_Linux:
             errorMessage = f"Elapsed duration {duration} is negative. Past time {pastTime} cannot be higher than current time {currentTime}. Call Stack {"".join(traceback.format_stack())}."
             logging.error(errorMessage)
             if abs(duration) > self.MAX_TOLERABLE_NEGATIVE_ELAPSED_TIME:
-                raise ValueError(errorMessage)  
+                self.pastTime = currentTime
+                duration = 0
+                #raise ValueError(errorMessage)  #no need of crashing
             else:#the difference in time is too small, so ignore the negative time
                 duration = abs(duration)
         return duration

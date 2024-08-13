@@ -20,7 +20,7 @@ class WarmColour_Linux:#Also called NightLight
         self.GUI_Layout = None
         if self.appInstalled:
             if self.__checkIfNight():
-                self.SCT_DEFAULT_VALUE = 2300 #make it warmer than default. Night warmth
+                self.SCT_DEFAULT_VALUE = 3300 #make it warmer than default. Night warmth
             self.GUI_Layout = simpleGUI.WarmthLayout(self)
 
     def getGUIRef(self):

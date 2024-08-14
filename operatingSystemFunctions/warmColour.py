@@ -47,7 +47,8 @@ class WarmColour_Linux:#Also called NightLight
             sctPresent = self.commonFunctions.isThisAppInstalled(self.appName)
         except FileNotFoundError as e:
             sctPresent = False
-            logging.error(f"Error encountered: {e}. Stacktrace {"".join(traceback.format_stack())}")
+            callstack = "".join(traceback.format_stack())
+            logging.error(f"Error encountered: {e}. Stacktrace {callstack}")
         if not sctPresent:
             logging.warn("--------- OPTIONAL INSTALL ---------")                      
             logging.warn(f"{self.appName} is missing. Please install it using 'sudo apt install -y sct' and restart iRest if you want night light (warm colour temperature) features.")

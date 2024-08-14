@@ -138,7 +138,8 @@ class TimeFileManager:
             try: 
                 highestOrdinal = int(''.join(filter(str.isdigit, fileNameWithHighestOrdinal))) 
             except ValueError:
-                errorMessage = f"Archive filename needs to have a digit indicating the archive file ordinal {fileNameWithHighestOrdinal}. Stack trace {"".join(traceback.format_stack())}"
+                callstack = "".join(traceback.format_stack())
+                errorMessage = f"Archive filename needs to have a digit indicating the archive file ordinal {fileNameWithHighestOrdinal}. Stack trace {callstack}"
                 logging.error(errorMessage)
                 sys.exit(errorMessage)
         else:

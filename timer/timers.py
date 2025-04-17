@@ -63,6 +63,9 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         self.checkLoadedDataToSeeIfUserIsStrained()      
         self.pastActivity = NatureOfActivity.EYES_STRAINED
 
+    def getTimeFileData(self):
+        return self.timeFileManager.getTimeFileData()
+
     def __getLastKnownTimestamp(self):
         lastWrittenData = self.timeFileManager.historicalStrainData[OtherConstants.LAST_INDEX_OF_LIST]
         return self.timeFileManager.getTimestampFromData(lastWrittenData)   

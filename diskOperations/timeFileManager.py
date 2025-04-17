@@ -79,6 +79,10 @@ class TimeFileManager:
             self.numberOfWritesSinceProgramStart = 0          
             self.__archiveTheTimerFileIfItIsTooLarge()
     
+    def getTimeFileData(self):
+        writtenTimeData = self.fileOps.readFromFile(self.timerFileNameWithPath)
+        return writtenTimeData
+
     def __convertTimestampToFormattedDateTime(self, timestamp):
         localTime = datetime.datetime.fromtimestamp(timestamp)        
         return localTime.strftime("%d %b %Y %H:%M:%S")

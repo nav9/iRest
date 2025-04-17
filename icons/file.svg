@@ -8,8 +8,8 @@
    version="1.1"
    id="svg568"
    inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
-   sodipodi:docname="pause.svg"
-   inkscape:export-filename="/home/navin/code/iRest/icons/pause.png"
+   sodipodi:docname="file.svg"
+   inkscape:export-filename="/home/nav/code/iRest/icons/file.png"
    inkscape:export-xdpi="98.126007"
    inkscape:export-ydpi="98.126007"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
@@ -28,11 +28,11 @@
      showgrid="false"
      width="35mm"
      units="px"
-     inkscape:zoom="9.2933782"
-     inkscape:cx="14.47267"
-     inkscape:cy="24.479796"
+     inkscape:zoom="18.586756"
+     inkscape:cx="14.096058"
+     inkscape:cy="17.53937"
      inkscape:window-width="1600"
-     inkscape:window-height="823"
+     inkscape:window-height="842"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
@@ -56,22 +56,53 @@
        sodipodi:open="true"
        sodipodi:arc-type="arc"
        d="M 9.114744,5.2782713 A 4.5299315,4.5312161 0 0 1 4.1545675,9.1525908 4.5299315,4.5312161 0 0 1 0.11023702,4.3295449 4.5299315,4.5312161 0 0 1 4.7875179,0.11785966 4.5299315,4.5312161 0 0 1 9.159018,4.6463037"
-       inkscape:export-filename="/home/navin/Desktop/play.png"
+       inkscape:export-filename="/home/nav/code/iRest/icons/file.png"
        inkscape:export-xdpi="98.126007"
        inkscape:export-ydpi="98.126007" />
     <rect
-       style="fill:#ffffff;stroke-width:0.270958"
+       style="fill:#ffffff;stroke-width:0.120815"
        id="rect7791"
-       width="1.2316169"
-       height="3.9648616"
-       x="2.8878183"
-       y="2.8385634" />
+       width="0.31341058"
+       height="3.0976212"
+       x="3.2441139"
+       y="-6.1045341"
+       transform="matrix(0.00779775,0.9999696,-0.99999966,8.2723997e-4,0,0)" />
     <rect
-       style="fill:#ffffff;stroke-width:0.270958"
-       id="rect7791-3"
-       width="1.2316169"
-       height="3.9648616"
-       x="5.0661073"
-       y="2.836513" />
+       style="fill:#ffffff;stroke-width:0.120815"
+       id="rect7791-4"
+       width="0.31341058"
+       height="3.0976212"
+       x="4.0657473"
+       y="-6.0964184"
+       transform="matrix(0.00779775,0.9999696,-0.99999966,8.2723997e-4,0,0)" />
+    <rect
+       style="fill:#ffffff;stroke-width:0.120815"
+       id="rect7791-2"
+       width="0.31341058"
+       height="3.0976212"
+       x="4.896172"
+       y="-6.0893049"
+       transform="matrix(0.00779775,0.9999696,-0.99999966,8.2723997e-4,0,0)"
+       inkscape:export-filename="/home/nav/code/iRest/icons/file.png"
+       inkscape:export-xdpi="98.126007"
+       inkscape:export-ydpi="98.126007" />
+    <rect
+       style="fill:#ffffff;stroke-width:0.120815"
+       id="rect7791-4-1"
+       width="0.31341058"
+       height="3.0976212"
+       x="5.7178054"
+       y="-6.0811892"
+       transform="matrix(0.00779775,0.9999696,-0.99999966,8.2723997e-4,0,0)"
+       inkscape:export-filename="/home/nav/code/iRest/icons/file.png"
+       inkscape:export-xdpi="98.126007"
+       inkscape:export-ydpi="98.126007" />
+    <rect
+       style="fill:#0000ff;fill-opacity:0;fill-rule:evenodd;stroke:#fffffd;stroke-width:0.32789;stroke-opacity:1"
+       id="rect57"
+       width="3.8944628"
+       height="4.453558"
+       x="2.6534233"
+       y="2.4543743" />
   </g>
 </svg>

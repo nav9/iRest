@@ -3,6 +3,8 @@ from abc import ABC, abstractmethod
 from diskOperations import fileAndFolderOperations
 from operatingSystemFunctions import timeFunctions
 
+#TODO: Switch to https://github.com/hoffstadt/DearPyGui
+
 themeName = 'Dark'
 simpleGUI.theme(themeName) 
 backgroundColorOfGUI = simpleGUI.LOOK_AND_FEEL_TABLE[themeName]['BACKGROUND']
@@ -17,6 +19,7 @@ class WidgetConstants:
     ALLOWED_STRAIN_TEXT = '-allowedStrain-'
     PAUSE_RUN_TOGGLE_BUTTON = '-Pause/Run-'
     MUTE_UNMUTE_TOGGLE_BUTTON = '-Mute/Unmute-'
+    VIEW_TIMEFILE_BUTTON = '-ViewTimefile-'
     WINDOW_TITLE = 'iRest'
     SCT_SLIDER = '-sct slider-' #SCT is the app that controls screen warmth (Screen Color Temperature)
     SCT_SLIDER_SIZE = (1, 10)
@@ -26,6 +29,7 @@ class WidgetConstants:
     PAUSE_ICON = 'pause.png'
     AUDIO_ICON = 'audio.png'
     MUTE_ICON = 'mute.png'
+    VIEW_FILE_ICON = 'file.png'
 
 #Note: This abstract class specifies what functions all GUI sections should implement
 class RestTimers(ABC): #Abstract parent class
@@ -60,7 +64,8 @@ class DefaultTimerLayout:#The layouts will be initialized in the timer classes a
         self.layout = [                        
                         [simpleGUI.Text("Strained time: "), simpleGUI.Text(size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.STRAINED_TIME_TEXT), simpleGUI.Text("Allowed strain: "), simpleGUI.Text(size = WidgetConstants.TEXT_SIZE, key = WidgetConstants.ALLOWED_STRAIN_TEXT)],
                         [simpleGUI.Button('', key=WidgetConstants.PAUSE_RUN_TOGGLE_BUTTON, image_data=self.buttonStrings[WidgetConstants.PAUSE_ICON], button_color=(self.buttonHoverBackgroundColor, backgroundColorOfGUI), border_width=self.borderWidth, tooltip='Pause the timer or continue running it. Pausing is considered the equivalent of taking rest', metadata=False), 
-                         simpleGUI.Button('', key=WidgetConstants.MUTE_UNMUTE_TOGGLE_BUTTON, image_data=self.buttonStrings[WidgetConstants.AUDIO_ICON], button_color=(self.buttonHoverBackgroundColor, backgroundColorOfGUI), border_width=self.borderWidth,  tooltip='Mute or un-mute the audio notification', metadata=False)], 
+                         simpleGUI.Button('', key=WidgetConstants.MUTE_UNMUTE_TOGGLE_BUTTON, image_data=self.buttonStrings[WidgetConstants.AUDIO_ICON], button_color=(self.buttonHoverBackgroundColor, backgroundColorOfGUI), border_width=self.borderWidth,  tooltip='Mute or un-mute the audio notification', metadata=False),
+                         simpleGUI.Button('', key=WidgetConstants.VIEW_TIMEFILE_BUTTON, image_data=self.buttonStrings[WidgetConstants.VIEW_FILE_ICON], button_color=(self.buttonHoverBackgroundColor, backgroundColorOfGUI), border_width=self.borderWidth,  tooltip='View the file that logs time information recorded by this program.', metadata=False)], 
                     ]
     
     def getLayout(self):
@@ -68,7 +73,7 @@ class DefaultTimerLayout:#The layouts will be initialized in the timer classes a
     
     def __loadButtonImages(self):
         fileOps = fileAndFolderOperations.FileOperations()
-        imagesToLoad = [WidgetConstants.PLAY_ICON, WidgetConstants.PAUSE_ICON, WidgetConstants.AUDIO_ICON, WidgetConstants.MUTE_ICON]
+        imagesToLoad = [WidgetConstants.PLAY_ICON, WidgetConstants.PAUSE_ICON, WidgetConstants.AUDIO_ICON, WidgetConstants.MUTE_ICON, WidgetConstants.VIEW_FILE_ICON]
         for image in imagesToLoad:
             self.buttonStrings[image] = fileOps.getFileAsBase64EncodedString(MoreConstants.ICON_PATH, image)
 
@@ -86,6 +91,10 @@ class DefaultTimerLayout:#The layouts will be initialized in the timer classes a
         if event == WidgetConstants.MUTE_UNMUTE_TOGGLE_BUTTON:
             self.__toggleAudioMute(event)
             self.timer.toggleAllAudioNotifiers() 
+        if event == WidgetConstants.VIEW_TIMEFILE_BUTTON:
+            reversedTimeData = self.timer.getTimeFileData() 
+            reversedTimeData.reverse() 
+            simpleGUI.popup_scrolled(*reversedTimeData, title="iRest time data written to disk", font=("Arial", 10), size=(1024, 768), background_color="black", text_color="white", non_blocking=True)
     
     def __togglePlayPause(self, event):
         element = self.mainWindow[event]

@@ -44,6 +44,7 @@ class FileOperations:
         fileHandle.close()
         
     def readFromFile(self, filenameWithPath):
+        lines = []
         with open(filenameWithPath) as fileHandler:
             lines = fileHandler.read().splitlines()#TODO: try catch
         return lines              

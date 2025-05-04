@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from diskOperations import fileAndFolderOperations
 from operatingSystemFunctions import timeFunctions
 
-#TODO: Switch to https://github.com/hoffstadt/DearPyGui
+#TODO: Switch to https://github.com/hoffstadt/DearPyGui or https://freesimplegui.readthedocs.io/en/latest/
 
 themeName = 'Dark'
 simpleGUI.theme(themeName) 

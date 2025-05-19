@@ -3,8 +3,9 @@ This program is under construction, but can still be used.
 ![Alt text](gallery/iRest_GUI.png?raw=true "The iRest GUI") 
 
 # About iRest  
-A program that reminds you to rest your eyes. This program is being created after more than a decade of my experience with chronic eye strain and my eventual recovery. There are many break reminder software. What sets iRest apart from the others is its ability to keep track of strained time even if the computer is restarted or suspended. Additionally, since program activity is logged, it is easier to perform analytics on the log files (with a small margin of error).  
-The "i" at the beginning of "iRest" has nothing to do with the Apple company. The "i" refers to you, when you use the program.
+A program that reminds you to rest your eyes. A major feature being that it keeps track of the accumulated strain even if you restart the computer or program or suspend the computer.  
+This program was created after more than a decade of my experience with chronic eye strain (please search the internet for "The Real Cure for Eye Strain") and my eventual recovery. There are many break reminder software. What sets iRest apart from the others is its ability to keep track of strained time even if the computer is restarted or suspended. Additionally, since program activity is logged, it is easier to perform analytics on the log files (with a small margin of error).  
+The "i" at the beginning of "iRest" has nothing to do with the Apple company. The "i" refers to you.
   
 # To run the program  
 First install the required packages:  
@@ -85,11 +86,12 @@ To see the captured output of passed tests, use `pytest -rP`. For failed tests, 
 * I created the icon files myself (not yet used). I'm making them available under the Creative Commons Attribution 4.0 International Public License: https://creativecommons.org/licenses/by/4.0/legalcode  
   
 # TODO
+* Use espeak and have an option for iRest to detect which speech program is installed and use that.  
 * Create a script for each OS, which will automatically install necessary apps and packages.  
-* Track and show how much time the program has been under pause.
-* Have a config file that stores program settings.
-* Reduce the strain rate value when watching a video. Program needs to detect the active window (https://stackoverflow.com/questions/52545937/how-can-i-list-all-open-x11-windows-on-gnu-linux-from-a-python-script, https://stackoverflow.com/questions/55547940/how-to-get-a-list-of-the-name-of-every-open-window, https://stackoverflow.com/questions/5262413/does-xlib-have-an-active-window-event). This could also be programmed with a computer vision algorithm, to check if the video is being played on YouTube.
-* View metrics of time strained.
-* Adding test cases.
+* Track and show how much time the program has been under pause.  
+* Have a config file that stores program settings.  
+* Reduce the strain rate value when watching a video. Program needs to detect the active window (https://stackoverflow.com/questions/52545937/how-can-i-list-all-open-x11-windows-on-gnu-linux-from-a-python-script, https://stackoverflow.com/questions/55547940/how-to-get-a-list-of-the-name-of-every-open-window, https://stackoverflow.com/questions/5262413/does-xlib-have-an-active-window-event). This could also be programmed with a computer vision algorithm, to check if the video is being played on YouTube.  
+* View metrics of time strained.  
+* Adding test cases.  
   
 [![Donate](https://raw.githubusercontent.com/nav9/VCF_contacts_merger/main/gallery/thankYouDonateButton.png)](https://nrecursions.blogspot.com/2020/08/saying-thank-you.html)      

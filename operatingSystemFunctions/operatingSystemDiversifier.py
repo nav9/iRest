@@ -41,6 +41,14 @@ class OperatingSystemFunctionality(ABC):#Abstract parent class
         """ Returns an operating system specific instance which allows checking if a certain duration of time has elapsed """
         pass 
 
+#------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------
+# These interfaces are for functions specific to operating systems. If any operating system has
+# a different desktop with nuanced functionality, there are Desktop Adapter classes which are
+# meant to handle such nuances
+#------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------
+
 class LinuxFunctionality(OperatingSystemFunctionality):#For functions that are specific to Linux. The program uses this class only if it detects it is running on Linux. These same functions should also be available in a "Windows" class and that class would be instantiatiated and used if the program is run on Windows
     #cat /etc/os-release prints the Linux flavour
     def __init__(self):  
@@ -48,7 +56,7 @@ class LinuxFunctionality(OperatingSystemFunctionality):#For functions that are s
         #TODO: code needs to be written to dynamically switch to any other notifier
         self.audioNotifier = audioNotifiers.SpeedSaySpeechNotifier_Linux()
         self.graphicalNotifier = graphicalNotifiers.PlyerGraphicalNotifier()
-        self.desktopAdapter = LinuxDesktopAdapter()
+        self.desktopAdapter = LinuxDesktopAdapter() #To select between the different functionality that Gnome or Cinnamon or any other Linux desktop offers
         self.warmthApp = warmColour.WarmColour_Linux()
         self.timeFunctions = timeFunctions.TimeFunctions_Linux()
     
@@ -70,13 +78,13 @@ class LinuxFunctionality(OperatingSystemFunctionality):#For functions that are s
     def getTimeElapseCheckerInstanceForThisDuration(self, duration):
         return timeFunctions.TimeElapseChecker_Linux(duration)
     
-class RaspberryPiWaylandFunctionality(OperatingSystemFunctionality):#For functions that are specific to Raspberry Pi Wayland desktop.
+class RaspberryPiFunctionality(OperatingSystemFunctionality):#For functions that are specific to Raspberry Pi 
     def __init__(self):  
         self.encoding = 'utf-8'
         #TODO: code needs to be written to dynamically switch to any other notifier
         self.audioNotifier = audioNotifiers.EspeakNotifier_RaspberryPi()
         self.graphicalNotifier = graphicalNotifiers.WfPanelRaspberryPiNotifier()
-        self.desktopAdapter = None
+        self.desktopAdapter = RaspberryPiDesktopAdapter() #To select between functionality that differs between Wayland or X11 or any other desktop on Raspberry Pi
         self.warmthApp = None
         self.timeFunctions = timeFunctions.TimeFunctions_Linux()
     
@@ -107,7 +115,7 @@ class OperatingSystemIdentifier:
         self.operatingSystemAdapter = None
         logging.info(f"Current OS platform: {platform}")
         if self.__isThisProgramRunningInRaspberryPi():            
-            self.operatingSystemAdapter = RaspberryPiWaylandFunctionality()
+            self.operatingSystemAdapter = RaspberryPiFunctionality()
             logging.info("Raspberry Pi detected") 
         elif self.__isThisProgramRunningInLinux():            
             #self.currentOperatingSystem = OperatingSystemID.LINUX
@@ -145,6 +153,14 @@ class OperatingSystemIdentifier:
     def getOperatingSystemAdapterInstance(self):#A class instance which provides OS-specific functions
         """ Will return None if OS was not identified, and that's ok because this program's functions check for this None. The program is designed to work even without OS-specific functionality """
         return self.operatingSystemAdapter 
+
+
+#------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------
+# These classes help take care of nuances that specific desktop types on operating systems or 
+# specific versions of operating systems require
+#------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------
 
 class LinuxDesktops:#Note: all strings should be in lower case, since the desktop name received from the OS is converted to lower case
     GNOME = "gnome"
@@ -194,8 +210,7 @@ class RaspberryPiDesktopAdapter:
         #TODO: Add functionality for X11 on RPi too
 
     def isScreenLocked(self):
-        screenLocked = False
-        return screenLocked
+        return False #Since there is currently no reliable way in wayland to find if screen is locked
     
     def __getDesktopName(self):
         command = "echo $XDG_CURRENT_DESKTOP" #command that queries for the desktop name
@@ -212,6 +227,5 @@ class UnknownDesktopAdapter:
         logging.info("\n\n\nUnknown desktop type. Proceeding with minimal functionality\n\n\n")         
 
     def isScreenLocked(self):
-        screenLocked = False
-        return screenLocked
+        return False #Since screenlock checks need a specific function, and here we do not know which operating system this is
 

@@ -9,11 +9,63 @@ from operatingSystemFunctions import screenLockCheckers
 from operatingSystemFunctions import warmColour
 from operatingSystemFunctions import timeFunctions
 
+class OperatingSystemIdentifier:    
+    def __init__(self):
+        #self.currentOperatingSystem = None
+        self.operatingSystemAdapter = None
+        logging.info(f"Current OS platform: {platform}")
+        if self.__isThisProgramRunningInRaspberryPi():            
+            self.operatingSystemAdapter = RaspberryPiFunctionality()
+            logging.info("Raspberry Pi detected") 
+        elif self.__isThisProgramRunningInLinux():            
+            #self.currentOperatingSystem = OperatingSystemID.LINUX
+            self.operatingSystemAdapter = LinuxFunctionality()
+            logging.info("Linux detected")
+        elif self.__isThisProgramRunningInWindows():
+            #self.currentOperatingSystem = OperatingSystemID.WINDOWS
+            logging.info("Windows detected")
+        elif self.__isThisProgramRunningInMac():
+            #self.currentOperatingSystem = OperatingSystemID.MAC
+            logging.info("MacOS detected")
+        elif self.operatingSystemAdapter == None:
+            logging.warn("Operating system could not be identified. Certain functionality won't be available. You could raise an issue to inform the author about which operating system you are using this program.")
+
+    def __isThisProgramRunningInRaspberryPi(self):
+        isRaspberryPi = False
+        try:
+            with io.open('/sys/firmware/devicetree/base/model', 'r') as m:
+                if 'raspberry pi' in m.read().lower(): 
+                    isRaspberryPi = True
+        except Exception: 
+            pass		
+        return isRaspberryPi
+        
+    def __isThisProgramRunningInLinux(self):
+        #return 'Linux' in platform.platform() #Does the string returned by platform() contain the substring "Linux"? For example, in Ubuntu, the output is: 'Linux-5.11.0-27-generic-x86_64-with-glibc2.10'
+        return platform == "linux" or platform == "linux2"
+
+    def __isThisProgramRunningInWindows(self):
+        return platform == "win32"
+
+    def __isThisProgramRunningInMac(self):
+        return platform == "darwin"
+        
+    def getOperatingSystemAdapterInstance(self):#A class instance which provides OS-specific functions
+        """ Will return None if OS was not identified, and that's ok because this program's functions check for this None. The program is designed to work even without OS-specific functionality """
+        return self.operatingSystemAdapter 
+
+
+#-----------------------------------------------------------------------
+#-----------------------------------------------------------------------
+# Interface functions for functionality that would be different for
+# various operating systems
+#-----------------------------------------------------------------------
+#-----------------------------------------------------------------------
 class OperatingSystemFunctionality(ABC):#Abstract parent class
     #Note: Abstract methods have to be implemented by child classes because they would be invoked by other classes
     @abstractmethod
     def isScreenLocked(self):#This can be checked via various techniques. Screen lock or inactivity etc.
-        """ Returns True if the User is relaxing their eyes. False otherwise """
+        """ Returns True if the User is relaxing their eyes (which means that it can be programmed to mean that the screen is actually locked or to mean that the User may not be using the mouse and keyboard for an extended period of time). Returns False otherwise """
         pass
 
     @abstractmethod
@@ -109,50 +161,6 @@ class RaspberryPiFunctionality(OperatingSystemFunctionality):#For functions that
     def getTimeElapseCheckerInstanceForThisDuration(self, duration):
         return timeFunctions.TimeElapseChecker_Linux(duration)    
     
-class OperatingSystemIdentifier:    
-    def __init__(self):
-        #self.currentOperatingSystem = None
-        self.operatingSystemAdapter = None
-        logging.info(f"Current OS platform: {platform}")
-        if self.__isThisProgramRunningInRaspberryPi():            
-            self.operatingSystemAdapter = RaspberryPiFunctionality()
-            logging.info("Raspberry Pi detected") 
-        elif self.__isThisProgramRunningInLinux():            
-            #self.currentOperatingSystem = OperatingSystemID.LINUX
-            self.operatingSystemAdapter = LinuxFunctionality()
-            logging.info("Linux detected")
-        elif self.__isThisProgramRunningInWindows():
-            #self.currentOperatingSystem = OperatingSystemID.WINDOWS
-            logging.info("Windows detected")
-        elif self.__isThisProgramRunningInMac():
-            #self.currentOperatingSystem = OperatingSystemID.MAC
-            logging.info("MacOS detected")
-        elif self.operatingSystemAdapter == None:
-            logging.warn("Operating system could not be identified. Certain functionality won't be available. You could raise an issue to inform the author about which operating system you are using this program.")
-
-    def __isThisProgramRunningInRaspberryPi(self):
-        isRaspberryPi = False
-        try:
-            with io.open('/sys/firmware/devicetree/base/model', 'r') as m:
-                if 'raspberry pi' in m.read().lower(): 
-                    isRaspberryPi = True
-        except Exception: 
-            pass		
-        return isRaspberryPi
-        
-    def __isThisProgramRunningInLinux(self):
-        #return 'Linux' in platform.platform() #Does the string returned by platform() contain the substring "Linux"? For example, in Ubuntu, the output is: 'Linux-5.11.0-27-generic-x86_64-with-glibc2.10'
-        return platform == "linux" or platform == "linux2"
-
-    def __isThisProgramRunningInWindows(self):
-        return platform == "win32"
-
-    def __isThisProgramRunningInMac(self):
-        return platform == "darwin"
-        
-    def getOperatingSystemAdapterInstance(self):#A class instance which provides OS-specific functions
-        """ Will return None if OS was not identified, and that's ok because this program's functions check for this None. The program is designed to work even without OS-specific functionality """
-        return self.operatingSystemAdapter 
 
 
 #------------------------------------------------------------------------------------------------

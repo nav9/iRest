@@ -69,7 +69,15 @@ class MainInterface:
         return fileOps.joinPathAndFilename(config.Names.ICON_PATH, config.WidgetConstants.MAIN_PROGRAM_ICON)
     
     
-
+#-------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------
+# Multiple GUI layouts can be added to the main GUI based on whether the functionality offered by
+# that GUI component is available for an operating system or whether the User enables/disables
+# some setting, etc. The classes below allow composing such GUI components which have references
+# to any backend classes which implement the functionality of that GUI component. These GUI 
+# components are added to the main interface in the main.py file.
+#-------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------
 #Note: This abstract class specifies what functions all GUI sections should implement
 class RestTimers(ABC): #Abstract parent class
     #Note: Any abstract methods have to be implemented by child classes because they would be invoked by other classes

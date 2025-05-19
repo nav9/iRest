@@ -39,7 +39,7 @@ def main():#Reason for a main function https://stackoverflow.com/questions/60276
     operatingSystemCheck = operatingSystemDiversifier.OperatingSystemIdentifier()
     operatingSystemAdapter = operatingSystemCheck.getOperatingSystemAdapterInstance() #If OS could not be identified, it will return None    
     #---Create the timer(s)
-    allTimers = []
+    allTimers = [] #Note: This allows adding multiple timers to the main GUI interface
     timeFileMgr = timeFileManager.TimeFileManager(configHandler.Names.ARCHIVE_FOLDER, configHandler.Names.TIME_FILE, fileOps) #parameters passed: folderName, fileName
     defaultTimer = timers.DefaultTimer(operatingSystemAdapter, timeFileMgr)
     if operatingSystemAdapter:#if OS was identified, get the audio notifier specific to that OS
@@ -48,6 +48,7 @@ def main():#Reason for a main function https://stackoverflow.com/questions/60276
     allTimers.append(defaultTimer)
     #---Initialize the main GUI interface
     gui = simpleGUI.MainInterface()
+    # Add backends. Each backend will have in itself a GUI reference class if it needs a GUI
     gui.addThisBackend(operatingSystemAdapter.getWarmthAppAdapterReference())
     gui.addThisBackend(defaultTimer) #backends can be timers or other classes too which need a GUI representation    
     gui.createLayout()

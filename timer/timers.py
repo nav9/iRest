@@ -180,11 +180,12 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         return self.GUI_Layout
     
     def addThisNotifierToListOfNotifiers(self, notifier):
-        if notifier.id not in self.notifiers:#is notifier not already registered here
-            logging.info(f"Registering notifier: {notifier.id}")
-            self.notifiers[notifier.id] = notifier
-        else:
-            logging.info(f"{notifier.id} is already registered.")
+        if notifier:#is not None
+            if notifier.id not in self.notifiers:#is notifier not already registered here
+                logging.info(f"Registering notifier: {notifier.id}")
+                self.notifiers[notifier.id] = notifier
+            else:
+                logging.info(f"{notifier.id} is already registered.")
 
     def unregisterNotifier(self, notifier):
         if notifier.id in self.notifiers:

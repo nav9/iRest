@@ -13,6 +13,62 @@ backgroundColorOfGUI = simpleGUI.LOOK_AND_FEEL_TABLE[themeName]['BACKGROUND']
 #class MoreConstants:#TODO: consolidate these into one place where all constants are found
     #FIRST_ELEMENT_OF_ARRAY = 0 #this is available in the config file
     #ICON_PATH = "icons"
+    
+#-------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------
+# This is the main GUI interface which aggregates multiple GUI elements which can have their own
+# backend implementations.
+#-------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------
+class MainInterface:
+    def __init__(self):
+        #simpleGUI.theme('Dark Blue 13') 
+        self.WINDOW_WAIT_TIMEOUT_MILLISECOND = 100 #the amount of time the window waits for user input before relinquishing control to other processes
+        self.programRunning = True
+        self.window = None #will be instantiated when layout is created
+        self.backends = [] #the backend objects related to the GUI section being displayed
+        self.backendGUIRefs = [] #the GUI layout objects 
+        self.layout = []
+        
+    def addThisBackend(self, backendRef):
+        if backendRef:#if not None
+            self.backends.append(backendRef)        
+            self.backendGUIRefs.append(backendRef.getGUIRef())
+        
+    def createLayout(self):
+        for guiRef in self.backendGUIRefs:#iterate all the supplied layouts and append them in the main interface
+            receivedLayout = guiRef.getLayout()
+            if receivedLayout:#the layout received can be [] if the backend does not need to implement a GUI
+                self.layout.extend(receivedLayout) 
+        #---create the window using all supplied layouts
+        iconFile = self.__loadMainProgramIcon() 
+        self.window = simpleGUI.Window(config.WidgetConstants.WINDOW_TITLE, icon = iconFile, layout = self.layout)        
+        #---register the main window in all GUI layouts
+        for guiRef in self.backendGUIRefs:
+            guiRef.registerMainWindowReference(self.window)
+        event, values = self.window.read(timeout = 0) #this dummy read has to be there to be able to call minimize. Either this or the window needs to have finalize=True. https://stackoverflow.com/questions/71580321/run-code-after-the-window-has-been-initialized
+        self.window.minimize()
+    
+    def runEventLoop(self):#this function should get called repeatedly from an external while loop
+        event, values = self.window.read(timeout = self.WINDOW_WAIT_TIMEOUT_MILLISECOND) 
+        if event == simpleGUI.WIN_CLOSED or event == simpleGUI.Exit:#somehow, this line works only if placed above the check for event and values being None
+            self.closeWindow()        
+        for guiRef in self.backendGUIRefs:
+            if guiRef:#this value can be None if the backend has no GUI
+                guiRef.runEventLoop(event, values)       
+    
+    def closeWindow(self):
+        self.window.close()
+        self.programRunning = False
+        
+    def checkIfNotClosedGUI(self):
+        return self.programRunning
+    
+    def __loadMainProgramIcon(self):
+        fileOps = fileAndFolderOperations.FileOperations()
+        return fileOps.joinPathAndFilename(config.Names.ICON_PATH, config.WidgetConstants.MAIN_PROGRAM_ICON)
+    
+    
 
 #Note: This abstract class specifies what functions all GUI sections should implement
 class RestTimers(ABC): #Abstract parent class
@@ -32,7 +88,7 @@ class RestTimers(ABC): #Abstract parent class
         """ To perform updates on the layout, each mini GUI needs to have a reference to the main window """
         pass    
 
-class DefaultTimerLayout:#The layouts will be initialized in the timer classes and then be passed to the main interface
+class DefaultTimerLayout(RestTimers):#The layouts will be initialized in the timer classes and then be passed to the main interface
     def __init__(self, backendRef) -> None:
         self.timer = backendRef  
         self.mainWindow = None #a reference to the main GUI window which will get set via a registerMainWindowReference function
@@ -98,7 +154,7 @@ class DefaultTimerLayout:#The layouts will be initialized in the timer classes a
     def registerMainWindowReference(self, window):    
         self.mainWindow = window
 
-class WarmthLayout:#This is an optional layout that gets created only if the specified colour temperature app is installed
+class WarmthLayout(RestTimers):#This is an optional layout that gets created only if the specified colour temperature app is installed
     def __init__(self, appRef) -> None:        
         self.warmthApp = appRef
         self.mainWindow = None
@@ -123,56 +179,3 @@ class WarmthLayout:#This is an optional layout that gets created only if the spe
 
     def registerMainWindowReference(self, window):    
         self.mainWindow = window
-
-#-------------------------------------------------------------------------------------------------
-# This is the main GUI interface which aggregates multiple GUI elements which can have their own
-# backend implementations.
-#-------------------------------------------------------------------------------------------------
-class MainInterface:
-    def __init__(self):
-        #simpleGUI.theme('Dark Blue 13') 
-        self.WINDOW_WAIT_TIMEOUT_MILLISECOND = 100 #the amount of time the window waits for user input before relinquishing control to other processes
-        self.programRunning = True
-        self.window = None #will be instantiated when layout is created
-        self.backends = [] #the backend objects related to the GUI section being displayed
-        self.backendGUIRefs = [] #the GUI layout objects 
-        self.layout = []
-        
-    def addThisBackend(self, backendRef):
-        if backendRef:#if not None
-            self.backends.append(backendRef)        
-            self.backendGUIRefs.append(backendRef.getGUIRef())
-        
-    def createLayout(self):
-        for guiRef in self.backendGUIRefs:#iterate all the supplied layouts and append them in the main interface
-            receivedLayout = guiRef.getLayout()
-            if receivedLayout:#the layout received can be [] if the backend does not need to implement a GUI
-                self.layout.extend(receivedLayout) 
-        #---create the window using all supplied layouts
-        iconFile = self.__loadMainProgramIcon() 
-        self.window = simpleGUI.Window(config.WidgetConstants.WINDOW_TITLE, icon = iconFile, layout = self.layout)        
-        #---register the main window in all GUI layouts
-        for guiRef in self.backendGUIRefs:
-            guiRef.registerMainWindowReference(self.window)
-        event, values = self.window.read(timeout = 0) #this dummy read has to be there to be able to call minimize. Either this or the window needs to have finalize=True. https://stackoverflow.com/questions/71580321/run-code-after-the-window-has-been-initialized
-        self.window.minimize()
-    
-    def runEventLoop(self):#this function should get called repeatedly from an external while loop
-        event, values = self.window.read(timeout = self.WINDOW_WAIT_TIMEOUT_MILLISECOND) 
-        if event == simpleGUI.WIN_CLOSED or event == simpleGUI.Exit:#somehow, this line works only if placed above the check for event and values being None
-            self.closeWindow()        
-        for guiRef in self.backendGUIRefs:
-            if guiRef:#this value can be None if the backend has no GUI
-                guiRef.runEventLoop(event, values)       
-    
-    def closeWindow(self):
-        self.window.close()
-        self.programRunning = False
-        
-    def checkIfNotClosedGUI(self):
-        return self.programRunning
-    
-    def __loadMainProgramIcon(self):
-        fileOps = fileAndFolderOperations.FileOperations()
-        return fileOps.joinPathAndFilename(config.Names.ICON_PATH, config.WidgetConstants.MAIN_PROGRAM_ICON)
-    

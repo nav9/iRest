@@ -65,6 +65,37 @@ class SpeedSaySpeechNotifier_Linux(AudioNotifier):
         self.isActive = not self.isActive
         return self.isActive     
 
+class EspeakNotifier_RaspberryPi(AudioNotifier):
+    def __init__(self):
+        self.id = "Espeak Notifier"
+        self.speechProgram = "espeak" 
+        self.fullCommand = [self.speechProgram]
+        self.takeRestMessage = "Please rest now"
+        self.SECONDS_TO_WAIT_UNTIL_REPEAT_NOTIFICATION = 120 #After the first audio notification, no more notifications would happen during a cooldown period, even if execute() is called repeatedly
+        self.userNotified = False
+        self.notifiedTime = None
+        self.isActive = True
+
+    def execute(self):#This function may get called multiple times, so it has to take care of not annoying the User with too many notifications. So a cooldown time was used to allow for some time until the next notification
+        if not self.isActive:
+            return
+        #Note: Notification cooling time was used within the class itself (instead of externally) since other notifiers may do notification at their own frequencies
+        if self.userNotified:            
+            elapsedTime = time.monotonic() - self.notifiedTime
+            logging.debug(f"Audio notification cooldown elapsed time: {elapsedTime}. Cooldown seconds: {self.SECONDS_TO_WAIT_UNTIL_REPEAT_NOTIFICATION}")
+            if elapsedTime >= self.SECONDS_TO_WAIT_UNTIL_REPEAT_NOTIFICATION:#So actual time until the next notification will be COOLDOWN_SECONDS + number of seconds until execute() is invoked again
+                self.userNotified = False            
+        else:#notify User
+            logging.debug("Audio notifier sending notification")            
+            speechCommand = self.fullCommand[:] #shallow copy by value
+            speechCommand.append(self.takeRestMessage)
+            subprocess.run(speechCommand)
+            self.notifiedTime = time.monotonic()
+            self.userNotified = True
+                       
+    def toggleNotifierActiveState(self):
+        self.isActive = not self.isActive
+        return self.isActive  
 
 class PydubSoundNotifier_Linux(AudioNotifier): #https://realpython.com/playing-and-recording-sound-python/
     def __init__(self):

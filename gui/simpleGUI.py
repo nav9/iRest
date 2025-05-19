@@ -1,9 +1,9 @@
-import PySimpleGUI as simpleGUI
+import FreeSimpleGUI as simpleGUI
 from abc import ABC, abstractmethod
 from diskOperations import fileAndFolderOperations
 from operatingSystemFunctions import timeFunctions
 
-#TODO: Switch to https://github.com/hoffstadt/DearPyGui or https://freesimplegui.readthedocs.io/en/latest/
+#TODO: Switch to https://github.com/hoffstadt/DearPyGui or pyside
 
 themeName = 'Dark'
 simpleGUI.theme(themeName) 
@@ -156,8 +156,9 @@ class MainInterface:
         self.layout = []
         
     def addThisBackend(self, backendRef):
-        self.backends.append(backendRef)
-        self.backendGUIRefs.append(backendRef.getGUIRef())
+        if backendRef:#if not None
+            self.backends.append(backendRef)        
+            self.backendGUIRefs.append(backendRef.getGUIRef())
         
     def createLayout(self):
         for guiRef in self.backendGUIRefs:#iterate all the supplied layouts and append them in the main interface

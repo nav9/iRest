@@ -173,7 +173,7 @@ class RaspberryPiFunctionality(OperatingSystemFunctionality):#For functions that
 class LinuxDesktops:#Note: all strings should be in lower case, since the desktop name received from the OS is converted to lower case
     GNOME = "gnome"
     CINNAMON = "cinnamon"
-    WAYLAND = "wlroots"
+    WAYLAND = "wlroots" #wayland is actually a compositor
     #TODO: add X11 too for Raspberry Pi 
 
 #This class is meant for Linux OS Desktops like Gnome desktop, Cinnamon, Xfce, KDE or Mate

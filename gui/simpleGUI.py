@@ -112,7 +112,9 @@ class DefaultTimerLayout(RestTimers):#The layouts will be initialized in the tim
                         [simpleGUI.Text("Strained time: "), simpleGUI.Text(size = config.WidgetConstants.TEXT_SIZE, key = config.WidgetConstants.STRAINED_TIME_TEXT), simpleGUI.Text("Allowed strain: "), simpleGUI.Text(size = config.WidgetConstants.TEXT_SIZE, key = config.WidgetConstants.ALLOWED_STRAIN_TEXT)],
                         [simpleGUI.Button('', key=config.WidgetConstants.PAUSE_RUN_TOGGLE_BUTTON, image_data=self.buttonStrings[config.WidgetConstants.PAUSE_ICON], button_color=(self.buttonHoverBackgroundColor, backgroundColorOfGUI), border_width=self.borderWidth, tooltip='Pause the timer or continue running it. Pausing is considered the equivalent of taking rest', metadata=False), 
                          simpleGUI.Button('', key=config.WidgetConstants.MUTE_UNMUTE_TOGGLE_BUTTON, image_data=self.buttonStrings[config.WidgetConstants.AUDIO_ICON], button_color=(self.buttonHoverBackgroundColor, backgroundColorOfGUI), border_width=self.borderWidth,  tooltip='Mute or un-mute the audio notification', metadata=False),
-                         simpleGUI.Button('', key=config.WidgetConstants.VIEW_TIMEFILE_BUTTON, image_data=self.buttonStrings[config.WidgetConstants.VIEW_FILE_ICON], button_color=(self.buttonHoverBackgroundColor, backgroundColorOfGUI), border_width=self.borderWidth,  tooltip='View the file that logs time information recorded by this program.', metadata=False)], 
+                         #TODO: The view timefile button needs to be moved to a separate GUI section of its own because it freezes iRest when used in Raspberry Pi and still needs to be tested on other platforms
+                         #simpleGUI.Button('', key=config.WidgetConstants.VIEW_TIMEFILE_BUTTON, image_data=self.buttonStrings[config.WidgetConstants.VIEW_FILE_ICON], button_color=(self.buttonHoverBackgroundColor, backgroundColorOfGUI), border_width=self.borderWidth,  tooltip='View the file that logs time information recorded by this program.', metadata=False)
+                        ], 
                     ]
     
     def getLayout(self):
@@ -173,8 +175,8 @@ class WarmthLayout(RestTimers):#This is an optional layout that gets created onl
             minVal, maxVal, defaultVal = self.warmthApp.getMinMaxDefaultValues()
             self.warmthApp.setCustomWarmth(defaultVal)                   
             self.layout = [                        
-                            [simpleGUI.Text("Warmth:"), simpleGUI.Slider(size=config.WidgetConstants.SCT_SLIDER_SIZE, tick_interval=3000, range=(minVal, maxVal), default_value=defaultVal, expand_x=True, enable_events=True, orientation='horizontal', key=config.WidgetConstants.SCT_SLIDER, tooltip="Adjusts the 'wramth' colour of the screen")],
-                        ]
+                            [simpleGUI.Text("Warmth:"), simpleGUI.Slider(size=config.WidgetConstants.SCT_SLIDER_SIZE, tick_interval=3000, range=(minVal, maxVal), default_value=defaultVal, expand_x=True, enable_events=True, orientation='horizontal', key=config.WidgetConstants.SCT_SLIDER, tooltip="Adjusts the 'warmth' colour of the screen")],
+                          ]
         
     def getLayout(self):
         return self.layout

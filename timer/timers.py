@@ -21,6 +21,7 @@ class NatureOfActivity:
     PAUSED_VIA_GUI = "paused" #User had clicked on a pause button to pause the noting of strained time (the user can use this if screen lock functionality isn't available, and the User wants to let iRest know that the period of pausing is the period that they are taking rest)
     PROGRAM_NOT_RUNNING = "program_not_running" #iRest was not running during this phase. Such data gets stored in the timefile when the program is started, and the program checks earlier timestamps and realizes that it was started after a time lapse. This happens during system restarts or when iRest has crashed and started again or been manually restarted
     SUSPENDED = "suspended" #this could either be the computer in sleep/suspend state or the iRest process being suspended by the User
+    RESET = "reset" #The User has manually reset the strained time to zero
     # TYPING = "typing"
     # MOUSE_MOVEMENT = "mouse_movement"
     # WATCHING_VIDEO = "watching_video"
@@ -169,6 +170,15 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         self.strainedDuration = self.strainedDuration - self.__calculateStrainReductionBasedOnRestDuration(restDuration_seconds) #(20*60)-((20/5)*(5*60))
         if self.strainedDuration < 0: 
             self.strainedDuration = 0
+            
+    #TODO: Check if this can be better integrated as a State pattern or if cleaner callbacks can be used
+    def resetStrainedTimeToZero(self):
+        timestamp = self.timeFunctions.getCurrentTime()
+        activity = NatureOfActivity.RESET
+        logging.debug(f"Strained duration reset by User to 0. Saving to file: timestamp {timestamp}, elapsedTime {self.elapsedTimeAccumulation}, current activity {activity}")        
+        self.strainedDuration = 0
+        self.elapsedTimeAccumulation = 0
+        self.timeFileManager.writeToFileAndHistoricalDataQueue(timestamp, self.elapsedTimeAccumulation, activity)           
 
     def __calculateStrainReductionBasedOnRestDuration(self, restDuration_seconds):
         return restDuration_seconds * self.restRatio

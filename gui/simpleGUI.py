@@ -143,7 +143,7 @@ class DefaultTimerLayout(RestTimers):#The layouts will be initialized in the tim
             self.__toggleAudioMute(event)
             self.timer.toggleAllAudioNotifiers() 
         elif event == config.WidgetConstants.RESET_STRAIN_BUTTON:
-            pass
+            self.timer.resetStrainedTimeToZero()
         elif event == config.WidgetConstants.VIEW_TIMEFILE_BUTTON:
             reversedTimeData = self.timer.getTimeFileData() 
             reversedTimeData.reverse() 

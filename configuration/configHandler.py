@@ -21,6 +21,7 @@ class WidgetConstants:
     ALLOWED_STRAIN_TEXT = '-allowedStrain-'
     PAUSE_RUN_TOGGLE_BUTTON = '-Pause/Run-'
     MUTE_UNMUTE_TOGGLE_BUTTON = '-Mute/Unmute-'
+    RESET_STRAIN_BUTTON = '-ResetStrain-'
     VIEW_TIMEFILE_BUTTON = '-ViewTimefile-'
     WINDOW_TITLE = 'iRest'
     SCT_SLIDER = '-sct slider-' #SCT is the app that controls screen warmth (Screen Color Temperature)
@@ -31,6 +32,7 @@ class WidgetConstants:
     PAUSE_ICON = 'pause.png'
     AUDIO_ICON = 'audio.png'
     MUTE_ICON = 'mute.png'
+    RESET_ICON = 'reset.png'
     VIEW_FILE_ICON = 'file.png'
     
 # TODO: Config handler will be programmed when users other than the author of this program need it.

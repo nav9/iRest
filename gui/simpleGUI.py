@@ -112,8 +112,9 @@ class DefaultTimerLayout(RestTimers):#The layouts will be initialized in the tim
                         [simpleGUI.Text("Strained time: "), simpleGUI.Text(size = config.WidgetConstants.TEXT_SIZE, key = config.WidgetConstants.STRAINED_TIME_TEXT), simpleGUI.Text("Allowed strain: "), simpleGUI.Text(size = config.WidgetConstants.TEXT_SIZE, key = config.WidgetConstants.ALLOWED_STRAIN_TEXT)],
                         [simpleGUI.Button('', key=config.WidgetConstants.PAUSE_RUN_TOGGLE_BUTTON, image_data=self.buttonStrings[config.WidgetConstants.PAUSE_ICON], button_color=(self.buttonHoverBackgroundColor, backgroundColorOfGUI), border_width=self.borderWidth, tooltip='Pause the timer or continue running it. Pausing is considered the equivalent of taking rest', metadata=False), 
                          simpleGUI.Button('', key=config.WidgetConstants.MUTE_UNMUTE_TOGGLE_BUTTON, image_data=self.buttonStrings[config.WidgetConstants.AUDIO_ICON], button_color=(self.buttonHoverBackgroundColor, backgroundColorOfGUI), border_width=self.borderWidth,  tooltip='Mute or un-mute the audio notification', metadata=False),
-                         #TODO: The view timefile button needs to be moved to a separate GUI section of its own because it freezes iRest when used in Raspberry Pi and still needs to be tested on other platforms
-                         #simpleGUI.Button('', key=config.WidgetConstants.VIEW_TIMEFILE_BUTTON, image_data=self.buttonStrings[config.WidgetConstants.VIEW_FILE_ICON], button_color=(self.buttonHoverBackgroundColor, backgroundColorOfGUI), border_width=self.borderWidth,  tooltip='View the file that logs time information recorded by this program.', metadata=False)
+                         simpleGUI.Button('', key=config.WidgetConstants.RESET_STRAIN_BUTTON, image_data=self.buttonStrings[config.WidgetConstants.RESET_ICON], button_color=(self.buttonHoverBackgroundColor, backgroundColorOfGUI), border_width=self.borderWidth,  tooltip='Reset the strained time to zero', metadata=False),
+                         #TODO: The view timefile button needs a way to be disabled based on the operating system because it freezes iRest when used in Raspberry Pi and still needs to be tested on other platforms
+                         simpleGUI.Button('', key=config.WidgetConstants.VIEW_TIMEFILE_BUTTON, image_data=self.buttonStrings[config.WidgetConstants.VIEW_FILE_ICON], button_color=(self.buttonHoverBackgroundColor, backgroundColorOfGUI), border_width=self.borderWidth,  tooltip='View the file that logs time information recorded by this program.', metadata=False)
                         ], 
                     ]
     
@@ -122,7 +123,8 @@ class DefaultTimerLayout(RestTimers):#The layouts will be initialized in the tim
     
     def __loadButtonImages(self):
         fileOps = fileAndFolderOperations.FileOperations()
-        imagesToLoad = [config.WidgetConstants.PLAY_ICON, config.WidgetConstants.PAUSE_ICON, config.WidgetConstants.AUDIO_ICON, config.WidgetConstants.MUTE_ICON, config.WidgetConstants.VIEW_FILE_ICON]
+        #TODO: See if button loading can be made more generic
+        imagesToLoad = [config.WidgetConstants.PLAY_ICON, config.WidgetConstants.PAUSE_ICON, config.WidgetConstants.AUDIO_ICON, config.WidgetConstants.MUTE_ICON, config.WidgetConstants.VIEW_FILE_ICON, config.WidgetConstants.RESET_ICON]
         for image in imagesToLoad:
             self.buttonStrings[image] = fileOps.getFileAsBase64EncodedString(config.Names.ICON_PATH, image)
 
@@ -134,16 +136,18 @@ class DefaultTimerLayout(RestTimers):#The layouts will be initialized in the tim
             self.mainWindow[config.WidgetConstants.ALLOWED_STRAIN_TEXT].update(allowedStrainDuration)
         if event == None and values == None:
             return        
-        if event == config.WidgetConstants.PAUSE_RUN_TOGGLE_BUTTON:
+        elif event == config.WidgetConstants.PAUSE_RUN_TOGGLE_BUTTON:
             self.__togglePlayPause(event)
             self.timer.togglePauseStrainedTimeMeasurement()
-        if event == config.WidgetConstants.MUTE_UNMUTE_TOGGLE_BUTTON:
+        elif event == config.WidgetConstants.MUTE_UNMUTE_TOGGLE_BUTTON:
             self.__toggleAudioMute(event)
             self.timer.toggleAllAudioNotifiers() 
-        if event == config.WidgetConstants.VIEW_TIMEFILE_BUTTON:
+        elif event == config.WidgetConstants.RESET_STRAIN_BUTTON:
+            pass
+        elif event == config.WidgetConstants.VIEW_TIMEFILE_BUTTON:
             reversedTimeData = self.timer.getTimeFileData() 
             reversedTimeData.reverse() 
-            simpleGUI.popup_scrolled(*reversedTimeData, title="iRest time data written to disk", font=("Arial", 10), size=(1024, 768), background_color="black", text_color="white", non_blocking=True)
+            simpleGUI.popup_scrolled(*reversedTimeData, title="iRest time data written to disk", font=("Arial", 10), size=(1024, 768), background_color="black", text_color="white", non_blocking=True)            
     
     def __togglePlayPause(self, event):
         element = self.mainWindow[event]

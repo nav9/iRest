@@ -31,6 +31,22 @@ cd /home/<username>/iRest/
 /home/<username>/.pyenv/versions/3.9.0/bin/python3.9 -B /home/nav/iRest/main.py >> iRestErrors.log &
 ```
  
+## To run it in Raspberry Pi
+Oddly, iRest did not work when run with `crontab` or `systemd` or `.profile`. So the only option was to put it in `.bashrc` and open a terminal to start iRest:  
+```
+if ! pgrep -f "/iRest/main.py" > /dev/null; then
+    ~/startupScript.sh &
+fi
+```
+The startup script (needs `chmod +x startupScript.sh`) is:  
+```
+#!/bin/bash
+cd ~/iRest/
+python ~/iRest/main.py &
+cd ~
+```
+There are also [other ways](https://unix.stackexchange.com/a/317659).  
+   
 # IDE used  
 VS Code (on Raspberry pi you can use Geany). You'll notice some extra files like `launch.json` that are located in the `.vscode` folder. Such files are specific to VS Code. These files and the IDE are not essential to running the program. You can simply run the program from the commandline using commands mentioned above.
   

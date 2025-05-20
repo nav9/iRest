@@ -3,12 +3,17 @@ This program is under construction, but can still be used.
 ![Alt text](gallery/iRest_GUI.png?raw=true "The iRest GUI") 
 
 # About iRest  
-A program that reminds you to rest your eyes. A major feature being that it keeps track of the accumulated strain even if you restart the computer or program or suspend the computer.  
-This program was created after more than a decade of my experience with chronic eye strain (please search the internet for "The Real Cure for Eye Strain") and my eventual recovery. There are many break reminder software. What sets iRest apart from the others is its ability to keep track of strained time even if the computer is restarted or suspended. Additionally, since program activity is logged, it is easier to perform analytics on the log files (with a small margin of error).  
-The "i" at the beginning of "iRest" has nothing to do with the Apple company. The "i" refers to you.
+Created by the author of [The Real Cure for Eye Strain](https://nav9.medium.com/the-real-cure-for-eye-strain-6483490d150f), iRest is a program that reminds you to rest your eyes. A major feature being that it keeps track of the accumulated strain even if you restart the computer or iRest and even if you suspend the computer.  
+There is much more to be programmed and to be made configurable on various operating systems.   
+Since program activity is logged, it is easier to perform analytics on the log files (with a small margin of error).  
+The "i" at the beginning of "iRest" refers to you, and has nothing to do with the Apple company.   
   
+## iRest was created because...
+I (the program creator) have suffered chronic eye strain for almost a decade. When new spectacles, eye drops and a lot of the other nonsense did not cure me, I had to figure out what actually does cure eye strain. The answer was simply to get proper rest, sleep and nutrition. iRest helps with getting proper rest. A key feature is that it is designed to take into account shutdowns, system restarts, lock-screen mode and will perhaps even be designed to use Machine Learning to understand and adapt to the User's work patterns.   
+Many people have created software for taking rest. However, most of them are created with a poor understanding of what actually cures the strain, and almost all of them don't keep track of strained time between restarts/shutdowns, so you end up getting strained more. This may seem trivial, but is critical for people suffering chronic strain.    
+      
 # To run the program  
-First install the required packages:  
+First install the required packages (Raspberry Pi has a separate install file):  
 `chmod +x install_on_linux.sh;./install_on_linux.sh`  
 Then run the program.  
 `python main.py`  
@@ -25,25 +30,19 @@ I had to create a file named `startupScript.sh` in the home folder, then run `ch
 cd /home/<username>/iRest/
 /home/<username>/.pyenv/versions/3.9.0/bin/python3.9 -B /home/nav/iRest/main.py >> iRestErrors.log &
 ```
-  
-## iRest was created because...
-I (the program creator) have spent almost a decade, suffering from chronic eye strain. When new spectacles, eye drops and a lot of the other nonsense didn't cure me, I had to figure out what actually does cure eye strain. The answer was simply to get proper rest, sleep and nutrition. iRest helps with getting proper rest. A key feature is that it is designed to take into account shutdowns, system restarts, lock-screen mode and will perhaps even be designed to use Machine Learning to understand and adapt to the User's work patterns.   
-Many people have created software for taking rest. However, most of them are created with a poor understanding of what actually cures the strain.  
-More information here: https://nav9.medium.com/the-real-cure-for-eye-strain-6483490d150f  
-  
-
+ 
 # IDE used  
-VS Code. You'll notice some extra files like `launch.json` that are located in the `.vscode` folder. Such files are specific to VS Code. These files and the IDE are not essential to running the program. You can simply run the program from the commandline using commands mentioned above.
+VS Code (on Raspberry pi you can use Geany). You'll notice some extra files like `launch.json` that are located in the `.vscode` folder. Such files are specific to VS Code. These files and the IDE are not essential to running the program. You can simply run the program from the commandline using commands mentioned above.
   
 
 # Supporting programs required to run iRest  
 These are mentioned in a `requirements.txt` file, but is mentioned as such to not have to constantly go through the extra steps of keeping the `readme` explanations and `requirements.txt` file synchronized.  
 * Python version 3.3+ (in this case, version 3.9.0). It is recommended that you install Python either using PyEnv or Anaconda/Miniconda.     
 * natsort: To sort filenames with numbers correctly.  
-* plyer: For graphical notification displays (supposed to be crossplatform).  
+* plyer: For graphical notification displays (supposed to be crossplatform, but didn't work on Raspberry Pi).  
 * ffmpeg-python and pydub: For playing sound files (supposed to be crossplatform).  
-* PySimpleGUI: For a GUI control panel (supposed to be crossplatform).   
-* ConfigParser: For configuration store.  
+* FreeSimpleGUI: For a GUI control panel (supposed to be crossplatform).   
+* ConfigParser: For configuration store (not yet used).  
     
 ## On Linux 
 Based on which desktop the Linux OS uses, the screensaver or lock screen function may vary, so the appropriate program needs to be installed and the necessary changes need to be made in the code.
@@ -83,7 +82,7 @@ To see the captured output of passed tests, use `pytest -rP`. For failed tests, 
   
 # Attribution  
 * Sound files are from https://notificationsounds.com (not yet used).  
-* I created the icon files myself (not yet used). I'm making them available under the Creative Commons Attribution 4.0 International Public License: https://creativecommons.org/licenses/by/4.0/legalcode  
+* I created the icon files myself. I'm making them available under the Creative Commons Attribution 4.0 International Public License: https://creativecommons.org/licenses/by/4.0/legalcode  
   
 # TODO
 * Use espeak and have an option for iRest to detect which speech program is installed and use that.  

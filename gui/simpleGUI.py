@@ -147,7 +147,7 @@ class DefaultTimerLayout(RestTimers):#The layouts will be initialized in the tim
         elif event == config.WidgetConstants.VIEW_TIMEFILE_BUTTON:
             reversedTimeData = self.timer.getTimeFileData() 
             reversedTimeData.reverse() 
-            simpleGUI.popup_scrolled(*reversedTimeData, title="iRest time data written to disk", font=("Arial", 10), size=(1024, 768), background_color="black", text_color="white", non_blocking=True)            
+            simpleGUI.popup_scrolled(*reversedTimeData, title="iRest time data written to disk", font=("Arial", 10), size=(50, 30), background_color="black", text_color="white", non_blocking=True)            
     
     def __togglePlayPause(self, event):
         element = self.mainWindow[event]

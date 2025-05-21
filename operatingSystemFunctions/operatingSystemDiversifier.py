@@ -1,8 +1,8 @@
-import io
 import logging
 import subprocess
 from sys import platform #to check which OS the program is running on
 from abc import ABC, abstractmethod
+from diskOperations import fileAndFolderOperations
 from operatingSystemFunctions import audioNotifiers
 from operatingSystemFunctions import graphicalNotifiers
 from operatingSystemFunctions import screenLockCheckers
@@ -197,7 +197,7 @@ class LinuxDesktopAdapter:
             screenLocked = self.screenLockChecker.execute()
         return screenLocked
     
-    def __getDesktopName(self):
+    def __getDesktopName(self):#TODO such a Popen function is in commonFunctions.py
         command = "echo $XDG_CURRENT_DESKTOP" #command that queries for the desktop name
         theProcess = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         receivedOutput = " ".join(str(x) for x in theProcess.stdout.readlines()) #readlines() returns a list. This line converts the list to a string
@@ -208,19 +208,32 @@ class LinuxDesktopAdapter:
 #This class is meant for the Raspbian (Raspberry Pi OS) graphical desktop
 class RaspberryPiDesktopAdapter:
     def __init__(self):
+        SCREEN_LOCKED_FILE = ".screen_locked_env" #This filename would be specified in the Raspberry Pi install sh file and/or in the Readme file
         self.screenLockChecker = None
         desktopName = self.__getDesktopName()    
+        self.pathToScreenLockFile = None
+        self.validScreenLockFilePresent = False #Because the file may get created only once the User manually locks the screen for the first time and there is no need to keep checking once it gets created
         #---assign handler based on the desktop detected    
         if LinuxDesktops.WAYLAND in desktopName:            
-            logging.info("\n\n\nWayland detected. Screen lock detection and screensavers are poorly implemented or non existent, so such functionality won't be available on iRest until it is possible to figure out how to achieve this.\n\n\n")         
-        else:
-            logging.info(f"{desktopName} desktop detected")
-        #TODO: Add functionality for X11 on RPi too
+            logging.info("\n\n\nRaspberry Pi Wayland detected. Screen lock/blank detection will be available only if you followed the Raspberry pi install instructions.\n\n\n")         
+            self.pathToScreenLockFile = fileAndFolderOperations.joinPathAndFilename(fileAndFolderOperations.getUserHomeDirectory(), SCREEN_LOCKED_FILE)
+        else:#TODO: Add functionality for X11 on RPi too
+            logging.info(f"Raspberry Pi {desktopName} desktop detected. Some functionality like screen lock/blank may not be available.")        
 
     def isScreenLocked(self):
-        return False #Since there is currently no reliable way in wayland to find if screen is locked
+        screenLocked = False 
+        if self.pathToScreenLockFile:
+            if not self.validScreenLockFilePresent:#if the file is not present, check if it got created
+                self.validScreenLockFilePresent = fileAndFolderOperations.isValidFile(self.pathToScreenLockFile)
+            if self.validScreenLockFilePresent:
+                lines = fileAndFolderOperations.readFromFile(self.pathToScreenLockFile)
+                for line in lines:
+                    if line.strip() == "export SCREEN_LOCKED=1":
+                        screenLocked = True
+                        break #break out of for                
+        return screenLocked
     
-    def __getDesktopName(self):
+    def __getDesktopName(self):#TODO such a Popen function is in commonFunctions.py
         command = "echo $XDG_CURRENT_DESKTOP" #command that queries for the desktop name
         theProcess = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         receivedOutput = " ".join(str(x) for x in theProcess.stdout.readlines()) #readlines() returns a list. This line converts the list to a string

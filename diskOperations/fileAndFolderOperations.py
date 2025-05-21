@@ -18,6 +18,12 @@ class FileOperations:
     def getFilenameAndExtension(self, filenameOrPathWithFilename):
         filename, fileExtension = os.path.splitext(filenameOrPathWithFilename)
         return filename, fileExtension
+        
+    def getUserHomeDirectory(self):
+        homeFolder = os.path.expanduser("~") #In Windows this would return something like "C:\Users\<Username>"
+        if not homeFolder.endswith(os.sep): #if no slash at the end
+            os.path.join(homeFolder, "") #ensure that a slash is added to the end
+        return homeFolder    
     
     def deleteFolderIfItExists(self, folderPath):
         try:
@@ -37,7 +43,7 @@ class FileOperations:
         os.rename(oldFilename, newFilename)
         
     def appendLinesToFile(self, filenameWithPath, listOfDataToWrite): #TODO: This function needs to be improved to better recognize lists. Right now the list passed needs to be enclosed in square brackets when being passed. This should be avoided
-        fileHandle = open(filenameWithPath, 'a+')
+        fileHandle = open(filenameWithPath, 'a+') #TODO: try catch
         for line in listOfDataToWrite:
             fileHandle.write(line)
             fileHandle.write("\n")
@@ -45,8 +51,8 @@ class FileOperations:
         
     def readFromFile(self, filenameWithPath):
         lines = []
-        with open(filenameWithPath) as fileHandler:
-            lines = fileHandler.read().splitlines()#TODO: try catch
+        with open(filenameWithPath) as fileHandler:#TODO: try catch
+            lines = fileHandler.read().splitlines()
         return lines              
     
     def createDirectoryIfNotExisting(self, folder):

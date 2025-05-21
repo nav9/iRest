@@ -87,4 +87,29 @@ class CinnamonScreenLockCheck(ScreenLockChecker):#The Cinnamon desktop used in M
             logging.debug(f"SCREEN LOCKED status: {self.locked}")        
         return self.locked
     
+class RaspberryPiWaylandScreenLockCheck(ScreenLockChecker):
+    def __init__(self):
+        self.id = "Raspberry Pi Wayland screen lock checker"
+        self.screensaverCommand = "cinnamon-screensaver-command -q" 
+        self.commonFunctions = commonFunctions.CommonFunctions_Linux()
+        self.lockChecker = timeFunctions.TimeElapseChecker_Linux(ScreenLockConstants.LOCK_CHECK_INTERVAL_SECONDS) #checking only periodically since it's an expensive operation
+        self.locked = False
+
+    def execute(self):
+        if self.lockChecker.didDurationElapse():
+            screenLocked = "is active"
+            screenNotLocked = "is inactive"
+            receivedOutput = self.commonFunctions.executeBashCommand(self.screensaverCommand)
+            if screenLocked in receivedOutput:
+                self.locked = True
+            else: 
+                if screenNotLocked in receivedOutput:
+                    self.locked = False
+                else:
+                    callstack = "".join(traceback.format_stack())
+                    logging.error(f"SCREENSAVER OUTPUT UNKNOWN. CHECK AND REPROGRAM: {receivedOutput}. Stacktrace {callstack}")                            
+            logging.debug(f"SCREEN LOCKED status: {self.locked}")        
+        return self.locked
+    
+    
 #Note: Screen lock checks for various versions of Windows and MacOS can be programmed here

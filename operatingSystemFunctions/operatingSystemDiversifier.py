@@ -12,6 +12,7 @@ from operatingSystemFunctions import timeFunctions
 class OperatingSystemIdentifier:    
     def __init__(self):
         #self.currentOperatingSystem = None
+        self.folderOps = fileAndFolderOperations.FileOperations()
         self.operatingSystemAdapter = None
         logging.info(f"Current OS platform: {platform}")
         if self.__isThisProgramRunningInRaspberryPi():            
@@ -32,12 +33,12 @@ class OperatingSystemIdentifier:
 
     def __isThisProgramRunningInRaspberryPi(self):
         isRaspberryPi = False
-        try:
-            with io.open('/sys/firmware/devicetree/base/model', 'r') as m:
-                if 'raspberry pi' in m.read().lower(): 
+        fileToSearch = '/sys/firmware/devicetree/base/model'
+        if self.folderOps.isValidFile(fileToSearch):
+            lines = self.folderOps.readFromFile(fileToSearch)
+            for line in lines:
+                if 'raspberry pi' in line.lower(): 
                     isRaspberryPi = True
-        except Exception: 
-            pass		
         return isRaspberryPi
         
     def __isThisProgramRunningInLinux(self):
@@ -208,6 +209,7 @@ class LinuxDesktopAdapter:
 #This class is meant for the Raspbian (Raspberry Pi OS) graphical desktop
 class RaspberryPiDesktopAdapter:
     def __init__(self):
+        self.folderOps = fileAndFolderOperations.FileOperations()
         SCREEN_LOCKED_FILE = ".screen_locked_env" #This filename would be specified in the Raspberry Pi install sh file and/or in the Readme file
         self.screenLockChecker = None
         desktopName = self.__getDesktopName()    
@@ -216,7 +218,7 @@ class RaspberryPiDesktopAdapter:
         #---assign handler based on the desktop detected    
         if LinuxDesktops.WAYLAND in desktopName:            
             logging.info("\n\n\nRaspberry Pi Wayland detected. Screen lock/blank detection will be available only if you followed the Raspberry pi install instructions.\n\n\n")         
-            self.pathToScreenLockFile = fileAndFolderOperations.joinPathAndFilename(fileAndFolderOperations.getUserHomeDirectory(), SCREEN_LOCKED_FILE)
+            self.pathToScreenLockFile = self.folderOps.joinPathAndFilename(self.folderOps.getUserHomeDirectory(), SCREEN_LOCKED_FILE)
         else:#TODO: Add functionality for X11 on RPi too
             logging.info(f"Raspberry Pi {desktopName} desktop detected. Some functionality like screen lock/blank may not be available.")        
 
@@ -224,9 +226,9 @@ class RaspberryPiDesktopAdapter:
         screenLocked = False 
         if self.pathToScreenLockFile:
             if not self.validScreenLockFilePresent:#if the file is not present, check if it got created
-                self.validScreenLockFilePresent = fileAndFolderOperations.isValidFile(self.pathToScreenLockFile)
+                self.validScreenLockFilePresent = self.folderOps.isValidFile(self.pathToScreenLockFile)
             if self.validScreenLockFilePresent:
-                lines = fileAndFolderOperations.readFromFile(self.pathToScreenLockFile)
+                lines = self.folderOps.readFromFile(self.pathToScreenLockFile)
                 for line in lines:
                     if line.strip() == "export SCREEN_LOCKED=1":
                         screenLocked = True

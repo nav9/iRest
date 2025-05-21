@@ -62,8 +62,9 @@ echo ""
 echo "----------------------------------------------------"
 echo "With appropriate modifications, create the RPi_iRest_StartupScript.sh file in the $HOME folder."
 echo "cd <path to iRest>/iRest/"
-echo "nohup $HOME/.pyenv/versions/3.12.10/bin/python3.12 <path to iRest>/iRest/main.py &"
+echo "$HOME/.pyenv/versions/3.12.10/bin/python3.12 <path to iRest>/iRest/main.py &"
 echo "cd $HOME"
 echo ""
 echo "Don't forget to add the bin bash shebang at the start of RPi_iRest_StartupScript.sh."
+
 

@@ -1,4 +1,4 @@
-This program is under construction, but can still be used.    
+This program is under construction (and the documentation a bit messy), but iRest can still be used. If you'd like to contribute to this project, please let me know.    
   
 ![Alt text](gallery/iRest_GUI.png?raw=true "The iRest GUI") 
 
@@ -9,8 +9,15 @@ Since program activity is logged, it is easier to perform analytics on the log f
 The "i" at the beginning of "iRest" refers to you, and has nothing to do with the Apple company.   
   
 ## iRest was created because...
-I (the program creator) have suffered chronic eye strain for almost a decade. When new spectacles, eye drops and a lot of the other nonsense did not cure me, I had to figure out what actually does cure eye strain. The answer was simply to get proper rest, sleep and nutrition. iRest helps with getting proper rest. A key feature is that it is designed to take into account shutdowns, system restarts, lock-screen mode and will perhaps even be designed to use Machine Learning to understand and adapt to the User's work patterns.   
-Many people have created software for taking rest. However, most of them are created with a poor understanding of what actually cures the strain, and almost all of them don't keep track of strained time between restarts/shutdowns, so you end up getting strained more. This may seem trivial, but is critical for people suffering chronic strain.    
+Many people have created software that remind them to take rest. However, most of them are created with a poor understanding of what actually cures eye 
+strain, and almost all of them don't keep track of strained time between restarts/shutdowns, so you end up getting strained more. 
+This may seem trivial, but is critical for people suffering chronic strain.    
+* **The 20-20-20 rule is wrong:** The creator of the rule himself said so when asked. Yet some eye rest software and doctors emphasize 20-20-20. The right way to get rest is to keep the eyes closed for around 5 minutes (or until the strain subsides) after every 20 minutes of strain.  
+* **Eye exercises are wrong:** Tired eye muscles need rest, and not exercise. Yet many eye rest software incorrectly recommend eye exercises.   
+I have suffered chronic eye strain for almost a decade. When new spectacles, eye drops and a lot of the other nonsense 
+did not cure me, I had to figure out what actually does cure eye strain. The answer was simply to get proper rest, sleep and nutrition. 
+iRest helps with getting proper rest. A key feature is that it is designed to take into account shutdowns, system restarts, lock-screen mode 
+and may perhaps even be designed to use Machine Learning to understand and adapt to the User's work patterns and User-communicated sleep sufficiency.   
       
 # To run the program  
 First install the required packages (Raspberry Pi has a separate install file):  

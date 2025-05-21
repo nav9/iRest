@@ -24,9 +24,7 @@ if [[ "$answer" == "yes" || "$answer" == "y" || "$answer" == "Y" ]]; then
 	pyenv global 3.12.10
 	echo "Proceeding with installing from `requirements.txt`"
 	pip install -r requirements.txt
-elif [[ "$answer" == "no" ]]; then
+else
 	echo "Ok then please install PyEnv on your own or whatever solution you have in mind."
 	echo "Then run `pip install -r requirements.txt` or look into the `requirements.txt` file to see which pip packages you wish to install at whatever version of the package you choose."
-else
-  echo "Invalid answer. Please answer yes or no."
 fi

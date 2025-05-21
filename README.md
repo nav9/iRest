@@ -28,7 +28,7 @@ I had to create a file named `startupScript.sh` in the home folder, then run `ch
 ```
 #!/usr/bin/env bash
 cd /home/<username>/iRest/
-/home/<username>/.pyenv/versions/3.9.0/bin/python3.9 -B /home/nav/iRest/main.py >> iRestErrors.log &
+/home/<username>/.pyenv/versions/3.9.0/bin/python3.9 -B /home/<username>/iRest/main.py >> iRestErrors.log &
 ```
  
 ## To run it in Raspberry Pi

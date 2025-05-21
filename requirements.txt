@@ -1,7 +1,7 @@
 #Note: it's not necessary to install these versions of the packages. The versions merely indicate what version worked without errors at the time of testing.
 #natsort version 8.3.1
 natsort
-#pysimplegui version 4.60.4 was earlier used but now pysimplegui is no longer being maintained so switched to freesimplegui
+#pysimplegui version 4.60.4 was earlier used but now pysimplegui is no longer being maintained so switched to freesimplegui version 5.2.0
 freesimplegui
 #pydub version 0.25.1
 pydub

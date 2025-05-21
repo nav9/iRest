@@ -8,6 +8,7 @@ from operatingSystemFunctions import graphicalNotifiers
 from operatingSystemFunctions import screenLockCheckers
 from operatingSystemFunctions import warmColour
 from operatingSystemFunctions import timeFunctions
+from operatingSystemFunctions import commonFunctions
 
 class OperatingSystemIdentifier:    
     def __init__(self):
@@ -210,6 +211,7 @@ class LinuxDesktopAdapter:
 class RaspberryPiDesktopAdapter:
     def __init__(self):
         self.folderOps = fileAndFolderOperations.FileOperations()
+        self.commonFunc = commonFunctions.CommonFunctions_Linux()
         SCREEN_LOCKED_FILE = ".screen_locked_env" #This filename would be specified in the Raspberry Pi install sh file and/or in the Readme file
         self.screenLockChecker = None
         desktopName = self.__getDesktopName()    
@@ -223,8 +225,11 @@ class RaspberryPiDesktopAdapter:
             logging.info(f"Raspberry Pi {desktopName} desktop detected. Some functionality like screen lock/blank may not be available.")        
 
     def isScreenLocked(self):
-        screenLocked = False 
-        if self.pathToScreenLockFile:
+        screenLocked = False         
+        wlopmOutput = self.commonFunc.executeBashCommand("wlopm -j")
+        if '"power-mode": "off"' in wlopmOutput: #---when the screen blanked by going into power save mode on its own
+            screenLocked = True
+        elif self.pathToScreenLockFile:#---when User has manually locked the screen
             if not self.validScreenLockFilePresent:#if the file is not present, check if it got created
                 self.validScreenLockFilePresent = self.folderOps.isValidFile(self.pathToScreenLockFile)
             if self.validScreenLockFilePresent:

@@ -215,11 +215,11 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
                 toggleState = notifier.toggleNotifierActiveState()
         return toggleState
         
-    def notifyUserIfTheyNeedToTakeRest_afterCheckingForSuspend(self, currentTime):
+    def notifyUserIfTheyNeedToTakeRest_afterCheckingForSuspend(self, currentTime):#TODO: Program this to be called only when necessary. Right now it gets called too often
         logging.debug(f"-----> Current strained time: {self.timeFunctions.getTimeFormattedAsHMS(self.strainedDuration)}")
         #---check if strained duration is greater than the allowed strain and also ensure that the program wasn't suspended for as long as a User's rest need (because if the program was suspended that long, there's no need of notifying the user to rest)
         if self.strainedDuration > self.allowedStrainDuration and (self.timeFunctions.getCurrentTime() - currentTime) < self.REST_MINUTES * TimeConstants.SECONDS_IN_MINUTE:#means that the computer got suspended or iRest process got suspended while operations were being done, so this time can be considered as rest time: #notify the User to take rest
-            logging.info(f"* Please take rest. Strained duration: {self.strainedDuration}")
+            #logging.info(f"* Please take rest. Strained duration: {self.strainedDuration}")
             for notifierID, notifier in self.notifiers.items(): #If operating system was not recognized, the operating system adapter will be None, and no notifier will be registered. It will be an empty dict
                 notifier.execute() #within each notifier's execute(), there will be a cooldown timer, which will ensure that the notification is not repeated until some time has passed, even if execute() is invoked frequently        
 

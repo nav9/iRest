@@ -183,6 +183,7 @@ class LinuxDesktopAdapter:
     def __init__(self):
         self.screenLockChecker = None
         desktopName = self.__getDesktopName()    
+        self.screenLocked = False
         #---assign handler based on the desktop detected    
         if LinuxDesktops.GNOME in desktopName:            
             self.screenLockChecker = screenLockCheckers.GnomeScreenLockCheck()            
@@ -193,11 +194,10 @@ class LinuxDesktopAdapter:
         else:
             logging.info(f"{desktopName} desktop detected")
 
-    def isScreenLocked(self):
-        screenLocked = False
-        if self.screenLockChecker != None:
-            screenLocked = self.screenLockChecker.execute()
-        return screenLocked
+    def isScreenLocked(self):        
+        if self.screenLockChecker:
+            self.screenLocked = self.screenLockChecker.execute()
+        return self.screenLocked
     
     def __getDesktopName(self):#TODO such a Popen function is in commonFunctions.py
         command = "echo $XDG_CURRENT_DESKTOP" #command that queries for the desktop name
@@ -210,35 +210,20 @@ class LinuxDesktopAdapter:
 #This class is meant for the Raspbian (Raspberry Pi OS) graphical desktop
 class RaspberryPiDesktopAdapter:
     def __init__(self):
-        self.folderOps = fileAndFolderOperations.FileOperations()
-        self.commonFunc = commonFunctions.CommonFunctions_Linux()
-        SCREEN_LOCKED_FILE = ".screen_locked_env" #This filename would be specified in the Raspberry Pi install sh file and/or in the Readme file
         self.screenLockChecker = None
+        self.screenLocked = False
         desktopName = self.__getDesktopName()    
-        self.pathToScreenLockFile = None
-        self.validScreenLockFilePresent = False #Because the file may get created only once the User manually locks the screen for the first time and there is no need to keep checking once it gets created
         #---assign handler based on the desktop detected    
         if LinuxDesktops.WAYLAND in desktopName:            
             logging.info("\n\n\nRaspberry Pi Wayland detected. Screen lock/blank detection will be available only if you followed the Raspberry pi install instructions.\n\n\n")         
-            self.pathToScreenLockFile = self.folderOps.joinPathAndFilename(self.folderOps.getUserHomeDirectory(), SCREEN_LOCKED_FILE)
+            self.screenLockChecker = screenLockCheckers.RaspberryPiWaylandScreenLockCheck()             
         else:#TODO: Add functionality for X11 on RPi too
             logging.info(f"Raspberry Pi {desktopName} desktop detected. Some functionality like screen lock/blank may not be available.")        
 
-    def isScreenLocked(self):
-        screenLocked = False         
-        wlopmOutput = self.commonFunc.executeBashCommand("wlopm -j")
-        if '"power-mode": "off"' in wlopmOutput: #---when the screen blanked by going into power save mode on its own
-            screenLocked = True
-        elif self.pathToScreenLockFile:#---when User has manually locked the screen
-            if not self.validScreenLockFilePresent:#if the file is not present, check if it got created
-                self.validScreenLockFilePresent = self.folderOps.isValidFile(self.pathToScreenLockFile)
-            if self.validScreenLockFilePresent:
-                lines = self.folderOps.readFromFile(self.pathToScreenLockFile)
-                for line in lines:
-                    if line.strip() == "export SCREEN_LOCKED=1":
-                        screenLocked = True
-                        break #break out of for                
-        return screenLocked
+    def isScreenLocked(self):        
+        if self.screenLockChecker:
+            self.screenLocked = self.screenLockChecker.execute()
+        return self.screenLocked
     
     def __getDesktopName(self):#TODO such a Popen function is in commonFunctions.py
         command = "echo $XDG_CURRENT_DESKTOP" #command that queries for the desktop name

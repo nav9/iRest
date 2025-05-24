@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#sct is for setting warm/nightlight colors. This does not work on Raspberry Pi's wayland desktop
+#sct is for setting warm/nightlight colors. This currently does not work on Raspberry Pi's wayland desktop
 #echo "Installing sct"
 #sudo apt install -y sct
 

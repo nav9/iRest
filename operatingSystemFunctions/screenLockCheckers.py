@@ -106,11 +106,16 @@ class RaspberryPiWaylandScreenLockCheck(ScreenLockChecker):
     
     def execute(self):
         if self.lockChecker.didDurationElapse():#duration check is being done here to be able to keep duration checks different for different operating systems or devices
-            self.screenLocked = False         
-            wlopmOutput = self.commonFunc.executeBashCommand("wlopm -j") #wlopm is Wayland output power management
-            if '"power-mode": "off"' in wlopmOutput or self.__isScreenLocked(): #---when the screen blanked by going into power save mode on its own
+            self.screenLocked = False                     
+            if self.__isScreenBlanked() or self.__isScreenLocked():
                 self.screenLocked = True
-        return self.screenLocked    
+        return self.screenLocked   
+        
+    def __isScreenBlanked(self):
+        wlopmOutput = self.commonFunc.executeBashCommand("wlopm -j") #wlopm is Wayland output power management
+        if '"power-mode": "off"' in wlopmOutput:
+            return True
+        return False
         
     def __isScreenLocked(self):
         for proc in psutil.process_iter([self.absolutePathToExecutable]):

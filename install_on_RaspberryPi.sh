@@ -32,39 +32,4 @@ else
 	echo "Then run `pip install -r requirements.txt` or look into the `requirements.txt` file to see which pip packages you wish to install at whatever version of the package you choose."
 fi
 
-echo "Moving the lockscreen file to home folder."
-chmod +x lock_screen.sh
-mv lock_screen.sh $HOME
-sleep 1
-echo ""
-echo "-----------------------------------------------------"
-echo "----------- One more thing you need to do -----------"
-echo "-----------------------------------------------------"
-echo "Now please go to the Raspberry Pi start menu > Preferences > Main menu editor > New Item"
-echo "Type 'Lock screen' in the Name field."
-echo "Type $HOME/lock_screen.sh in the Command field."
-echo "Type 'Lock screen' in the Comment field and click 'Ok'."
-echo "This will make a 'Lock' option available in the start menu, and clicking it will make the screen go blank and then lock the screen."
-echo "The lock_screen.sh script when triggered, will create a file named .screen_locked_env will be available in $HOME, containing"
-echo "the string 'export SCREEN_LOCKED=0' if the screen is unlocked and updated to 'export SCREEN_LOCKED=1' if the screen is locked."
-echo "When the screen is unlocked by the user, the value will become 'export SCREEN_LOCKED=0' again."
-echo "This is a temporary workaround for Raspberry Pi Wayland. Hope you find iRest useful."
-sleep 1
-echo ""
-echo "----------------------------------------------------"
-echo "The author of iRest had issues in getting iRest to start automatically using cron and systemd, so bashrc was used."
-echo "Modify appropriately and add the following lines to ~/.bashrc. It will ensure that iRest starts if not already running."
-echo "if ! pgrep -f '/iRest/main.py' > /dev/null; then"
-echo "    ~/RPi_iRest_StartupScript.sh"
-echo "fi"
-sleep 1
-echo ""
-echo "----------------------------------------------------"
-echo "With appropriate modifications, create the RPi_iRest_StartupScript.sh file in the $HOME folder."
-echo "cd <path to iRest>/iRest/"
-echo "$HOME/.pyenv/versions/3.12.10/bin/python3.12 <path to iRest>/iRest/main.py &"
-echo "cd $HOME"
-echo ""
-echo "Don't forget to add the bin bash shebang at the start of RPi_iRest_StartupScript.sh."
-
 

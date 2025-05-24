@@ -7,5 +7,7 @@ freesimplegui
 pydub
 #plyer version 2.1.0
 plyer
+#psutil version 7.0.0
+psutil
 #configparser version 5.3.0
 configparser

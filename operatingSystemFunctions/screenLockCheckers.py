@@ -1,12 +1,13 @@
-import FreeSimpleGUI
+import psutil
 import logging
-import subprocess
 import traceback
+import subprocess
+import FreeSimpleGUI
 from abc import ABC, abstractmethod
 from configuration import configHandler
-from operatingSystemFunctions import commonFunctions, timeFunctions
 from diskOperations import fileAndFolderOperations
 from operatingSystemFunctions import commonFunctions
+from operatingSystemFunctions import commonFunctions, timeFunctions
 
 class ScreenLockConstants:
     LOCK_CHECK_INTERVAL_SECONDS = 10 #checking only periodically since it's an expensive operation
@@ -99,25 +100,25 @@ class RaspberryPiWaylandScreenLockCheck(ScreenLockChecker):
         self.commonFunc = commonFunctions.CommonFunctions_Linux() #TODO: see if you can instantiate commonFunc globally as a singleton and use it 
         self.lockChecker = timeFunctions.TimeElapseChecker_Linux(ScreenLockConstants.LOCK_CHECK_INTERVAL_SECONDS_EDGE) #checking only periodically since it's an expensive operation
         self.screenLocked = False
-        SCREEN_LOCKED_INFO_FILE = ".screen_locked_env" #This filename would be specified in the Raspberry Pi install sh file and/or in the Readme file
-        self.pathToScreenLockFile = self.folderOps.joinPathAndFilename(self.folderOps.getUserHomeDirectory(), SCREEN_LOCKED_INFO_FILE)
+        self.absolutePathToExecutable = 'exe' #various other attributes can be specified in process_iter, like pid, name, ppid, status, username, etc.
+        self.lockscreenGreeter = "/usr/sbin/pi-greeter"
         self.validScreenLockFilePresent = False #Because the file may get created only once the User manually locks the screen for the first time and there is no need to keep checking once it gets created        
     
     def execute(self):
         if self.lockChecker.didDurationElapse():#duration check is being done here to be able to keep duration checks different for different operating systems or devices
             self.screenLocked = False         
-            wlopmOutput = self.commonFunc.executeBashCommand("wlopm -j")
-            if '"power-mode": "off"' in wlopmOutput: #---when the screen blanked by going into power save mode on its own
+            wlopmOutput = self.commonFunc.executeBashCommand("wlopm -j") #wlopm is Wayland output power management
+            if '"power-mode": "off"' in wlopmOutput or self.__isScreenLocked(): #---when the screen blanked by going into power save mode on its own
                 self.screenLocked = True
-            elif self.pathToScreenLockFile:#---when User has manually locked the screen
-                if not self.validScreenLockFilePresent:#if the file is not present, check if it got created
-                    self.validScreenLockFilePresent = self.folderOps.isValidFile(self.pathToScreenLockFile)
-                if self.validScreenLockFilePresent:
-                    lines = self.folderOps.readFromFile(self.pathToScreenLockFile)
-                    for line in lines:
-                        if line.strip() == "export SCREEN_LOCKED=1":
-                            self.screenLocked = True
-                            break #break out of for                
         return self.screenLocked    
         
+    def __isScreenLocked(self):
+        for proc in psutil.process_iter([self.absolutePathToExecutable]):
+            try:
+                if proc.info[self.absolutePathToExecutable] and proc.info[self.absolutePathToExecutable] == self.lockscreenGreeter:
+                    return True
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                continue
+        return False 
+           
 #Note: Screen lock checks for various versions of Windows and MacOS can be programmed here

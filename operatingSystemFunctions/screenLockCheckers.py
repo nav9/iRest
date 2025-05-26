@@ -101,7 +101,7 @@ class RaspberryPiWaylandScreenLockCheck(ScreenLockChecker):
         self.lockChecker = timeFunctions.TimeElapseChecker_Linux(ScreenLockConstants.LOCK_CHECK_INTERVAL_SECONDS_EDGE) #checking only periodically since it's an expensive operation
         self.screenLocked = False
         self.absolutePathToExecutable = 'exe' #various other attributes can be specified in process_iter, like pid, name, ppid, status, username, etc.
-        self.lockscreenGreeter = "/usr/sbin/pi-greeter"
+        self.lockscreenGreeter = "/usr/bin/swaylock"
         self.validScreenLockFilePresent = False #Because the file may get created only once the User manually locks the screen for the first time and there is no need to keep checking once it gets created        
     
     def execute(self):

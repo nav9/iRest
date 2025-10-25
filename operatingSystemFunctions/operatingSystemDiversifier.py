@@ -112,6 +112,8 @@ class LinuxFunctionality(OperatingSystemFunctionality):#For functions that are s
         self.graphicalNotifier = graphicalNotifiers.PlyerGraphicalNotifier()
         self.desktopAdapter = LinuxDesktopAdapter() #To select between the different functionality that Gnome or Cinnamon or any other Linux desktop offers
         self.warmthApp = warmColour.WarmColour_Linux()
+        if not self.warmthApp.isAppInstalled():
+            self.warmthApp = None
         self.timeFunctions = timeFunctions.TimeFunctions_Linux()
     
     def isScreenLocked(self):

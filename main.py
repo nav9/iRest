@@ -49,8 +49,10 @@ def main():#Reason for a main function https://stackoverflow.com/questions/60276
     #---Initialize the main GUI interface
     gui = simpleGUI.MainInterface()
     # Add backends. Each backend will have in itself a GUI reference class if it needs a GUI
-    gui.addThisBackend(operatingSystemAdapter.getWarmthAppAdapterReference())
-    gui.addThisBackend(defaultTimer) #backends can be timers or other classes too which need a GUI representation    
+    if operatingSystemAdapter.getWarmthAppAdapterReference():
+        gui.addThisBackend(operatingSystemAdapter.getWarmthAppAdapterReference())
+    if defaultTimer:
+        gui.addThisBackend(defaultTimer) #backends can be timers or other classes too which need a GUI representation    
     gui.createLayout()
     logging.info("Monitoring time ...")
     SLEEP_SECONDS = 0.03

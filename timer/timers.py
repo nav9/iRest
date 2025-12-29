@@ -64,6 +64,13 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         self.checkLoadedDataToSeeIfUserIsStrained()      
         self.pastActivity = NatureOfActivity.EYES_STRAINED
 
+    def execute(self):
+        #---check if state changed, update strained duration and whether it's time to write to file
+        currentActivity, currentTime = self.checkStateChangeUpdateStrainDurationAndSave()
+        #---notify the user based on the strained time
+        if currentActivity == NatureOfActivity.EYES_STRAINED:
+            self.notifyUserIfTheyNeedToTakeRest_afterCheckingForSuspend(currentTime)  #no need of notifying User if the program is paused or screen is locked
+
     def getTimeFileData(self):
         return self.timeFileManager.getTimeFileData()
 
@@ -99,13 +106,6 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         #---create a dummy value that simplifies obtaining a "previous" strained time and also creates a marker to indicate when the program began
         duration = 0 #a dummy value
         self.saveActivityAndUpdateStrain(self.timeFunctions.getCurrentTime(), duration, NatureOfActivity.EYES_STRAINED) #saves this into the timeFile and also into historicalStrainData
-
-    def execute(self):
-        #---check if state changed, update strained duration and whether it's time to write to file
-        currentActivity, currentTime = self.checkStateChangeUpdateStrainDurationAndSave()
-        #---notify the user based on the strained time
-        if currentActivity == NatureOfActivity.EYES_STRAINED:
-            self.notifyUserIfTheyNeedToTakeRest_afterCheckingForSuspend(currentTime)  #no need of notifying User if the program is paused or screen is locked
 
     def checkStateChangeUpdateStrainDurationAndSave(self):
         """ Checks for change of state, updates strain duration and writes to file if necessary """
@@ -216,7 +216,7 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         return toggleState
         
     def notifyUserIfTheyNeedToTakeRest_afterCheckingForSuspend(self, currentTime):#TODO: Program this to be called only when necessary. Right now it gets called too often
-        logging.debug(f"-----> Current strained time: {self.timeFunctions.getTimeFormattedAsHMS(self.strainedDuration)}")
+        logging.debug(f"-----> Current strained time: {self.timeFunctions.getTimeFormattedAsHM(self.strainedDuration)}")
         #---check if strained duration is greater than the allowed strain and also ensure that the program wasn't suspended for as long as a User's rest need (because if the program was suspended that long, there's no need of notifying the user to rest)
         if self.strainedDuration > self.allowedStrainDuration and (self.timeFunctions.getCurrentTime() - currentTime) < self.REST_MINUTES * TimeConstants.SECONDS_IN_MINUTE:#means that the computer got suspended or iRest process got suspended while operations were being done, so this time can be considered as rest time: #notify the User to take rest
             #logging.info(f"* Please take rest. Strained duration: {self.strainedDuration}")
@@ -227,7 +227,7 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         return self.strainedDuration
     
     def getStrainDetails(self):#returns strainedDuration, allowedStrainDuration, formattedStrainedTime. Used by the GUI and test cases
-        return self.strainedDuration, self.timeFunctions.getTimeFormattedAsHMS(self.allowedStrainDuration), self.timeFunctions.getTimeFormattedAsHMS(self.strainedDuration)
+        return self.strainedDuration, self.timeFunctions.getTimeFormattedAsHM(self.allowedStrainDuration), self.timeFunctions.getTimeFormattedAsHM(self.strainedDuration)
 
     def setTestTimeFunctionsInstance(self, testTimeFunctions):#used by test cases to be able to emulate a supply of time values more conveniently
         self.timeFunctions = testTimeFunctions

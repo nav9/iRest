@@ -46,7 +46,7 @@ class MainInterface:
         #---register the main window in all GUI layouts
         for guiRef in self.backendGUIRefs:
             guiRef.registerMainWindowReference(self.window)
-        event, values = self.window.read(timeout = 0) #this dummy read has to be there to be able to call minimize. Either this or the window needs to have finalize=True. https://stackoverflow.com/questions/71580321/run-code-after-the-window-has-been-initialized
+        event, values = self.window.read(timeout = self.WINDOW_WAIT_TIMEOUT_MILLISECOND) #this dummy read has to be there to be able to call minimize. Either this or the window needs to have finalize=True. https://stackoverflow.com/questions/71580321/run-code-after-the-window-has-been-initialized
         self.window.minimize()
     
     def runEventLoop(self):#this function should get called repeatedly from an external while loop
@@ -104,7 +104,7 @@ class DefaultTimerLayout(RestTimers):#The layouts will be initialized in the tim
         self.__loadButtonImages()
         self.buttonHoverBackgroundColor = 'grey'
         self.borderWidth = 0
-        TEXT_UPDATE_INTERVAL_SECOND = 1 #to update the text each second
+        TEXT_UPDATE_INTERVAL_SECOND = 60 #to update the strained time displayed on the GUI. Value is in seconds
         self.textUpdateInterval = timeFunctions.TimeElapseChecker_Linux(TEXT_UPDATE_INTERVAL_SECOND)
         self.lastKnownTime = 0
         #TODO: if there's no audio notifier available, the audio/mute button shouldn't be shown at all
@@ -117,6 +117,7 @@ class DefaultTimerLayout(RestTimers):#The layouts will be initialized in the tim
                          simpleGUI.Button('', key=config.WidgetConstants.VIEW_TIMEFILE_BUTTON, image_data=self.buttonStrings[config.WidgetConstants.VIEW_FILE_ICON], button_color=(self.buttonHoverBackgroundColor, backgroundColorOfGUI), border_width=self.borderWidth,  tooltip='View the file that logs time information recorded by this program.', metadata=False)
                         ], 
                     ]
+        self.displayTimeInitially = True #to ensure tahat the strained time value is shown at the start of the GUI
     
     def getLayout(self):
         return self.layout
@@ -130,10 +131,9 @@ class DefaultTimerLayout(RestTimers):#The layouts will be initialized in the tim
 
     def runEventLoop(self, event, values):#this gets invoked from the main GUI interface class
         durationElapsed, elapsedDuration, currentTime = self.textUpdateInterval.didDurationElapse()
-        if durationElapsed:
-            strainedDuration, allowedStrainDuration, formattedStrainedTime = self.timer.getStrainDetails()
-            self.mainWindow[config.WidgetConstants.STRAINED_TIME_TEXT].update(formattedStrainedTime) #update the info shown about strained time
-            self.mainWindow[config.WidgetConstants.ALLOWED_STRAIN_TEXT].update(allowedStrainDuration)
+        if durationElapsed or self.displayTimeInitially:
+            self.updateTheDisplayOfStrainedTimeAndAllowedStrainTime()
+            if self.displayTimeInitially: self.displayTimeInitially = False
         if event == None and values == None:
             return        
         elif event == config.WidgetConstants.PAUSE_RUN_TOGGLE_BUTTON:
@@ -149,6 +149,11 @@ class DefaultTimerLayout(RestTimers):#The layouts will be initialized in the tim
             reversedTimeData.reverse() 
             simpleGUI.popup_scrolled(*reversedTimeData, title="iRest time data written to disk", font=("Arial", 10), size=(120, 30), background_color="black", text_color="white", non_blocking=True)            
     
+    def updateTheDisplayOfStrainedTimeAndAllowedStrainTime(self):
+        strainedDuration, allowedStrainDuration, formattedStrainedTime = self.timer.getStrainDetails()
+        self.mainWindow[config.WidgetConstants.STRAINED_TIME_TEXT].update(formattedStrainedTime) #update the info shown about strained time
+        self.mainWindow[config.WidgetConstants.ALLOWED_STRAIN_TEXT].update(allowedStrainDuration)        
+
     def __togglePlayPause(self, event):
         element = self.mainWindow[event]
         if element.metadata:#toggle the button image

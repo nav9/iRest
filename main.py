@@ -55,7 +55,7 @@ def main():#Reason for a main function https://stackoverflow.com/questions/60276
         gui.addThisBackend(defaultTimer) #backends can be timers or other classes too which need a GUI representation    
     gui.createLayout()
     logging.info("Monitoring time ...")
-    SLEEP_SECONDS = 0.03
+    SLEEP_SECONDS = 0.03 #in seconds. So 0.03 would be 300 milliseconds, which is a good amount of sleep for the GUI to be sufficiently responsive to input
     while True:
         for timer in allTimers:
             timer.execute()

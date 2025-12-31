@@ -10,8 +10,8 @@ from operatingSystemFunctions import commonFunctions
 from operatingSystemFunctions import commonFunctions, timeFunctions
 
 class ScreenLockConstants:
-    LOCK_CHECK_INTERVAL_SECONDS = 10 #checking only periodically since it's an expensive operation
-    LOCK_CHECK_INTERVAL_SECONDS_EDGE = 30 #checking less often on devices that have lesser processing power
+    LOCK_CHECK_INTERVAL_SECONDS = 30 #checking only periodically since it's an expensive operation
+    LOCK_CHECK_INTERVAL_SECONDS_EDGE = 60 #checking less often on devices that have lesser processing power
 
 class ScreenLockChecker(ABC):#Abstract parent class
     #Note: Abstract methods have to be implemented by child classes because they would be invoked by other classes

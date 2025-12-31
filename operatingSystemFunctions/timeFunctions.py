@@ -17,13 +17,13 @@ class TimeFunctions_Linux:
     def getElapsedDurationSinceThisTime(self, timestamp):
         """ Is not concerned with pastTime. Returns elapsedDuration, currentTime """
         currentTime = time.time()
-        elapsedDuration = self.__raiseAndLogErrorIfSignificantNegativeDuration(currentTime, timestamp)        
+        elapsedDuration = self.__calculateTotalDuration_ignoreIfSignificantNegativeDuration(currentTime, timestamp)        
         return elapsedDuration, currentTime
     
     def getElapsedDuration(self):
         """ Does not update pastTime. Returns elapsedDuration, currentTime """
         currentTime = time.time()
-        elapsedDuration = self.__raiseAndLogErrorIfSignificantNegativeDuration(currentTime, self.pastTime)
+        elapsedDuration = self.__calculateTotalDuration_ignoreIfSignificantNegativeDuration(currentTime, self.pastTime)
         return elapsedDuration, currentTime
     
     def getElapsedDurationSinceTheLastCheck(self):
@@ -44,16 +44,16 @@ class TimeFunctions_Linux:
     def getTimeFormattedAsHM(self, timestamp):#time formatted as Hours Minutes
         return time.strftime("%Hh %Mm", time.gmtime(timestamp))      
     
-    def __raiseAndLogErrorIfSignificantNegativeDuration(self, currentTime, pastTime):  
+    def __calculateTotalDuration_ignoreIfSignificantNegativeDuration(self, currentTime, pastTime):  
         """ returns abs(duration) if the difference in current and past time is very small. Such a negative value can occur due to system delays (like querying for screen lock), but it helps to check if there's a bug """
-        duration = currentTime - pastTime #elapsed duration
+        duration = currentTime - pastTime #elapsed total duration
         if duration < 0:#this should be logged even if an error isn't thrown (to be able to investigate the cause)
             callstack = ''.join(traceback.format_stack())
             errorMessage = f"Elapsed duration {duration} is negative. Past time {pastTime} cannot be higher than current time {currentTime}. Call Stack {callstack}."
             logging.error(errorMessage)
-            if abs(duration) > self.MAX_TOLERABLE_NEGATIVE_ELAPSED_TIME:
+            if abs(duration) > self.MAX_TOLERABLE_NEGATIVE_ELAPSED_TIME:#value in seconds
                 self.pastTime = currentTime
-                duration = 0
+                duration = 0 #TODO: basically ignoring the negative time since it indicates a system time error, but this needs to be considered an anomaly state and processed differently in reality
                 #raise ValueError(errorMessage)  #no need of crashing
             else:#the difference in time is too small, so ignore the negative time
                 duration = abs(duration)
@@ -71,7 +71,7 @@ class TimeFunctions_Linux:
 class TimeElapseChecker_Linux:
     def __init__(self, maxDuration_seconds) -> None:
         self.DURATION = maxDuration_seconds
-        self.timeFunc = TimeFunctions_Linux()
+        self.timeFunc = TimeFunctions_Linux() #the time this is instantiated is noted internally and the duration is calculated based on this time
 
     def didDurationElapse(self):
         elapsed = False

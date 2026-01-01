@@ -87,9 +87,12 @@ class CinnamonScreenLockCheck(ScreenLockChecker):#The Cinnamon desktop used in M
                 if screenNotLocked in receivedOutput:
                     self.locked = False
                 else:
-                    callstack = "".join(traceback.format_stack())
-                    logging.error(f"SCREENSAVER OUTPUT UNKNOWN. CHECK AND REPROGRAM: {receivedOutput}. Stacktrace {callstack}")  
-                    raise Exception("The command to check if the screensaver is active or not seems to have changed. Please check it and reprogram iRest.")
+                    if "Error:org.freedesktop.DBus.Error.NoReply: Message recipient disconnected from message bus without replying" in receivedOutput:#A known perplexing error that probably happens when DBus is busy so ignore for now
+                        logging.warning(f"Received {receivedOutput} when trying to check if cinnamon screensaver is active.")
+                    else:
+                        callstack = "".join(traceback.format_stack())
+                        logging.error(f"SCREENSAVER OUTPUT UNKNOWN. CHECK AND REPROGRAM. This is the received output: {receivedOutput}. Stacktrace: {callstack}")  
+                        raise Exception("The command to check if the screensaver is active or not seems to have changed. Please check it and reprogram iRest.")
             logging.debug(f"SCREEN LOCKED status: {self.locked}")        
         return self.locked
     

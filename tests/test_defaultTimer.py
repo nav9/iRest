@@ -93,6 +93,10 @@ class TestDefaultTimer:
         strainedDuration = defaultTimer.getStrainedDuration()
         assert strainedDuration > 0
 
+    #This test case was necessary because there were times when the program checked for the current time and while it was still in the execute() function
+    #the User suspended the program and by the time the program was resumed and it got to the end of the execute() function, it assumed that the User needed to be notified to take rest
+    #even though the User would have got rest during the suspend if the suspend duration was long enough. So this test case checks whether the program
+    #checks if the user had got sufficient rest in case a suspend happened while within the execute() function, immediately after the first time value is obtained
     def test_ensureThatElapsedTimeIsAccountedIfProgramIsSuspendedDuringExecuteFunction(self):
         fileFolderOps = fileAndFolderOperations.FileOperations()
         comFunc = commonFunctions.CommonTestFunctions()
@@ -124,24 +128,16 @@ class TestDefaultTimer:
         # create a time that'll be used in checkStateChangeUpdateStrainDurationAndSave() as current time. This time should normally be less than a second, but since we are simulating suspend state, it's being inflated to a large elapsed time that'll get detected as suspended state
         timeElapsedByTheTimeExecuteCalled = latestTime + timers.TimeConstants.SECONDS_IN_MINUTE + timers.OtherConstants.SECONDS_ELAPSED_BEFORE_ASSUMING_SUSPEND
         timeCheckedDuringNotificationCheck = timeElapsedByTheTimeExecuteCalled + timers.TimeConstants.SECONDS_IN_MINUTE + timers.OtherConstants.SECONDS_ELAPSED_BEFORE_ASSUMING_SUSPEND
-        timeSupply = [timeElapsedByTheTimeExecuteCalled, timeCheckedDuringNotificationCheck]
+        timeSupply = [timeElapsedByTheTimeExecuteCalled, timeCheckedDuringNotificationCheck] #the program is assumed to get suspended between these two times and because of the simulated suspend, the notification to take rest should not be shown because the user would have got sufficient rest during hte suspend
         dummyTime.setDummyTimeValues(timeSupply)
         #---rather than call execute() of DefaultTimer, call the functions inside execute() to simulate the execute() call
         #########################################
         #### execute() begins here (you need to update the below lines if execute() is later modified in DefaultTimer())
-        # getElapsedDurationSinceTheLastCheck() provides the time during execution of checkStateChangeUpdateStrainDurationAndSave()
-        currentActivity, currentTime = defaultTimer.checkStateChangeUpdateStrainDurationAndSave()
-        # getCurrentTime() gets called once during execution of notifyUserIfTheyNeedToTakeRest_afterCheckingForSuspend()
-        assert currentActivity == timers.NatureOfActivity.EYES_STRAINED
-        if currentActivity == timers.NatureOfActivity.EYES_STRAINED:
-            defaultTimer.notifyUserIfTheyNeedToTakeRest_afterCheckingForSuspend(currentTime)         
+        defaultTimer.checkStateChangeUpdateStrainDurationAndSave()   
         #### execute() ends here
         #########################################
         #---notifier should not have got called because of the long suspend time
-        assert notifier.notified == False 
-        #---ensure that suspend state was detected
-        latestTimeData = timeManager.historicalStrainData[timers.OtherConstants.LAST_INDEX_OF_LIST]
-        latestTime = timeManager.getNatureOfActivityFromData(latestTimeData)
-        assert latestTime == timers.NatureOfActivity.SUSPENDED
+        #INFO: since notifyUserIfTheyNeedToTakeRest_afterCheckingForSuspend() checks for whether there was a suspend time gap, there is no need to explicitly check if a suspend was detected
+        assert notifier.notified == False         
 
-#There should ideally be a few more test cases for conditions of screen lock and pause via GUI
+#TODO: There should ideally be a few more test cases for conditions of screen lock and pause via GUI

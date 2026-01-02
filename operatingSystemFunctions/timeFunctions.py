@@ -66,7 +66,7 @@ class TimeFunctions_Linux:
         if hour >= 19 or hour <= 6:#time between 7pm and 6am
             night = True
         return night
-            
+
 """ Used to periodically check whether a certain amount of time has elapsed"""
 class TimeElapseChecker_Linux:
     def __init__(self, maxDuration_seconds) -> None:

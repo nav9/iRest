@@ -48,8 +48,19 @@ class DummyTimeFunctions:
     def getTimeFormattedAsHMS(self, time):
         return None
 
+    def getTimeFormattedAsHM(self, time):
+        return None
+
 class DummyTimeElapseChecker:
-    pass
+    def __init__(self, duration, dummyTimeFunctions):
+        self.duration = duration
+        self.dummyTimeFunctions = dummyTimeFunctions
+
+    def didDurationElapse(self):
+        elapsed = True
+        elapsedDuration = self.duration #could add some extra time here if necessary
+        currentTime = self.dummyTimeFunctions.getCurrentTime()
+        return elapsed, elapsedDuration, currentTime 
 
 class DummyWarmthApp:
     pass
@@ -63,7 +74,7 @@ class DummyOperatingSystemAdapter:
         self.timeFunctions = timeFunctionsRef
 
     def getTimeElapseCheckerInstanceForThisDuration(self, duration):
-        return DummyTimeElapseChecker()
+        return DummyTimeElapseChecker(duration, self.timeFunctions)
 
     def getTimeFunctionsApp(self):
         return self.timeFunctions

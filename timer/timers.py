@@ -76,6 +76,7 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
         requiredDurationElapsed, elapsedTime, currentTime = self.stateChangeCheckInterval.didDurationElapse()
         if not requiredDurationElapsed:#do the various expensive operations only if sleep duration elapsed
             return
+
         #---get current activity state
         currentActivity = NatureOfActivity.EYES_STRAINED                
         if self.userPausedTimerViaGUI:#if the user paused the timer via the GUI TODO: this should eventually work even if there's no GUI
@@ -220,7 +221,7 @@ class DefaultTimer(RestTimers):#Checks for how much time elapsed and notifies th
                 toggleState = notifier.toggleNotifierActiveState()
         return toggleState
         
-    def notifyUserIfTheyNeedToTakeRest_afterCheckingForSuspend(self, currentTime):#TODO: Program this to be called only when necessary. Right now it gets called too often
+    def notifyUserIfTheyNeedToTakeRest_afterCheckingForSuspend(self, currentTime):
         logging.debug(f"-----> Current strained time: {self.timeFunctions.getTimeFormattedAsHM(self.strainedDuration)}")
         #---check if strained duration is greater than the allowed strain and also ensure that the program wasn't suspended for as long as a User's rest need (because if the program was suspended that long, there's no need of notifying the user to rest)
         if self.strainedDuration > self.allowedStrainDuration and (self.timeFunctions.getCurrentTime() - currentTime) < self.REST_MINUTES * TimeConstants.SECONDS_IN_MINUTE:#means that the computer got suspended or iRest process got suspended while operations were being done, so this time can be considered as rest time: #notify the User to take rest
